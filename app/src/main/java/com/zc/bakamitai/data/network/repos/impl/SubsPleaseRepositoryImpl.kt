@@ -1,0 +1,16 @@
+package com.zc.bakamitai.data.network.repos.impl
+
+import com.zc.bakamitai.data.models.EntryResponse
+import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
+import com.zc.bakamitai.data.network.services.SubsPleaseService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import retrofit2.Response
+
+class SubsPleaseRepositoryImpl(val subsPleaseService: SubsPleaseService) : SubsPleaseRepository {
+    override suspend fun getLatest(): Response<HashMap<String, EntryResponse>> {
+        return withContext(Dispatchers.IO) {
+            subsPleaseService.getLatest()
+        }
+    }
+}
