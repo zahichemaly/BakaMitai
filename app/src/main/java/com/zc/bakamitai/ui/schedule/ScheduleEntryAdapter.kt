@@ -1,27 +1,26 @@
-package com.zc.bakamitai.ui.home
+package com.zc.bakamitai.ui.schedule
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.EntryDto
-import de.hdodenhof.circleimageview.CircleImageView
 
-class EntryAdapter(private val items: List<EntryDto>) : RecyclerView.Adapter<EntryAdapter.EntryViewHolder>() {
+class ScheduleEntryAdapter(private val items: List<EntryDto>) :
+    RecyclerView.Adapter<ScheduleEntryAdapter.EntryViewHolder>() {
 
     class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.tvName)
-        private val tvEpisode = itemView.findViewById<TextView>(R.id.tvEpisode)
-        private val tvDate = itemView.findViewById<TextView>(R.id.tvDate)
-        private val ivEntry = itemView.findViewById<CircleImageView>(R.id.ivEntry)
+        private val tvTime = itemView.findViewById<TextView>(R.id.tvTime)
+        private val ivEntry = itemView.findViewById<ImageView>(R.id.ivEntry)
 
         fun bindData(entryDto: EntryDto) {
             tvName.text = entryDto.name
-            tvEpisode.text = entryDto.episode
-            tvDate.text = entryDto.getFormattedDate()
+            tvTime.text = entryDto.time
             Glide.with(itemView)
                 .load(entryDto.imageUrl)
                 .into(ivEntry)
@@ -29,7 +28,7 @@ class EntryAdapter(private val items: List<EntryDto>) : RecyclerView.Adapter<Ent
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntryViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_entry, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_schedule_entry, parent, false)
         return EntryViewHolder(view)
     }
 

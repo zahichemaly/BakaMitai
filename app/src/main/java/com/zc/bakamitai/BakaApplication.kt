@@ -8,6 +8,7 @@ import com.zc.bakamitai.di.viewModelsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import timber.log.Timber
+import java.util.*
 
 class BakaApplication : Application() {
 

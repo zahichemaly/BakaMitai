@@ -11,11 +11,6 @@ import com.zc.bakamitai.extensions.setSuccess
 import com.zc.bakamitai.ui.base.BaseViewModel
 
 class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : BaseViewModel() {
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is home alone Fragment"
-    }
-    val text: LiveData<String> = _text
-
     private val _latestEntries = MutableLiveData<Resource<List<EntryDto>>>()
     val latestEntries: LiveData<Resource<List<EntryDto>>>
         get() = _latestEntries
@@ -26,7 +21,8 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : Ba
             val response = subsPleaseRepository.getLatest()
             if (response.isSuccessful && response.body() != null) {
                 val data = response.body()!!.map { it.value.toEntryDto() }
-                _latestEntries.setSuccess(data)
+                val ordered = data.sortedByDescending { it.getDate() }
+                _latestEntries.setSuccess(ordered)
             } else {
                 onError(response.message())
                 _latestEntries.setError(response)

@@ -1,11 +1,10 @@
 package com.zc.bakamitai.data.models
 
-import android.net.Uri
 import com.google.gson.annotations.SerializedName
 import com.zc.bakamitai.BakaApplication
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.EntryDto
-import com.zc.bakamitai.data.network.Api
+import com.zc.bakamitai.extensions.toImageUrl
 
 data class EntryResponse(
 
@@ -34,17 +33,13 @@ data class EntryResponse(
     val page: String
 ) {
     fun toEntryDto(): EntryDto {
-        val imageUrl = Uri.parse(Api.BASE_URL)
-            .buildUpon()
-            .appendEncodedPath(imageUrl)
-            .toString()
         val episode = BakaApplication.getContext().getString(R.string.episode, episode)
         return EntryDto(
             time = time,
             name = show,
             episode = episode,
-            imageUrl = imageUrl,
-            date = releaseDate
+            imageUrl = imageUrl.toImageUrl(),
+            date = releaseDate,
         )
     }
 }

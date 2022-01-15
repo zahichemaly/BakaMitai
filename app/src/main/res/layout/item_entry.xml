@@ -34,7 +34,7 @@
             android:maxLines="2"
             android:textColor="?attr/colorOnSecondary"
             android:textSize="@dimen/font_size_large"
-            tools:text="Detective Conan Detective Conan Detective Conan Detective Conan Detective Conan Detective Conan" />
+            tools:text="Detective Conan" />
 
         <TextView
             android:id="@+id/tvEpisode"
