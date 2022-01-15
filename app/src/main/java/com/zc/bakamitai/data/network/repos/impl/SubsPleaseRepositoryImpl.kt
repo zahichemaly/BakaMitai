@@ -2,6 +2,7 @@ package com.zc.bakamitai.data.network.repos.impl
 
 import com.zc.bakamitai.data.models.EntryResponse
 import com.zc.bakamitai.data.models.ScheduleResponse
+import com.zc.bakamitai.data.models.TodayScheduleResponse
 import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
 import com.zc.bakamitai.data.network.services.SubsPleaseService
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,12 @@ class SubsPleaseRepositoryImpl(val subsPleaseService: SubsPleaseService) : SubsP
     override suspend fun getSchedule(): Response<ScheduleResponse> {
         return withContext(Dispatchers.IO) {
             subsPleaseService.getSchedule()
+        }
+    }
+
+    override suspend fun getTodaySchedule(): Response<TodayScheduleResponse> {
+        return withContext(Dispatchers.IO) {
+            subsPleaseService.getTodaySchedule()
         }
     }
 }

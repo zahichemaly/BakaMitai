@@ -39,7 +39,10 @@ data class ScheduleItem(
     val time: String,
 
     @field:SerializedName("title")
-    val title: String
+    val title: String,
+
+    @field:SerializedName("aired")
+    val aired: Boolean
 ) {
 
     fun toEntryDto(): EntryDto {
