@@ -10,7 +10,9 @@ import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.EntryDto
 import de.hdodenhof.circleimageview.CircleImageView
 
-class EntryAdapter(private val items: List<EntryDto>) : RecyclerView.Adapter<EntryAdapter.EntryViewHolder>() {
+class EntryAdapter : RecyclerView.Adapter<EntryAdapter.EntryViewHolder>() {
+
+    private val items: MutableList<EntryDto> = mutableListOf()
 
     class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.tvName)
@@ -36,6 +38,12 @@ class EntryAdapter(private val items: List<EntryDto>) : RecyclerView.Adapter<Ent
     override fun onBindViewHolder(holder: EntryViewHolder, position: Int) {
         val data = items[position]
         holder.bindData(data)
+    }
+
+    fun addItems(items: List<EntryDto>) {
+        this.items.clear()
+        this.items.addAll(items)
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int = items.size

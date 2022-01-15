@@ -5,4 +5,5 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_schedule">Schedule</string>
     <string name="episode">Episode %s</string>
+    <string name="loading">Loading…</string>
 </resources>

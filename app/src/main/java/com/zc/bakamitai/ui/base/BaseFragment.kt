@@ -6,12 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import com.zc.bakamitai.ui.dialog.LoadingDialog
 
 abstract class BaseFragment<VBinding : ViewBinding, VM : BaseViewModel> : Fragment() {
-    protected var _binding: VBinding? = null
+    private var _binding: VBinding? = null
     protected val binding: VBinding by lazy { _binding!! }
     protected abstract val viewModel: VM
     protected abstract fun getViewBinding(): VBinding
+    protected val loadingDialog: LoadingDialog by lazy { LoadingDialog(requireContext()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = getViewBinding()

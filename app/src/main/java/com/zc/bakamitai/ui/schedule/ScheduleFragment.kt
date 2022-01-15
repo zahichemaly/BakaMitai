@@ -35,13 +35,15 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
             when (it) {
                 is Resource.Success -> {
                     Timber.d("Finished getting schedule")
+                    loadingDialog.hide()
                     adapter.addItems(it.data!!)
                 }
                 is Resource.Error -> {
-
+                    Timber.e("Error getting schedule")
+                    loadingDialog.hide()
                 }
                 is Resource.Loading -> {
-
+                    loadingDialog.show()
                 }
             }
         }

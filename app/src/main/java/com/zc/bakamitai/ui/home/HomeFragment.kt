@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.bakamitai.data.models.Resource
-import com.zc.bakamitai.data.models.dtos.EntryDto
 import com.zc.bakamitai.databinding.FragmentHomeBinding
 import com.zc.bakamitai.ui.base.BaseFragment
 import org.koin.android.ext.android.inject
@@ -20,18 +19,27 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
         viewModel.getLatest()
     }
 
+    override fun setupView() {
+        adapter = EntryAdapter()
+        val layoutManager = LinearLayoutManager(requireContext())
+        binding.rvEntries.layoutManager = layoutManager
+        binding.rvEntries.adapter = adapter
+    }
+
     override fun manageSubscriptions() {
         viewModel.latestEntries.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
                     Timber.d("Finished getting latest entries")
-                    setupAdapter(it.data!!)
+                    loadingDialog.hide()
+                    adapter.addItems(it.data!!)
                 }
                 is Resource.Error -> {
-
+                    Timber.e("Error getting latest entries: ${it.errorResponse}")
+                    loadingDialog.hide()
                 }
                 is Resource.Loading -> {
-
+                    loadingDialog.show()
                 }
             }
         }
@@ -39,12 +47,5 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
         viewModel.errorMessage.observe(viewLifecycleOwner) {
             Timber.e(it)
         }
-    }
-
-    private fun setupAdapter(data: List<EntryDto>) {
-        adapter = EntryAdapter(data)
-        val layoutManager = LinearLayoutManager(requireContext())
-        binding.rvEntries.layoutManager = layoutManager
-        binding.rvEntries.adapter = adapter
     }
 }
