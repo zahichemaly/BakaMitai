@@ -11,4 +11,9 @@
         android:icon="@drawable/ic_baseline_calendar_today_24"
         android:title="@string/title_schedule" />
 
+    <item
+        android:id="@+id/navigation_bookmarks"
+        android:icon="@drawable/ic_baseline_bookmarks_24"
+        android:title="@string/title_bookmarks" />
+
 </menu>

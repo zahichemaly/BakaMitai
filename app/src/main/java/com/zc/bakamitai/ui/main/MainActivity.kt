@@ -21,7 +21,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         val navController = navHostFragment.navController
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_schedule
+                R.id.navigation_home, R.id.navigation_schedule, R.id.navigation_bookmarks
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
