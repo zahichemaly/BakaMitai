@@ -4,6 +4,10 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_schedule">Schedule</string>
-    <string name="episode">Episode %s</string>
+    <string name="episode">Ep %s</string>
     <string name="loading">Loading…</string>
+    <string name="today">Today</string>
+    <string name="latest_releases">Latest Releases</string>
+    <string name="aired">Aired</string>
+    <string name="not_aired">Not Aired</string>
 </resources>

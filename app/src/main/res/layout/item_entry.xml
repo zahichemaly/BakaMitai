@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingStart="@dimen/spacing_normal"
     android:paddingTop="@dimen/spacing_small"
+    android:paddingEnd="@dimen/spacing_normal"
     android:paddingBottom="@dimen/spacing_small">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -11,18 +14,16 @@
         android:layout_width="@dimen/image_width_height_normal"
         android:layout_height="@dimen/image_width_height_normal"
         android:layout_centerVertical="true"
-        android:layout_marginStart="@dimen/spacing_small"
-        android:layout_marginTop="@dimen/spacing_small"
-        android:layout_marginEnd="@dimen/spacing_small"
-        android:layout_marginBottom="@dimen/spacing_small"
         tools:src="@mipmap/ic_launcher" />
 
     <LinearLayout
         android:id="@+id/llEntry"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/spacing_normal"
         android:layout_marginEnd="@dimen/spacing_small"
+        android:layout_toStartOf="@id/cardView"
         android:layout_toEndOf="@id/ivEntry"
         android:orientation="vertical">
 
@@ -35,17 +36,6 @@
             android:textColor="?attr/colorOnSecondary"
             android:textSize="@dimen/font_size_large"
             tools:text="Detective Conan" />
-
-        <TextView
-            android:id="@+id/tvEpisode"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/spacing_xsmall"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textColor="?attr/colorOnSecondary"
-            android:textSize="@dimen/font_size_normal"
-            tools:text="Episode 101" />
 
         <TextView
             android:id="@+id/tvDate"
@@ -65,5 +55,28 @@
         android:layout_alignParentBottom="true"
         android:background="@color/grey"
         android:visibility="gone" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="@dimen/card_ep_width"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        app:cardBackgroundColor="@color/grey_light"
+        app:cardCornerRadius="@dimen/card_radius">
+
+        <TextView
+            android:id="@+id/tvEpisode"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="@dimen/spacing_xsmall"
+            android:textAlignment="center"
+            android:textColor="?attr/colorOnSecondary"
+            android:textSize="@dimen/font_size_normal"
+            tools:text="Ep 13" />
+
+    </androidx.cardview.widget.CardView>
 
 </RelativeLayout>

@@ -15,6 +15,10 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : Ba
     val latestEntries: LiveData<Resource<List<EntryDto>>>
         get() = _latestEntries
 
+    private val _todayEntries = MutableLiveData<Resource<List<EntryDto>>>()
+    val todayEntries: LiveData<Resource<List<EntryDto>>>
+        get() = _todayEntries
+
     fun getLatest() {
         performNetworkCall {
             _latestEntries.setLoading()
@@ -26,6 +30,21 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : Ba
             } else {
                 onError(response.message())
                 _latestEntries.setError(response)
+            }
+        }
+    }
+
+    fun getTodaySchedule() {
+        performNetworkCall {
+            _todayEntries.setLoading()
+            val response = subsPleaseRepository.getTodaySchedule()
+            if (response.isSuccessful && response.body() != null) {
+                val data = response.body()!!.schedule.map { it.toEntryDto() }
+                val ordered = data.sortedByDescending { it.getDate() }
+                _todayEntries.setSuccess(ordered)
+            } else {
+                onError(response.message())
+                _todayEntries.setError(response)
             }
         }
     }

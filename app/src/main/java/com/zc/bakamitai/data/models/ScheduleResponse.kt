@@ -49,7 +49,8 @@ data class ScheduleItem(
         return EntryDto(
             time = time,
             name = title,
-            imageUrl = imageUrl.toImageUrl()
+            imageUrl = imageUrl.toImageUrl(),
+            aired = aired
         )
     }
 }
