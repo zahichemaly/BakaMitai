@@ -9,6 +9,7 @@ data class EntryDto(
     val name: String = "",
     val episode: String = "",
     val imageUrl: String = "",
+    val page: String = "",
     val aired: Boolean = false,
     private val date: String = "",
 ) {

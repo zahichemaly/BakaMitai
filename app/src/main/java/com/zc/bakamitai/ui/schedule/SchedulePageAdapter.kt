@@ -7,17 +7,18 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.ScheduleDto
+import com.zc.bakamitai.listeners.PageListener
 
-class SchedulePageAdapter : RecyclerView.Adapter<SchedulePageAdapter.ViewHolder>() {
+class SchedulePageAdapter(private val pageListener: PageListener) : RecyclerView.Adapter<SchedulePageAdapter.ViewHolder>() {
 
     private val items: MutableList<ScheduleDto> = mutableListOf()
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val rvEntries = itemView.findViewById<RecyclerView>(R.id.rvEntries)
 
         fun bindData(data: ScheduleDto) {
             val layoutManager = GridLayoutManager(itemView.context, 3)
-            val adapter = ScheduleEntryAdapter(data.entries)
+            val adapter = ScheduleEntryAdapter(data.entries, pageListener)
             rvEntries.layoutManager = layoutManager
             rvEntries.adapter = adapter
         }

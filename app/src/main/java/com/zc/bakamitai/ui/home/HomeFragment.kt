@@ -8,11 +8,11 @@ import com.zc.bakamitai.databinding.FragmentHomeBinding
 import com.zc.bakamitai.extensions.hide
 import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
+import com.zc.bakamitai.listeners.PageListener
 import com.zc.bakamitai.ui.base.BaseFragment
 import org.koin.android.ext.android.inject
-import timber.log.Timber
 
-class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
+class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageListener {
     override val viewModel: HomeViewModel by inject()
     override fun getViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
     private lateinit var entryAdapter: EntryAdapter
@@ -25,11 +25,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
     }
 
     override fun setupView() {
-        entryAdapter = EntryAdapter()
+        entryAdapter = EntryAdapter(this)
         binding.rvEntries.layoutManager = LinearLayoutManager(requireContext())
         binding.rvEntries.adapter = entryAdapter
 
-        entryGridAdapter = EntryGridAdapter()
+        entryGridAdapter = EntryGridAdapter(this)
         binding.rvEntriesToday.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.rvEntriesToday.adapter = entryGridAdapter
     }
@@ -38,13 +38,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
         viewModel.latestEntries.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
-                    Timber.d("Finished getting latest entries")
                     binding.pbEntries.hide()
                     binding.rvEntries.show()
                     entryAdapter.addItems(it.data!!)
                 }
                 is Resource.Error -> {
-                    Timber.e("Error getting latest entries: ${it.errorResponse}")
                     binding.pbEntries.invisible()
                 }
                 is Resource.Loading -> {
@@ -56,23 +54,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
         viewModel.todayEntries.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
-                    Timber.d("Finished getting today entries")
                     binding.pbEntriesToday.hide()
                     binding.rvEntriesToday.show()
                     entryGridAdapter.addItems(it.data!!)
                 }
                 is Resource.Error -> {
-                    Timber.e("Error getting today entries: ${it.errorResponse}")
                     binding.pbEntriesToday.invisible()
                 }
                 is Resource.Loading -> {
                     binding.pbEntriesToday.show()
                 }
             }
-        }
-
-        viewModel.errorMessage.observe(viewLifecycleOwner) {
-            Timber.e(it)
         }
     }
 }

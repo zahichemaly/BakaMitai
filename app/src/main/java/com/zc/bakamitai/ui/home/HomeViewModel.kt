@@ -9,6 +9,7 @@ import com.zc.bakamitai.extensions.setError
 import com.zc.bakamitai.extensions.setLoading
 import com.zc.bakamitai.extensions.setSuccess
 import com.zc.bakamitai.ui.base.BaseViewModel
+import timber.log.Timber
 
 class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : BaseViewModel() {
     private val _latestEntries = MutableLiveData<Resource<List<EntryDto>>>()
@@ -24,10 +25,12 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : Ba
             _latestEntries.setLoading()
             val response = subsPleaseRepository.getLatest()
             if (response.isSuccessful && response.body() != null) {
+                Timber.d("Finished getting latest entries")
                 val data = response.body()!!.map { it.value.toEntryDto() }
                 val ordered = data.sortedByDescending { it.getDate() }
                 _latestEntries.setSuccess(ordered)
             } else {
+                Timber.e("Error getting latest entries")
                 onError(response.message())
                 _latestEntries.setError(response)
             }
@@ -39,10 +42,12 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : Ba
             _todayEntries.setLoading()
             val response = subsPleaseRepository.getTodaySchedule()
             if (response.isSuccessful && response.body() != null) {
+                Timber.d("Finished getting today entries")
                 val data = response.body()!!.schedule.map { it.toEntryDto() }
                 val ordered = data.sortedByDescending { it.getDate() }
                 _todayEntries.setSuccess(ordered)
             } else {
+                Timber.e("Error getting today entries")
                 onError(response.message())
                 _todayEntries.setError(response)
             }

@@ -8,13 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.EntryDto
+import com.zc.bakamitai.listeners.PageListener
 import de.hdodenhof.circleimageview.CircleImageView
 
-class EntryAdapter : RecyclerView.Adapter<EntryAdapter.EntryViewHolder>() {
+class EntryAdapter(private val pageListener: PageListener) : RecyclerView.Adapter<EntryAdapter.EntryViewHolder>() {
 
     private val items: MutableList<EntryDto> = mutableListOf()
 
-    class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.tvName)
         private val tvEpisode = itemView.findViewById<TextView>(R.id.tvEpisode)
         private val tvDate = itemView.findViewById<TextView>(R.id.tvDate)
@@ -27,6 +28,9 @@ class EntryAdapter : RecyclerView.Adapter<EntryAdapter.EntryViewHolder>() {
             Glide.with(itemView)
                 .load(entryDto.imageUrl)
                 .into(ivEntry)
+            itemView.rootView.setOnClickListener {
+                pageListener.onPageClicked(entryDto.page)
+            }
         }
     }
 

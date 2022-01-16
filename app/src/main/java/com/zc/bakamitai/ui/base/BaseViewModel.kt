@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 open class BaseViewModel : ViewModel() {
     private val _loading = MutableLiveData<Boolean>()
@@ -27,6 +28,7 @@ open class BaseViewModel : ViewModel() {
         }
 
     protected fun onError(message: String) {
+        Timber.e("Error: $message")
         _errorMessage.value = message
         _loading.value = false
     }

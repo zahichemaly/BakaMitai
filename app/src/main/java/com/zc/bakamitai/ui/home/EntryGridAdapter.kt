@@ -10,12 +10,13 @@ import com.bumptech.glide.Glide
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.EntryDto
 import com.zc.bakamitai.extensions.setAiredText
+import com.zc.bakamitai.listeners.PageListener
 
-class EntryGridAdapter : RecyclerView.Adapter<EntryGridAdapter.EntryViewHolder>() {
+class EntryGridAdapter(private val pageListener: PageListener) : RecyclerView.Adapter<EntryGridAdapter.EntryViewHolder>() {
 
     private val items: MutableList<EntryDto> = mutableListOf()
 
-    class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.tvName)
         private val tvTime = itemView.findViewById<TextView>(R.id.tvTime)
         private val tvAired = itemView.findViewById<TextView>(R.id.tvAired)
@@ -28,6 +29,9 @@ class EntryGridAdapter : RecyclerView.Adapter<EntryGridAdapter.EntryViewHolder>(
             Glide.with(itemView)
                 .load(entryDto.imageUrl)
                 .into(ivEntry)
+            itemView.rootView.setOnClickListener {
+                pageListener.onPageClicked(entryDto.page)
+            }
         }
     }
 

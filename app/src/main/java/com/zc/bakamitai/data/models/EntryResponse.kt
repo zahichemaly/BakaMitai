@@ -40,6 +40,7 @@ data class EntryResponse(
             episode = episode,
             imageUrl = imageUrl.toImageUrl(),
             date = releaseDate,
+            page = page
         )
     }
 }

@@ -50,7 +50,8 @@ data class ScheduleItem(
             time = time,
             name = title,
             imageUrl = imageUrl.toImageUrl(),
-            aired = aired
+            aired = aired,
+            page = page
         )
     }
 }

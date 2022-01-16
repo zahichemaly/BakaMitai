@@ -7,6 +7,7 @@ import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
 import com.zc.bakamitai.data.network.services.SubsPleaseService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jsoup.nodes.Document
 import retrofit2.Response
 
 class SubsPleaseRepositoryImpl(val subsPleaseService: SubsPleaseService) : SubsPleaseRepository {
@@ -25,6 +26,12 @@ class SubsPleaseRepositoryImpl(val subsPleaseService: SubsPleaseService) : SubsP
     override suspend fun getTodaySchedule(): Response<TodayScheduleResponse> {
         return withContext(Dispatchers.IO) {
             subsPleaseService.getTodaySchedule()
+        }
+    }
+
+    override suspend fun getShowDetails(page: String): Response<Document> {
+        return withContext(Dispatchers.IO) {
+            subsPleaseService.getShowDetails(page)
         }
     }
 }

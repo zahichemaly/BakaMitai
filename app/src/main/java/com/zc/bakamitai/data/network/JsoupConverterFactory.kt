@@ -1,4 +1,4 @@
-package com.zc.bakamitai.data.network.adapters
+package com.zc.bakamitai.data.network
 
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
@@ -11,9 +11,11 @@ import java.nio.charset.Charset
 
 object JsoupConverterFactory : Converter.Factory() {
 
-    override fun responseBodyConverter(type: Type?,
-                                       annotations: Array<Annotation>?,
-                                       retrofit: Retrofit?): Converter<ResponseBody, *>? {
+    override fun responseBodyConverter(
+        type: Type?,
+        annotations: Array<Annotation>?,
+        retrofit: Retrofit?
+    ): Converter<ResponseBody, *>? {
         return when (type) {
             Document::class.java -> JsoupConverter(retrofit!!.baseUrl().toString())
             else -> null
@@ -30,7 +32,9 @@ object JsoupConverterFactory : Converter.Factory() {
                 else -> Parser.htmlParser()
             }
 
-            return Jsoup.parse(value?.byteStream(), charset.name(), baseUri, parser)
+            return value?.byteStream()?.run {
+                Jsoup.parse(this, charset.name(), baseUri, parser)
+            }
         }
     }
 }

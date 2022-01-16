@@ -1,5 +1,6 @@
 package com.zc.bakamitai.data.network
 
+import com.google.gson.GsonBuilder
 import com.zc.bakamitai.data.network.interceptors.ParamInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -17,15 +18,20 @@ object Api {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    private val gson = GsonBuilder()
+        .setLenient()
+        .create()
+
     private val okHttpClient = OkHttpClient().newBuilder()
         .addInterceptor(loggingInterceptor)
         .addInterceptor(ParamInterceptor())
         .build()
 
-    var retrofit = Retrofit.Builder()
+    var retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(JsoupConverterFactory)
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
 }

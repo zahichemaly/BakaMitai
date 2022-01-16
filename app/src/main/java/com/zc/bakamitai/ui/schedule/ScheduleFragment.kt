@@ -7,7 +7,6 @@ import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentScheduleBinding
 import com.zc.bakamitai.ui.base.BaseFragment
 import org.koin.android.ext.android.inject
-import timber.log.Timber
 
 class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel>() {
     override val viewModel: ScheduleViewModel by inject()
@@ -20,7 +19,7 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
     }
 
     override fun setupView() {
-        adapter = SchedulePageAdapter()
+        adapter = SchedulePageAdapter(this)
         binding.viewPager.adapter = adapter
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             val item = adapter.getItem(position)
@@ -34,12 +33,10 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
         viewModel.schedule.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
-                    Timber.d("Finished getting schedule")
                     loadingDialog.hide()
                     adapter.addItems(it.data!!)
                 }
                 is Resource.Error -> {
-                    Timber.e("Error getting schedule")
                     loadingDialog.hide()
                 }
                 is Resource.Loading -> {

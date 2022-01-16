@@ -9,11 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.EntryDto
+import com.zc.bakamitai.listeners.PageListener
 
-class ScheduleEntryAdapter(private val items: List<EntryDto>) :
+class ScheduleEntryAdapter(
+    private val items: List<EntryDto>,
+    private val pageListener: PageListener
+) :
     RecyclerView.Adapter<ScheduleEntryAdapter.EntryViewHolder>() {
 
-    class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.tvName)
         private val tvTime = itemView.findViewById<TextView>(R.id.tvTime)
         private val ivEntry = itemView.findViewById<ImageView>(R.id.ivEntry)
@@ -24,6 +28,9 @@ class ScheduleEntryAdapter(private val items: List<EntryDto>) :
             Glide.with(itemView)
                 .load(entryDto.imageUrl)
                 .into(ivEntry)
+            itemView.rootView.setOnClickListener {
+                pageListener.onPageClicked(entryDto.page)
+            }
         }
     }
 

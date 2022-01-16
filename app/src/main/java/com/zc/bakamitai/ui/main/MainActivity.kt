@@ -11,7 +11,7 @@ import com.zc.bakamitai.databinding.ActivityMainBinding
 import com.zc.bakamitai.ui.base.BaseActivity
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
-    override fun getViewBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+    override fun getViewBinding() = ActivityMainBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

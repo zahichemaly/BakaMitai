@@ -9,6 +9,7 @@ import com.zc.bakamitai.extensions.setError
 import com.zc.bakamitai.extensions.setLoading
 import com.zc.bakamitai.extensions.setSuccess
 import com.zc.bakamitai.ui.base.BaseViewModel
+import timber.log.Timber
 
 class ScheduleViewModel(private val subsPleaseRepository: SubsPleaseRepository) : BaseViewModel() {
     private val _schedule = MutableLiveData<Resource<List<ScheduleDto>>>()
@@ -20,9 +21,11 @@ class ScheduleViewModel(private val subsPleaseRepository: SubsPleaseRepository) 
             _schedule.setLoading()
             val response = subsPleaseRepository.getSchedule()
             if (response.isSuccessful && response.body() != null) {
+                Timber.d("Finished getting schedule")
                 val data = response.body()!!.toScheduleDtoList()
                 _schedule.setSuccess(data)
             } else {
+                Timber.e("Error getting schedule")
                 onError(response.message())
                 _schedule.setError(response)
             }

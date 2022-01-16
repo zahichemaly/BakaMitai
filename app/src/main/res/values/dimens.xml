@@ -5,13 +5,17 @@
     <dimen name="image_width_height_normal">65dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
     <dimen name="spacing_xsmall">6dp</dimen>
+    <dimen name="spacing_large">22dp</dimen>
     <dimen name="spacing_normal">16dp</dimen>
     <dimen name="font_size_large">16sp</dimen>
     <dimen name="font_size_xlarge">18sp</dimen>
+    <dimen name="font_size_xxlarge">22sp</dimen>
     <dimen name="font_size_normal">14sp</dimen>
     <dimen name="card_radius">10dp</dimen>
     <dimen name="card_ep_width">75dp</dimen>
     <dimen name="card_grid_height">250dp</dimen>
     <dimen name="card_grid_width">175dp</dimen>
     <dimen name="image_card_grid_height">150dp</dimen>
+    <dimen name="card_details_width">250dp</dimen>
+    <dimen name="card_details_height">350dp</dimen>
 </resources>
