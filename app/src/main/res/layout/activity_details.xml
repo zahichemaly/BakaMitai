@@ -12,8 +12,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/spacing_normal"
-        android:gravity="center">
+        android:gravity="center"
+        android:padding="@dimen/spacing_normal">
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -49,11 +49,36 @@
 
             </androidx.cardview.widget.CardView>
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/spacing_normal">
+
+                <ImageButton
+                    android:id="@+id/ivBookmark"
+                    android:layout_width="@dimen/action_button_width_height"
+                    android:layout_height="@dimen/action_button_width_height"
+                    android:layout_marginEnd="@dimen/spacing_large"
+                    android:background="@drawable/ic_bookmark_empty"
+                    android:baselineAligned="false"
+                    android:checked="false"
+                    android:contentDescription="@string/bookmark" />
+
+                <ImageButton
+                    android:id="@+id/ibDownload"
+                    android:layout_width="@dimen/action_button_width_height"
+                    android:layout_height="@dimen/action_button_width_height"
+                    android:background="@drawable/ic_download"
+                    android:checked="false"
+                    android:contentDescription="@string/download" />
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tvName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_normal"
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:textAlignment="center"

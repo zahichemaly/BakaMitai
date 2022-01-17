@@ -5,25 +5,18 @@ import com.zc.bakamitai.extensions.toDateTime
 import java.util.*
 
 data class EntryDto(
-    val time: String = "",
+    val page: String = "",
     val name: String = "",
     val episode: String = "",
+    val time: String = "",
+    val date: String = "",
     val imageUrl: String = "",
-    val page: String = "",
     val aired: Boolean = false,
-    private val date: String = "",
 ) {
-    private var _date: Date? = null
-
-    init {
-        if (date.isNotEmpty()) {
-            _date = date.toDateTime()
-        }
-    }
 
     fun getFormattedDate(): String {
-        return _date?.formatToDay() ?: date
+        return getDateTime()?.formatToDay() ?: date
     }
 
-    fun getDate(): Date? = _date
+    fun getDateTime(): Date? = date.toDateTime()
 }

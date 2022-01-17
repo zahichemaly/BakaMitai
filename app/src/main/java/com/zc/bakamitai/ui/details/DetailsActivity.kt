@@ -1,7 +1,9 @@
 package com.zc.bakamitai.ui.details
 
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.data.models.dtos.ShowDetailsDto
 import com.zc.bakamitai.databinding.ActivityDetailsBinding
@@ -14,11 +16,12 @@ import org.koin.android.ext.android.inject
 class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
     override fun getViewBinding() = ActivityDetailsBinding.inflate(layoutInflater)
     private val detailsViewModel: DetailsViewModel by inject()
+    private lateinit var page: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         hideActionBar()
         super.onCreate(savedInstanceState)
-        val page = intent.getStringExtra(PAGE)!!
+        page = intent.getStringExtra(PAGE)!!
         detailsViewModel.getShowDetails(page)
     }
 
@@ -38,6 +41,17 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
                 }
             }
         }
+        detailsViewModel.isBookmarked.observe(this) {
+            val bg = if (it) ContextCompat.getDrawable(this, R.drawable.ic_bookmark_filled)
+            else ContextCompat.getDrawable(this, R.drawable.ic_bookmark_empty)
+            binding.ivBookmark.background = bg
+        }
+    }
+
+    override fun manageListeners() {
+        binding.ivBookmark.setOnClickListener {
+            detailsViewModel.saveOrRemoveBookmark()
+        }
     }
 
     private fun bindData(showDetailsDto: ShowDetailsDto) {
@@ -46,6 +60,7 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
         Glide.with(this)
             .load(showDetailsDto.image)
             .into(binding.ivEntry)
+        detailsViewModel.setIsBookmarked(showDetailsDto.sid!!)
     }
 
     companion object {

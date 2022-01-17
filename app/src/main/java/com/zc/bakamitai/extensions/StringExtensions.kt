@@ -13,6 +13,10 @@ import java.util.*
  */
 fun String.toDate(format: String): Date? {
     val sdf = SimpleDateFormat(format, locale)
+    if (isEmpty()) {
+        Timber.e("Date string is empty")
+        return null
+    }
     return try {
         sdf.parse(this)
     } catch (ex: ParseException) {

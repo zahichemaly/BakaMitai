@@ -27,7 +27,7 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : Ba
             if (response.isSuccessful && response.body() != null) {
                 Timber.d("Finished getting latest entries")
                 val data = response.body()!!.map { it.value.toEntryDto() }
-                val ordered = data.sortedByDescending { it.getDate() }
+                val ordered = data.sortedByDescending { it.getDateTime() }
                 _latestEntries.setSuccess(ordered)
             } else {
                 Timber.e("Error getting latest entries")
@@ -44,7 +44,7 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : Ba
             if (response.isSuccessful && response.body() != null) {
                 Timber.d("Finished getting today entries")
                 val data = response.body()!!.schedule.map { it.toEntryDto() }
-                val ordered = data.sortedByDescending { it.getDate() }
+                val ordered = data.sortedByDescending { it.getDateTime() }
                 _todayEntries.setSuccess(ordered)
             } else {
                 Timber.e("Error getting today entries")
