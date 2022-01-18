@@ -14,6 +14,8 @@ class BookmarksViewModel(private val bookmarksRepository: BookmarksRepository) :
     val bookmarks: LiveData<List<Bookmark>>
         get() = _bookmarks
 
+    val deletedBookmark = bookmarksRepository.getDeletedBookmark()
+
     fun getBookmarks() {
         viewModelScope.launch(Dispatchers.IO) {
             _bookmarks.postValue(bookmarksRepository.getBookmarks())

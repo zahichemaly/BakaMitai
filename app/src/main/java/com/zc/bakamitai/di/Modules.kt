@@ -28,7 +28,7 @@ val reposModule = module {
             .build()
     }
     factory { get<AppDatabase>().bookmarkDao() }
-    factory<BookmarksRepository> { BookmarksRepositoryImpl(get()) }
+    single<BookmarksRepository> { BookmarksRepositoryImpl(get()) }
 }
 
 val viewModelsModule = module {

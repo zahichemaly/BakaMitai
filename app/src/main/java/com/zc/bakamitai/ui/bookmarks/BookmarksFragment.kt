@@ -27,5 +27,10 @@ class BookmarksFragment : BaseFragment<FragmentBookmarksBinding, BookmarksViewMo
         viewModel.bookmarks.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) bookmarkAdapter.addItems(it)
         }
+        viewModel.deletedBookmark.observe(viewLifecycleOwner) { id ->
+            if (!id.isNullOrEmpty()) {
+                viewModel.getBookmarks()
+            }
+        }
     }
 }
