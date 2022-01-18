@@ -15,6 +15,9 @@
         android:theme="@style/Theme.BakaMitai"
         tools:ignore="AllowBackup">
         <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.details.DetailsActivity"
             android:exported="false" />
         <activity

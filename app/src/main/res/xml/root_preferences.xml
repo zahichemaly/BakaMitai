@@ -1,0 +1,43 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/preferences">
+
+        <ListPreference
+            android:icon="@drawable/ic_calendar"
+            app:defaultValue="sunday"
+            app:entries="@array/calendar_entries"
+            app:entryValues="@array/calendar_values"
+            app:key="sunday"
+            app:title="@string/calendar_format"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:icon="@drawable/ic_time"
+            app:defaultValue="24_hour"
+            app:entries="@array/time_entries"
+            app:entryValues="@array/time_values"
+            app:key="24_hour"
+            app:title="@string/time_format"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/information">
+
+        <Preference
+            android:key="@string/version"
+            android:persistent="false"
+            android:summary="@string/version_no"
+            android:title="@string/version"
+            app:icon="@drawable/ic_info" />
+
+        <Preference
+            android:icon="@drawable/ic_github"
+            android:persistent="false"
+            android:summary="@string/author"
+            android:title="@string/about" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
