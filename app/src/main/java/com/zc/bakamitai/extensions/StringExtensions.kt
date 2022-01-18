@@ -30,10 +30,18 @@ fun String.toDate(format: String): Date? {
  */
 fun String.toDateTime(): Date? = toDate("EEE, d LLL yyyy HH:mm:sss Z")
 
-fun String.toDayOfWeekNumber(): Int {
+/**
+ * 15:00 ~> 3:00 PM.
+ */
+fun String.to12HourFormat(): String {
+    val date = toDate("HH:mm")
+    return date?.format("hh:mm aa") ?: this
+}
+
+fun String.toDayOfWeekNumber(startsMonday: Boolean): Int {
     val days = DateFormatSymbols().weekdays.toList()
     val exists = days.any { it.contentEquals(this, true) }
-    if (!exists) return 10
+    if (!exists) return 10 //for TBD shows, put them at the end
     val sdf = SimpleDateFormat("EEEE", locale)
     val date = try {
         sdf.parse(this)
@@ -43,7 +51,11 @@ fun String.toDayOfWeekNumber(): Int {
     }
     val calendar = Calendar.getInstance()
     calendar.time = date
-    return calendar.get(Calendar.DAY_OF_WEEK)
+    val dayOfWeekNumber = calendar.get(Calendar.DAY_OF_WEEK)
+    if (startsMonday && dayOfWeekNumber == Calendar.SUNDAY) {
+        return Calendar.SATURDAY + 1
+    }
+    return dayOfWeekNumber
 }
 
 /**

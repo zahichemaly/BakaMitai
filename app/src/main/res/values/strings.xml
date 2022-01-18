@@ -38,4 +38,8 @@
     <string name="version_no">1.0.0</string>
     <string name="about">About</string>
     <string name="author">github.com/zahichemaly</string>
+    <string name="key_calendar">key_calendar</string>
+    <string name="key_time_format">key_time_format</string>
+    <string name="key_about">key_about</string>
+    <string name="key_version">key_version</string>
 </resources>

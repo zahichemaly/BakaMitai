@@ -5,19 +5,19 @@
 
         <ListPreference
             android:icon="@drawable/ic_calendar"
-            app:defaultValue="sunday"
+            app:defaultValue="Sunday"
             app:entries="@array/calendar_entries"
             app:entryValues="@array/calendar_values"
-            app:key="sunday"
+            app:key="@string/key_calendar"
             app:title="@string/calendar_format"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
             android:icon="@drawable/ic_time"
-            app:defaultValue="24_hour"
+            app:defaultValue="TF_24"
             app:entries="@array/time_entries"
             app:entryValues="@array/time_values"
-            app:key="24_hour"
+            app:key="@string/key_time_format"
             app:title="@string/time_format"
             app:useSimpleSummaryProvider="true" />
 
@@ -30,10 +30,12 @@
             android:persistent="false"
             android:summary="@string/version_no"
             android:title="@string/version"
-            app:icon="@drawable/ic_info" />
+            app:icon="@drawable/ic_info"
+            app:key="@string/key_version" />
 
         <Preference
             android:icon="@drawable/ic_github"
+            android:key="@string/key_about"
             android:persistent="false"
             android:summary="@string/author"
             android:title="@string/about" />

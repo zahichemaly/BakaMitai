@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.zc.bakamitai.di.reposModule
 import com.zc.bakamitai.di.servicesModule
+import com.zc.bakamitai.di.utilsModule
 import com.zc.bakamitai.di.viewModelsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -29,7 +30,7 @@ class BakaApplication : Application() {
         startKoin {
             //androidLogger()
             androidContext(this@BakaApplication)
-            modules(servicesModule, reposModule, viewModelsModule)
+            modules(servicesModule, reposModule, viewModelsModule, utilsModule)
         }
     }
 }
