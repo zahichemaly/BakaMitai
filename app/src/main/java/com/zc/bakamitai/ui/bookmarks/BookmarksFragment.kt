@@ -5,10 +5,10 @@ import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import com.zc.bakamitai.databinding.FragmentBookmarksBinding
 import com.zc.bakamitai.ui.base.BaseFragment
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class BookmarksFragment : BaseFragment<FragmentBookmarksBinding, BookmarksViewModel>() {
-    override val viewModel: BookmarksViewModel by inject()
+    override val viewModel: BookmarksViewModel by viewModel()
     override fun getViewBinding() = FragmentBookmarksBinding.inflate(layoutInflater)
     private lateinit var bookmarkAdapter: BookmarkAdapter
 

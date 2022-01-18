@@ -10,10 +10,10 @@ import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.listeners.PageListener
 import com.zc.bakamitai.ui.base.BaseFragment
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageListener {
-    override val viewModel: HomeViewModel by inject()
+    override val viewModel: HomeViewModel by viewModel()
     override fun getViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
     private lateinit var entryAdapter: EntryAdapter
     private lateinit var entryGridAdapter: EntryGridAdapter

@@ -11,11 +11,11 @@ import com.zc.bakamitai.extensions.hide
 import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.ui.base.BaseActivity
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
     override fun getViewBinding() = ActivityDetailsBinding.inflate(layoutInflater)
-    private val detailsViewModel: DetailsViewModel by inject()
+    private val detailsViewModel: DetailsViewModel by viewModel()
     private lateinit var page: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
