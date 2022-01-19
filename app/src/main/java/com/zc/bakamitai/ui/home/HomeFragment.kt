@@ -1,5 +1,6 @@
 package com.zc.bakamitai.ui.home
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -9,14 +10,18 @@ import com.zc.bakamitai.extensions.hide
 import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.listeners.PageListener
+import com.zc.bakamitai.prefs.PreferenceUtil
 import com.zc.bakamitai.ui.base.BaseFragment
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageListener {
+class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageListener,
+    SharedPreferences.OnSharedPreferenceChangeListener {
     override val viewModel: HomeViewModel by viewModel()
     override fun getViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
     private lateinit var entryAdapter: EntryAdapter
     private lateinit var entryGridAdapter: EntryGridAdapter
+    private val preferenceUtil: PreferenceUtil by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -25,7 +30,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageLis
     }
 
     override fun setupView() {
-        entryAdapter = EntryAdapter(this)
+        entryAdapter = EntryAdapter(this, preferenceUtil)
         binding.rvEntries.layoutManager = LinearLayoutManager(requireContext())
         binding.rvEntries.adapter = entryAdapter
 
