@@ -1,7 +1,5 @@
 package com.zc.bakamitai.ui.bookmarks
 
-import android.os.Bundle
-import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import com.zc.bakamitai.databinding.FragmentBookmarksBinding
 import com.zc.bakamitai.ui.base.BaseFragment
@@ -11,11 +9,6 @@ class BookmarksFragment : BaseFragment<FragmentBookmarksBinding, BookmarksViewMo
     override val viewModel: BookmarksViewModel by viewModel()
     override fun getViewBinding() = FragmentBookmarksBinding.inflate(layoutInflater)
     private lateinit var bookmarkAdapter: BookmarkAdapter
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel.getBookmarks()
-    }
 
     override fun setupView() {
         bookmarkAdapter = BookmarkAdapter(this)
@@ -27,10 +20,10 @@ class BookmarksFragment : BaseFragment<FragmentBookmarksBinding, BookmarksViewMo
         viewModel.bookmarks.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) bookmarkAdapter.addItems(it)
         }
-        viewModel.deletedBookmark.observe(viewLifecycleOwner) { id ->
-            if (!id.isNullOrEmpty()) {
-                viewModel.getBookmarks()
-            }
-        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getBookmarks()
     }
 }

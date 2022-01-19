@@ -1,20 +1,21 @@
 package com.zc.bakamitai.data.network.repos.impl
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.zc.bakamitai.data.network.repos.BookmarksRepository
 import com.zc.bakamitai.data.room.daos.BookmarkDao
 import com.zc.bakamitai.data.room.entities.Bookmark
 
 class BookmarksRepositoryImpl(private val bookmarkDao: BookmarkDao) : BookmarksRepository {
-    private val _deletedBookmark = MutableLiveData<String>()
+    private val _bookmarks = mutableListOf<Bookmark>()
 
     override suspend fun getBookmarks(): List<Bookmark> {
-        return bookmarkDao.getAll()
+        if (_bookmarks.isEmpty()) {
+            _bookmarks.addAll(bookmarkDao.getAll())
+        }
+        return _bookmarks
     }
 
     override suspend fun getBookmark(page: String): Bookmark? {
-        return bookmarkDao.getById(page)
+        return _bookmarks.firstOrNull { it.page == page } ?: return bookmarkDao.getById(page)
     }
 
     override suspend fun isBookmarked(id: String): Boolean {
@@ -23,14 +24,12 @@ class BookmarksRepositoryImpl(private val bookmarkDao: BookmarkDao) : BookmarksR
 
     override suspend fun addBookmark(bookmark: Bookmark) {
         bookmarkDao.insert(bookmark)
+        _bookmarks.add(bookmark)
     }
 
     override suspend fun removeBookmark(id: String) {
         bookmarkDao.delete(id)
-        _deletedBookmark.postValue(id)
-    }
-
-    override fun getDeletedBookmark(): LiveData<String> {
-        return _deletedBookmark
+        val index = _bookmarks.indexOfFirst { it.id == id }
+        if (index > 0 && _bookmarks.isNotEmpty()) _bookmarks.removeAt(index)
     }
 }

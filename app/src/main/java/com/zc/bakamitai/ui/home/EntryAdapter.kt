@@ -13,8 +13,8 @@ import com.zc.bakamitai.prefs.PreferenceUtil
 import com.zc.bakamitai.prefs.TimeFormat
 import de.hdodenhof.circleimageview.CircleImageView
 
-class EntryAdapter(private val pageListener: PageListener, preferenceUtil: PreferenceUtil) : RecyclerView
-.Adapter<EntryAdapter.EntryViewHolder>() {
+class EntryAdapter(private val pageListener: PageListener, preferenceUtil: PreferenceUtil) :
+    RecyclerView.Adapter<EntryAdapter.EntryViewHolder>() {
 
     private val items: MutableList<EntryDto> = mutableListOf()
     private val is12HourFormat = preferenceUtil.getTimeFormat() == TimeFormat.TF_12
