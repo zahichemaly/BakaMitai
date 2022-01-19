@@ -7,13 +7,16 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.ScheduleDto
+import com.zc.bakamitai.extensions.toDayOfWeekNumber
 import com.zc.bakamitai.listeners.PageListener
+import com.zc.bakamitai.prefs.FirstDayOfWeek
 import com.zc.bakamitai.prefs.PreferenceUtil
 
 class SchedulePageAdapter(private val pageListener: PageListener, private val preferenceUtil: PreferenceUtil) :
     RecyclerView.Adapter<SchedulePageAdapter.ViewHolder>() {
 
     private val items: MutableList<ScheduleDto> = mutableListOf()
+    private val startsMonday = preferenceUtil.getFirstDayOfWeek() == FirstDayOfWeek.Monday
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val rvEntries = itemView.findViewById<RecyclerView>(R.id.rvEntries)
@@ -45,7 +48,8 @@ class SchedulePageAdapter(private val pageListener: PageListener, private val pr
 
     fun addItems(items: List<ScheduleDto>) {
         this.items.clear()
-        this.items.addAll(items)
+        val sorted = items.sortedBy { it.day.toDayOfWeekNumber(startsMonday) }
+        this.items.addAll(sorted)
         notifyDataSetChanged()
     }
 }
