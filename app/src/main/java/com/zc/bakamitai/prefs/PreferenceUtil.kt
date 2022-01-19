@@ -21,7 +21,7 @@ class PreferenceUtil(private val context: Context) {
     fun getTimeFormat() = TimeFormat.valueOf(getValue(R.string.key_time_format, R.array.time_values))
 }
 
-enum class FirstDayOfWeek() {
+enum class FirstDayOfWeek {
     Sunday, Monday
 }
 

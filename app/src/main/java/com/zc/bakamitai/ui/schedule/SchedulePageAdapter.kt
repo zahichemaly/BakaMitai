@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.ScheduleDto
 import com.zc.bakamitai.listeners.PageListener
+import com.zc.bakamitai.prefs.PreferenceUtil
 
-class SchedulePageAdapter(private val pageListener: PageListener) : RecyclerView.Adapter<SchedulePageAdapter.ViewHolder>() {
+class SchedulePageAdapter(private val pageListener: PageListener, private val preferenceUtil: PreferenceUtil) :
+    RecyclerView.Adapter<SchedulePageAdapter.ViewHolder>() {
 
     private val items: MutableList<ScheduleDto> = mutableListOf()
 
@@ -18,7 +20,8 @@ class SchedulePageAdapter(private val pageListener: PageListener) : RecyclerView
 
         fun bindData(data: ScheduleDto) {
             val layoutManager = GridLayoutManager(itemView.context, 3)
-            val adapter = ScheduleEntryAdapter(data.entries, pageListener)
+            val entries = data.entries.sortedBy { it.time }
+            val adapter = ScheduleEntryAdapter(entries, pageListener, preferenceUtil)
             rvEntries.layoutManager = layoutManager
             rvEntries.adapter = adapter
         }

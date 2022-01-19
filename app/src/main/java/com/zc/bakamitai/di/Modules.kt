@@ -34,8 +34,8 @@ val reposModule = module {
 
 val viewModelsModule = module {
     viewModel { DetailsViewModel(get(), get()) }
-    viewModel { HomeViewModel(get(), get()) }
-    viewModel { ScheduleViewModel(get(), get()) }
+    viewModel { HomeViewModel(get()) }
+    viewModel { ScheduleViewModel(get()) }
     viewModel { BookmarksViewModel(get()) }
 }
 

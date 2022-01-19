@@ -3,8 +3,6 @@ package com.zc.bakamitai.data.models
 import com.google.gson.annotations.SerializedName
 import com.zc.bakamitai.data.models.dtos.EntryDto
 import com.zc.bakamitai.data.models.dtos.ScheduleDto
-import com.zc.bakamitai.extensions.to12HourFormat
-import com.zc.bakamitai.extensions.toDayOfWeekNumber
 import com.zc.bakamitai.extensions.toImageUrl
 
 data class ScheduleResponse(
@@ -16,15 +14,15 @@ data class ScheduleResponse(
     val tz: String
 ) {
 
-    fun toScheduleDtoList(use12HourFormat: Boolean, startsMonday: Boolean): List<ScheduleDto> {
+    fun toScheduleDtoList(): List<ScheduleDto> {
         return schedule.map {
             ScheduleDto(
                 day = it.key,
                 entries = it.value
                     .sortedBy { item -> item.time }
-                    .map { item -> item.toEntryDto(use12HourFormat) }
+                    .map { item -> item.toEntryDto() }
             )
-        }.sortedBy { it.day.toDayOfWeekNumber(startsMonday) }
+        }
     }
 }
 
@@ -46,10 +44,9 @@ data class ScheduleItem(
     val aired: Boolean
 ) {
 
-    fun toEntryDto(use12HourFormat: Boolean): EntryDto {
-        val formattedTime = if (use12HourFormat) time.to12HourFormat() else time
+    fun toEntryDto(): EntryDto {
         return EntryDto(
-            time = formattedTime,
+            time = time,
             name = title,
             imageUrl = imageUrl.toImageUrl(),
             aired = aired,

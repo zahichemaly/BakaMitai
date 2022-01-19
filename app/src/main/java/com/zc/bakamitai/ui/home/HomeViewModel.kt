@@ -8,16 +8,10 @@ import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
 import com.zc.bakamitai.extensions.setError
 import com.zc.bakamitai.extensions.setLoading
 import com.zc.bakamitai.extensions.setSuccess
-import com.zc.bakamitai.prefs.PreferenceUtil
-import com.zc.bakamitai.prefs.TimeFormat
 import com.zc.bakamitai.ui.base.BaseViewModel
 import timber.log.Timber
 
-class HomeViewModel(
-    private val subsPleaseRepository: SubsPleaseRepository,
-    preferenceUtil: PreferenceUtil
-) :
-    BaseViewModel() {
+class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : BaseViewModel() {
     private val _latestEntries = MutableLiveData<Resource<List<EntryDto>>>()
     val latestEntries: LiveData<Resource<List<EntryDto>>>
         get() = _latestEntries
@@ -25,8 +19,6 @@ class HomeViewModel(
     private val _todayEntries = MutableLiveData<Resource<List<EntryDto>>>()
     val todayEntries: LiveData<Resource<List<EntryDto>>>
         get() = _todayEntries
-
-    private val is12HourFormat = preferenceUtil.getTimeFormat() == TimeFormat.TF_12
 
     fun getLatest() {
         performNetworkCall {
@@ -51,7 +43,7 @@ class HomeViewModel(
             val response = subsPleaseRepository.getTodaySchedule()
             if (response.isSuccessful && response.body() != null) {
                 Timber.d("Finished getting today entries")
-                val data = response.body()!!.schedule.map { it.toEntryDto(is12HourFormat) }
+                val data = response.body()!!.schedule.map { it.toEntryDto() }
                 val ordered = data.sortedByDescending { it.getDateTime() }
                 _todayEntries.setSuccess(ordered)
             } else {

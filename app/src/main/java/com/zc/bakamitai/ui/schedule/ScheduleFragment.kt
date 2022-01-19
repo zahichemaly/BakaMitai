@@ -5,13 +5,16 @@ import android.view.View
 import com.google.android.material.tabs.TabLayoutMediator
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentScheduleBinding
+import com.zc.bakamitai.prefs.PreferenceUtil
 import com.zc.bakamitai.ui.base.BaseFragment
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel>() {
     override val viewModel: ScheduleViewModel by viewModel()
     override fun getViewBinding() = FragmentScheduleBinding.inflate(layoutInflater)
     private lateinit var adapter: SchedulePageAdapter
+    private val preferenceUtil: PreferenceUtil by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -19,7 +22,7 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
     }
 
     override fun setupView() {
-        adapter = SchedulePageAdapter(this)
+        adapter = SchedulePageAdapter(this, preferenceUtil)
         binding.viewPager.adapter = adapter
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             val item = adapter.getItem(position)

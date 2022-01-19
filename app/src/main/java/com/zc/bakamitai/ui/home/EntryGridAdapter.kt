@@ -11,10 +11,14 @@ import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.EntryDto
 import com.zc.bakamitai.extensions.setAiredText
 import com.zc.bakamitai.listeners.PageListener
+import com.zc.bakamitai.prefs.PreferenceUtil
+import com.zc.bakamitai.prefs.TimeFormat
 
-class EntryGridAdapter(private val pageListener: PageListener) : RecyclerView.Adapter<EntryGridAdapter.EntryViewHolder>() {
+class EntryGridAdapter(private val pageListener: PageListener, preferenceUtil: PreferenceUtil) :
+    RecyclerView.Adapter<EntryGridAdapter.EntryViewHolder>() {
 
     private val items: MutableList<EntryDto> = mutableListOf()
+    private val is12HourFormat = preferenceUtil.getTimeFormat() == TimeFormat.TF_12
 
     inner class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.tvName)
@@ -24,7 +28,7 @@ class EntryGridAdapter(private val pageListener: PageListener) : RecyclerView.Ad
 
         fun bindData(entryDto: EntryDto) {
             tvName.text = entryDto.name
-            tvTime.text = entryDto.time
+            tvTime.text = entryDto.getFormattedTime(is12HourFormat)
             tvAired.setAiredText(entryDto.aired)
             Glide.with(itemView)
                 .load(entryDto.imageUrl)
