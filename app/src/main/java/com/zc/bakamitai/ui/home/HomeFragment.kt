@@ -9,7 +9,7 @@ import com.zc.bakamitai.extensions.hide
 import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.listeners.PageListener
-import com.zc.bakamitai.prefs.PreferenceUtil
+import com.zc.bakamitai.utils.PreferenceUtil
 import com.zc.bakamitai.ui.base.BaseFragment
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel

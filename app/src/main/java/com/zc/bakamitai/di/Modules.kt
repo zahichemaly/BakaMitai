@@ -8,7 +8,7 @@ import com.zc.bakamitai.data.network.repos.impl.BookmarksRepositoryImpl
 import com.zc.bakamitai.data.network.repos.impl.SubsPleaseRepositoryImpl
 import com.zc.bakamitai.data.network.services.SubsPleaseService
 import com.zc.bakamitai.data.room.AppDatabase
-import com.zc.bakamitai.prefs.PreferenceUtil
+import com.zc.bakamitai.utils.PreferenceUtil
 import com.zc.bakamitai.ui.bookmarks.BookmarksViewModel
 import com.zc.bakamitai.ui.details.DetailsViewModel
 import com.zc.bakamitai.ui.home.HomeViewModel

@@ -1,4 +1,4 @@
-package com.zc.bakamitai.prefs
+package com.zc.bakamitai.utils
 
 import android.content.Context
 import android.content.SharedPreferences
