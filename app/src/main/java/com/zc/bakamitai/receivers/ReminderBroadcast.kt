@@ -11,11 +11,13 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.zc.bakamitai.R
 import com.zc.bakamitai.ui.details.DetailsActivity
+import com.zc.bakamitai.utils.NotificationHelper
 
 class ReminderBroadcast : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
-        createNotification(context, 10, "Test", "Description")
+        val requestCode = intent?.getIntExtra(NotificationHelper.REQUEST_CODE, 0) ?: 0
+        createNotification(context, requestCode, "Test", "Description")
     }
 
     private fun createNotification(context: Context, id: Int, title: String, content: String) {
@@ -24,9 +26,11 @@ class ReminderBroadcast : BroadcastReceiver() {
         val intent = Intent(context, DetailsActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE
+        else 0
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, id, intent, flags)
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText(content)
@@ -46,17 +50,16 @@ class ReminderBroadcast : BroadcastReceiver() {
     private fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel =
-                NotificationChannel(CHANNEL_ID, context.getString(R.string.channel_name), importance).apply {
-                    description = context.getString(R.string.channel_description)
-                }
+            val channel = NotificationChannel(
+                NotificationHelper.CHANNEL_ID,
+                context.getString(R.string.channel_name),
+                importance
+            ).apply {
+                description = context.getString(R.string.channel_description)
+            }
             val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
-    }
-
-    companion object {
-        private const val CHANNEL_ID = "1000"
     }
 }
