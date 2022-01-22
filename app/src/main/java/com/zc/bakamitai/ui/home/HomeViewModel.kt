@@ -4,14 +4,21 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.data.models.dtos.EntryDto
+import com.zc.bakamitai.data.network.repos.ScheduleRepository
 import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
+import com.zc.bakamitai.data.room.entities.Schedule
 import com.zc.bakamitai.extensions.setError
 import com.zc.bakamitai.extensions.setLoading
 import com.zc.bakamitai.extensions.setSuccess
 import com.zc.bakamitai.ui.base.BaseViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : BaseViewModel() {
+class HomeViewModel(
+    private val subsPleaseRepository: SubsPleaseRepository,
+    private val scheduleRepository: ScheduleRepository
+) : BaseViewModel() {
     private val _latestEntries = MutableLiveData<Resource<List<EntryDto>>>()
     val latestEntries: LiveData<Resource<List<EntryDto>>>
         get() = _latestEntries
@@ -19,6 +26,12 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) : Ba
     private val _todayEntries = MutableLiveData<Resource<List<EntryDto>>>()
     val todayEntries: LiveData<Resource<List<EntryDto>>>
         get() = _todayEntries
+
+    suspend fun getSchedules(): LiveData<List<Schedule>> {
+        return withContext(Dispatchers.IO) {
+            scheduleRepository.getSchedules(false)
+        }
+    }
 
     fun getLatest() {
         performNetworkCall {

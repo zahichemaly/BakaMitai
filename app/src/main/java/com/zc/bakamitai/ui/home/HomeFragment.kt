@@ -2,6 +2,7 @@ package com.zc.bakamitai.ui.home
 
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentHomeBinding
@@ -9,10 +10,11 @@ import com.zc.bakamitai.extensions.hide
 import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.listeners.PageListener
-import com.zc.bakamitai.utils.PreferenceUtil
 import com.zc.bakamitai.ui.base.BaseFragment
+import com.zc.bakamitai.utils.PreferenceUtil
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageListener {
     override val viewModel: HomeViewModel by viewModel()
@@ -68,6 +70,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageLis
                 is Resource.Loading -> {
                     binding.pbEntriesToday.show()
                 }
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.getSchedules().observe(this@HomeFragment) {
+                val data = it
+                Timber.d(data.toString())
             }
         }
     }

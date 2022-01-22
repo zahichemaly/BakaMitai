@@ -44,7 +44,7 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
         detailsViewModel.isBookmarked.observe(this) {
             val bg = if (it) ContextCompat.getDrawable(this, R.drawable.ic_bookmark_filled)
             else ContextCompat.getDrawable(this, R.drawable.ic_bookmark_empty)
-            binding.ivBookmark.background = bg
+            binding.ivBookmark.setImageDrawable(bg)
         }
     }
 
