@@ -9,8 +9,8 @@ import com.bumptech.glide.Glide
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.EntryDto
 import com.zc.bakamitai.listeners.PageListener
-import com.zc.bakamitai.prefs.PreferenceUtil
-import com.zc.bakamitai.prefs.TimeFormat
+import com.zc.bakamitai.utils.PreferenceUtil
+import com.zc.bakamitai.utils.TimeFormat
 import de.hdodenhof.circleimageview.CircleImageView
 
 class EntryAdapter(private val pageListener: PageListener, preferenceUtil: PreferenceUtil) :

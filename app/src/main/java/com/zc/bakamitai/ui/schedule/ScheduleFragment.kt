@@ -5,7 +5,7 @@ import android.view.View
 import com.google.android.material.tabs.TabLayoutMediator
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentScheduleBinding
-import com.zc.bakamitai.prefs.PreferenceUtil
+import com.zc.bakamitai.utils.PreferenceUtil
 import com.zc.bakamitai.ui.base.BaseFragment
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel

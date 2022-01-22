@@ -9,8 +9,8 @@ import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.ScheduleDto
 import com.zc.bakamitai.extensions.toDayOfWeekNumber
 import com.zc.bakamitai.listeners.PageListener
-import com.zc.bakamitai.prefs.FirstDayOfWeek
-import com.zc.bakamitai.prefs.PreferenceUtil
+import com.zc.bakamitai.utils.FirstDayOfWeek
+import com.zc.bakamitai.utils.PreferenceUtil
 
 class SchedulePageAdapter(private val pageListener: PageListener, private val preferenceUtil: PreferenceUtil) :
     RecyclerView.Adapter<SchedulePageAdapter.ViewHolder>() {

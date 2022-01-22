@@ -42,4 +42,10 @@
     <string name="key_time_format">key_time_format</string>
     <string name="key_about">key_about</string>
     <string name="key_version">key_version</string>
+
+    <!-- Notifications-->
+    <string name="channel_name">Notifications</string>
+    <string name="channel_description">Notifications for bookmarked releases</string>
+    <string name="notif_title">New episode of %s is out!</string>
+    <string name="notif_content">Episode %s of %s has been released!</string>
 </resources>
