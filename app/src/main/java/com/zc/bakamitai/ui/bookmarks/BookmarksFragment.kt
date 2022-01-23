@@ -24,6 +24,7 @@ class BookmarksFragment : BaseFragment<FragmentBookmarksBinding, BookmarksViewMo
             else {
                 val data = it.data ?: listOf()
                 if (data.isEmpty()) {
+                    bookmarkAdapter.clearItems()
                     binding.loadingView.setMessage(getString(R.string.empty_bookmarks))
                 } else {
                     binding.loadingView.setSuccess()

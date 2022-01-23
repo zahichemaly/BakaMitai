@@ -1,5 +1,6 @@
 package com.zc.bakamitai.ui.bookmarks
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,9 +41,16 @@ class BookmarkAdapter(private val pageListener: PageListener) : RecyclerView.Ada
         holder.bindData(data)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun addItems(items: List<Bookmark>) {
         this.items.clear()
         this.items.addAll(items)
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun clearItems() {
+        this.items.clear()
         notifyDataSetChanged()
     }
 

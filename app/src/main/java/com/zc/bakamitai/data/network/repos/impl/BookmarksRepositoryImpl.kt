@@ -30,6 +30,6 @@ class BookmarksRepositoryImpl(private val bookmarkDao: BookmarkDao) : BookmarksR
     override suspend fun removeBookmark(id: String) {
         bookmarkDao.delete(id)
         val index = _bookmarks.indexOfFirst { it.id == id }
-        if (index > 0 && _bookmarks.isNotEmpty()) _bookmarks.removeAt(index)
+        if (index > -1 && _bookmarks.isNotEmpty()) _bookmarks.removeAt(index)
     }
 }
