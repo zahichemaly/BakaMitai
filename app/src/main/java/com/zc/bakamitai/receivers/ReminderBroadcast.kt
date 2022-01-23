@@ -17,7 +17,9 @@ class ReminderBroadcast : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         val requestCode = intent?.getIntExtra(NotificationHelper.REQUEST_CODE, 0) ?: 0
-        createNotification(context, requestCode, "Test", "Description")
+        val title = intent?.getStringExtra(NotificationHelper.TITLE) ?: context.getString(R.string.notif_title)
+        val content = intent?.getStringExtra(NotificationHelper.CONTENT) ?: ""
+        createNotification(context, requestCode, title, content)
     }
 
     private fun createNotification(context: Context, id: Int, title: String, content: String) {
@@ -26,8 +28,11 @@ class ReminderBroadcast : BroadcastReceiver() {
         val intent = Intent(context, DetailsActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE
-        else 0
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(context, id, intent, flags)
 
         val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)

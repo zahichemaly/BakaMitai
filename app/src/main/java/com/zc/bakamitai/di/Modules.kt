@@ -33,12 +33,12 @@ val reposModule = module {
     factory { get<AppDatabase>().bookmarkDao() }
     factory { get<AppDatabase>().scheduleDao() }
     single<BookmarksRepository> { BookmarksRepositoryImpl(get()) }
-    single<ScheduleRepository> { ScheduleRepositoryImpl(get(), get()) }
+    single<ScheduleRepository> { ScheduleRepositoryImpl(get(), get(), get()) }
 }
 
 val viewModelsModule = module {
-    viewModel { DetailsViewModel(get(), get()) }
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { DetailsViewModel(get(), get(), get()) }
+    viewModel { HomeViewModel(get()) }
     viewModel { ScheduleViewModel(get()) }
     viewModel { BookmarksViewModel(get()) }
 }

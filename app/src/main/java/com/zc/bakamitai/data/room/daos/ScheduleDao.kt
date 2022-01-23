@@ -11,18 +11,18 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedule")
     fun getAll(): List<Schedule>
 
-    @Query("SELECT * FROM schedule WHERE id = :id")
-    fun getById(id: String): Schedule?
+    @Query("SELECT * FROM schedule WHERE page = :page")
+    fun getByPage(page: String): Schedule?
 
-    @Query("SELECT * FROM schedule s INNER JOIN bookmark b ON s.id = b.page")
+    @Query("SELECT * FROM schedule s INNER JOIN bookmark b ON s.page = b.page")
     fun getFromBookmarks(): List<Schedule>
 
-    @Query("UPDATE schedule SET isScheduled = isScheduled")
-    fun markAllSchedule(isSchedule: Boolean): List<Schedule>
+    @Query("UPDATE schedule SET isScheduled = :isScheduled")
+    fun markAllSchedule(isScheduled: Boolean)
 
-    @Query("UPDATE schedule SET isScheduled = isScheduled WHERE id = id")
-    fun markSchedule(id: String, isSchedule: Boolean): List<Schedule>
+    @Query("UPDATE schedule SET isScheduled = :isScheduled WHERE page = :page")
+    fun markSchedule(page: String, isScheduled: Boolean)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(vararg schedules: Schedule)
 }

@@ -14,19 +14,19 @@ import com.zc.bakamitai.ui.base.BaseActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
+    private val viewModel: DetailsViewModel by viewModel()
     override fun getViewBinding() = ActivityDetailsBinding.inflate(layoutInflater)
-    private val detailsViewModel: DetailsViewModel by viewModel()
     private lateinit var page: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         hideActionBar()
         super.onCreate(savedInstanceState)
         page = intent.getStringExtra(PAGE)!!
-        detailsViewModel.getShowDetails(page)
+        viewModel.getShowDetails(page)
     }
 
     override fun manageSubscriptions() {
-        detailsViewModel.show.observe(this) {
+        viewModel.show.observe(this) {
             when (it) {
                 is Resource.Success -> {
                     binding.progressBar.hide()
@@ -41,7 +41,7 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
                 }
             }
         }
-        detailsViewModel.isBookmarked.observe(this) {
+        viewModel.isBookmarked.observe(this) {
             val bg = if (it) ContextCompat.getDrawable(this, R.drawable.ic_bookmark_filled)
             else ContextCompat.getDrawable(this, R.drawable.ic_bookmark_empty)
             binding.ivBookmark.setImageDrawable(bg)
@@ -50,7 +50,7 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
 
     override fun manageListeners() {
         binding.ivBookmark.setOnClickListener {
-            detailsViewModel.saveOrRemoveBookmark()
+            viewModel.saveOrRemoveBookmark()
         }
     }
 
@@ -60,7 +60,7 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
         Glide.with(this)
             .load(showDetailsDto.image)
             .into(binding.ivEntry)
-        detailsViewModel.setIsBookmarked(showDetailsDto.sid!!)
+        viewModel.setIsBookmarked(showDetailsDto.sid!!)
     }
 
     companion object {

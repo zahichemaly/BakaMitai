@@ -7,7 +7,7 @@ import com.zc.bakamitai.data.room.daos.ScheduleDao
 import com.zc.bakamitai.data.room.entities.Bookmark
 import com.zc.bakamitai.data.room.entities.Schedule
 
-@Database(entities = [Bookmark::class, Schedule::class], version = 4)
+@Database(entities = [Bookmark::class, Schedule::class], version = 6)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun scheduleDao(): ScheduleDao

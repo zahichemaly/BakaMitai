@@ -46,7 +46,7 @@ data class ScheduleResponse(
                     val date = calendar.time
                     entities.add(
                         Schedule(
-                            id = item.page,
+                            page = item.page,
                             name = item.title,
                             date = date.time
                         )

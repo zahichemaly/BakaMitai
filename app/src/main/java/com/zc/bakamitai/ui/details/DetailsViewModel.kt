@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.data.models.dtos.ShowDetailsDto
 import com.zc.bakamitai.data.network.repos.BookmarksRepository
+import com.zc.bakamitai.data.network.repos.ScheduleRepository
 import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
 import com.zc.bakamitai.extensions.setError
 import com.zc.bakamitai.extensions.setLoading
@@ -18,7 +19,8 @@ import timber.log.Timber
 
 class DetailsViewModel(
     private val subsPleaseRepository: SubsPleaseRepository,
-    private val bookmarksRepository: BookmarksRepository
+    private val bookmarksRepository: BookmarksRepository,
+    private val scheduleRepository: ScheduleRepository
 ) : BaseViewModel() {
     private val _show = MutableLiveData<Resource<ShowDetailsDto>>()
     val show: LiveData<Resource<ShowDetailsDto>>
@@ -62,7 +64,9 @@ class DetailsViewModel(
     private fun saveBookmark() {
         _show.value?.data?.let {
             viewModelScope.launch(Dispatchers.IO) {
-                bookmarksRepository.addBookmark(it.toBookmark())
+                val bookmark = it.toBookmark()
+                bookmarksRepository.addBookmark(bookmark)
+                scheduleRepository.setAsNotification(bookmark, true)
                 _isBookmarked.postValue(true)
             }
         }
@@ -71,7 +75,9 @@ class DetailsViewModel(
     private fun removeBookmark() {
         _show.value?.data?.let {
             viewModelScope.launch(Dispatchers.IO) {
+                val bookmark = it.toBookmark()
                 bookmarksRepository.removeBookmark(it.sid!!)
+                scheduleRepository.setAsNotification(bookmark, false)
                 _isBookmarked.postValue(false)
             }
         }

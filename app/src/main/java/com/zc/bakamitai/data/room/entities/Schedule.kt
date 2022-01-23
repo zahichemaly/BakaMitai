@@ -7,12 +7,14 @@ import java.util.*
 
 @Entity
 data class Schedule(
-    @PrimaryKey
-    val id: String,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     @ColumnInfo(name = "name")
     val name: String = "",
+    @ColumnInfo(name = "page")
+    val page: String = "",
     @ColumnInfo(name = "date")
     val date: Long = Date().time,
     @ColumnInfo(name = "isScheduled")
-    val isScheduled: Boolean = false,
+    var isScheduled: Boolean = false,
 )
