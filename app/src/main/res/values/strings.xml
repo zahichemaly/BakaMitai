@@ -20,6 +20,10 @@
     <string name="bookmark">Bookmark</string>
     <string name="download">Download</string>
 
+    <!-- Error -->
+    <string name="error_1">Nani? Something went wrong while fetching your data! &#128534;</string>
+    <string name="error_2">Yare yare…\nYour data could not be fetched!</string>
+
     <!-- Preference Titles -->
     <string name="preferences">Preferences</string>
     <string name="sync_header">Sync</string>
@@ -49,4 +53,7 @@
     <string name="channel_description">Notifications for bookmarked releases</string>
     <string name="notif_title">&#128293; New Release! &#128293;</string>
     <string name="notif_content">New episode of %s is out!</string>
+    <string name="error">Error</string>
+    <string name="empty_bookmarks">Whoops! You don\'t have any bookmarks. You can bookmark a show by going to its page. You
+        will be notified of upcoming releases of shows that you bookmark.</string>
 </resources>

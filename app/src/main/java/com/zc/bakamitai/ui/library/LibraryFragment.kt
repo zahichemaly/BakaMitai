@@ -22,14 +22,11 @@ class LibraryFragment : BaseFragment<FragmentLibraryBinding, LibraryViewModel>()
             when (it) {
                 is Resource.Success -> {
                     val items = it.data ?: listOf()
+                    binding.loadingView.setSuccess()
                     adapter.addItems(items)
                 }
-                is Resource.Error -> {
-
-                }
-                is Resource.Loading -> {
-
-                }
+                is Resource.Error -> binding.loadingView.setError()
+                is Resource.Loading -> binding.loadingView.setLoading()
             }
         }
     }

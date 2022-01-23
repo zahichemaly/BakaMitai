@@ -5,8 +5,8 @@ import android.view.View
 import com.google.android.material.tabs.TabLayoutMediator
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentScheduleBinding
-import com.zc.bakamitai.utils.PreferenceUtil
 import com.zc.bakamitai.ui.base.BaseFragment
+import com.zc.bakamitai.utils.PreferenceUtil
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -36,15 +36,11 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
         viewModel.schedule.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
-                    loadingDialog.hide()
+                    binding.loadingView.setSuccess()
                     adapter.addItems(it.data!!)
                 }
-                is Resource.Error -> {
-                    loadingDialog.hide()
-                }
-                is Resource.Loading -> {
-                    loadingDialog.show()
-                }
+                is Resource.Error -> binding.loadingView.setError()
+                is Resource.Loading -> binding.loadingView.setLoading()
             }
         }
     }

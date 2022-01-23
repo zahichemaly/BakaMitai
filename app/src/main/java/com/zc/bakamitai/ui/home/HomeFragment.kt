@@ -5,8 +5,6 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentHomeBinding
-import com.zc.bakamitai.extensions.hide
-import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.listeners.PageListener
 import com.zc.bakamitai.ui.base.BaseFragment
@@ -42,32 +40,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageLis
         viewModel.latestEntries.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
-                    binding.pbEntries.hide()
+                    binding.lvEntries.setSuccess()
                     binding.rvEntries.show()
                     entryAdapter.addItems(it.data!!)
                 }
-                is Resource.Error -> {
-                    binding.pbEntries.invisible()
-                }
-                is Resource.Loading -> {
-                    binding.pbEntries.show()
-                }
+                is Resource.Error -> binding.lvEntries.setError()
+                is Resource.Loading -> binding.lvEntries.setLoading()
             }
         }
 
         viewModel.todayEntries.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
-                    binding.pbEntriesToday.hide()
+                    binding.lvToday.setSuccess()
                     binding.rvEntriesToday.show()
                     entryGridAdapter.addItems(it.data!!)
                 }
-                is Resource.Error -> {
-                    binding.pbEntriesToday.invisible()
-                }
-                is Resource.Loading -> {
-                    binding.pbEntriesToday.show()
-                }
+                is Resource.Error -> binding.lvToday.setError()
+                is Resource.Loading -> binding.lvToday.setLoading()
             }
         }
     }

@@ -19,4 +19,9 @@
         <item>Sunday</item>
         <item>Monday</item>
     </string-array>
+
+    <string-array name="error_messages">
+        <item>@string/error_1</item>
+        <item>@string/error_2</item>
+    </string-array>
 </resources>

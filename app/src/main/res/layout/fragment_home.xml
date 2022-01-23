@@ -35,8 +35,8 @@
             tools:listitem="@layout/item_entry_grid"
             tools:visibility="gone" />
 
-        <ProgressBar
-            android:id="@+id/pbEntriesToday"
+        <com.zc.bakamitai.ui.custom.LoadingView
+            android:id="@+id/lvToday"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/card_grid_height"
             android:layout_gravity="center"
@@ -56,8 +56,8 @@
             android:textSize="@dimen/font_size_xlarge"
             android:textStyle="bold" />
 
-        <ProgressBar
-            android:id="@+id/pbEntries"
+        <com.zc.bakamitai.ui.custom.LoadingView
+            android:id="@+id/lvEntries"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/card_grid_height"
             android:layout_gravity="center"

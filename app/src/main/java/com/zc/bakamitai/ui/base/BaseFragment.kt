@@ -9,14 +9,12 @@ import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.zc.bakamitai.listeners.PageListener
 import com.zc.bakamitai.ui.details.DetailsActivity
-import com.zc.bakamitai.ui.dialog.LoadingDialog
 
 abstract class BaseFragment<VBinding : ViewBinding, VM : BaseViewModel> : Fragment(), PageListener {
     private var _binding: VBinding? = null
     protected val binding: VBinding by lazy { _binding!! }
     protected abstract val viewModel: VM
     protected abstract fun getViewBinding(): VBinding
-    protected val loadingDialog: LoadingDialog by lazy { LoadingDialog(requireContext()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = getViewBinding()
