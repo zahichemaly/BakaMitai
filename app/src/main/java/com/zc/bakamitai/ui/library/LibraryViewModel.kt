@@ -21,18 +21,21 @@ class LibraryViewModel(private val subsPleaseRepository: SubsPleaseRepository) :
         getShows()
     }
 
-    private fun getShows() {
+    fun getShows() {
         Timber.d("Getting all shows")
         _shows.setLoading()
+        _loading.postValue(true)
         performNetworkCall {
             val response = subsPleaseRepository.getShows()
             if (response.isSuccessful && response.body() != null) {
                 Timber.d("Finished getting all shows")
                 val result = response.body()!!.toShowDtoList()
+                _loading.postValue(false)
                 _shows.setSuccess(result)
             } else {
                 Timber.e("Error getting all shows")
                 onError(response.message())
+                _loading.postValue(false)
                 _shows.setError(response)
             }
         }

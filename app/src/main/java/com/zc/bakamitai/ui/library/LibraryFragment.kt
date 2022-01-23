@@ -17,16 +17,32 @@ class LibraryFragment : BaseFragment<FragmentLibraryBinding, LibraryViewModel>()
         binding.rvShows.adapter = adapter
     }
 
+    override fun manageListeners() {
+        binding.swipeLayout.setOnRefreshListener {
+            viewModel.getShows()
+        }
+    }
+
+    override fun refreshData() {
+        viewModel.getShows()
+    }
+
     override fun manageSubscriptions() {
         viewModel.shows.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
+                    binding.swipeLayout.isRefreshing = false
                     val items = it.data ?: listOf()
                     binding.loadingView.setSuccess()
                     adapter.addItems(items)
                 }
                 is Resource.Error -> binding.loadingView.setError()
                 is Resource.Loading -> binding.loadingView.setLoading()
+            }
+        }
+        viewModel.loading.observe(viewLifecycleOwner) {
+            binding.swipeLayout.apply {
+                if (isRefreshing) isRefreshing = it
             }
         }
     }

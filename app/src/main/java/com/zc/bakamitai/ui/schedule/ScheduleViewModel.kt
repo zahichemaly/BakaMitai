@@ -19,14 +19,17 @@ class ScheduleViewModel(private val subsPleaseRepository: SubsPleaseRepository) 
     fun getSchedule() {
         performNetworkCall {
             _schedule.setLoading()
+            _loading.postValue(true)
             val response = subsPleaseRepository.getSchedule()
             if (response.isSuccessful && response.body() != null) {
                 Timber.d("Finished getting schedule")
                 val data = response.body()!!.toScheduleDtoList()
+                _loading.postValue(false)
                 _schedule.setSuccess(data)
             } else {
                 Timber.e("Error getting schedule")
                 onError(response.message())
+                _loading.postValue(false)
                 _schedule.setError(response)
             }
         }

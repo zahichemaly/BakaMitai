@@ -5,6 +5,7 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentHomeBinding
+import com.zc.bakamitai.extensions.hide
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.listeners.PageListener
 import com.zc.bakamitai.ui.base.BaseFragment
@@ -21,8 +22,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageLis
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.getLatest()
-        viewModel.getTodaySchedule()
+        viewModel.refreshLatest()
     }
 
     override fun setupView() {
@@ -36,6 +36,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageLis
         binding.rvEntriesToday.adapter = entryGridAdapter
     }
 
+    override fun manageListeners() {
+        binding.swipeLayout.setOnRefreshListener {
+            viewModel.refreshLatest()
+        }
+    }
+
+    override fun refreshData() {
+        viewModel.refreshLatest()
+    }
+
     override fun manageSubscriptions() {
         viewModel.latestEntries.observe(viewLifecycleOwner) {
             when (it) {
@@ -45,7 +55,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageLis
                     entryAdapter.addItems(it.data!!)
                 }
                 is Resource.Error -> binding.lvEntries.setError()
-                is Resource.Loading -> binding.lvEntries.setLoading()
+                is Resource.Loading -> {
+                    binding.rvEntries.hide()
+                    binding.lvEntries.setLoading()
+                }
             }
         }
 
@@ -57,7 +70,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(), PageLis
                     entryGridAdapter.addItems(it.data!!)
                 }
                 is Resource.Error -> binding.lvToday.setError()
-                is Resource.Loading -> binding.lvToday.setLoading()
+                is Resource.Loading -> {
+                    binding.rvEntriesToday.hide()
+                    binding.lvToday.setLoading()
+                }
+            }
+        }
+        viewModel.loadingAll.observe(viewLifecycleOwner) {
+            binding.swipeLayout.apply {
+                if (isRefreshing) isRefreshing = it
             }
         }
     }

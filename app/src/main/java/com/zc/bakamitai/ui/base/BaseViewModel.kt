@@ -10,11 +10,11 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 open class BaseViewModel : ViewModel() {
-    private val _loading = MutableLiveData<Boolean>()
+    protected val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean>
         get() = _loading
 
-    private val _errorMessage = MutableLiveData<String>()
+    protected val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String>
         get() = _errorMessage
 

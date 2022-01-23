@@ -1,10 +1,12 @@
 package com.zc.bakamitai.ui.home
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.data.models.dtos.EntryDto
 import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
+import com.zc.bakamitai.extensions.combineLoading
 import com.zc.bakamitai.extensions.setError
 import com.zc.bakamitai.extensions.setLoading
 import com.zc.bakamitai.extensions.setSuccess
@@ -21,7 +23,14 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) :
     val todayEntries: LiveData<Resource<List<EntryDto>>>
         get() = _todayEntries
 
-    fun getLatest() {
+    val loadingAll: MediatorLiveData<Boolean> = _latestEntries.combineLoading(_todayEntries)
+
+    fun refreshLatest() {
+        getLatest()
+        getTodaySchedule()
+    }
+
+    private fun getLatest() {
         performNetworkCall {
             _latestEntries.setLoading()
             val response = subsPleaseRepository.getLatest()
@@ -38,7 +47,7 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) :
         }
     }
 
-    fun getTodaySchedule() {
+    private fun getTodaySchedule() {
         performNetworkCall {
             _todayEntries.setLoading()
             val response = subsPleaseRepository.getTodaySchedule()

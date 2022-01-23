@@ -32,6 +32,16 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
         }.attach()
     }
 
+    override fun manageListeners() {
+        binding.swipeLayout.setOnRefreshListener {
+            viewModel.getSchedule()
+        }
+    }
+
+    override fun refreshData() {
+        viewModel.getSchedule()
+    }
+
     override fun manageSubscriptions() {
         viewModel.schedule.observe(viewLifecycleOwner) {
             when (it) {
@@ -41,6 +51,11 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
                 }
                 is Resource.Error -> binding.loadingView.setError()
                 is Resource.Loading -> binding.loadingView.setLoading()
+            }
+        }
+        viewModel.loading.observe(viewLifecycleOwner) {
+            binding.swipeLayout.apply {
+                if (isRefreshing) isRefreshing = it
             }
         }
     }

@@ -18,6 +18,16 @@ class BookmarksFragment : BaseFragment<FragmentBookmarksBinding, BookmarksViewMo
         binding.rvBookmarks.adapter = bookmarkAdapter
     }
 
+    override fun manageListeners() {
+        binding.swipeLayout.setOnRefreshListener {
+            viewModel.getBookmarks()
+        }
+    }
+
+    override fun refreshData() {
+        viewModel.getBookmarks()
+    }
+
     override fun manageSubscriptions() {
         viewModel.bookmarks.observe(viewLifecycleOwner) {
             if (it is Resource.Loading) binding.loadingView.setLoading()
@@ -30,6 +40,11 @@ class BookmarksFragment : BaseFragment<FragmentBookmarksBinding, BookmarksViewMo
                     binding.loadingView.setSuccess()
                     bookmarkAdapter.addItems(data)
                 }
+            }
+        }
+        viewModel.loading.observe(viewLifecycleOwner) {
+            binding.swipeLayout.apply {
+                if (isRefreshing) isRefreshing = it
             }
         }
     }

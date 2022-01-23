@@ -5,4 +5,6 @@ sealed class Resource<T>(val data: T? = null, val errorResponse: ErrorResponse? 
     class Success<T>(data: T) : Resource<T>(data)
     class Error<T>(errorResponse: ErrorResponse) : Resource<T>(errorResponse = errorResponse)
     class Loading<T> : Resource<T>()
+
+    fun isFinished(): Boolean = this !is Success
 }

@@ -11,6 +11,7 @@ import com.zc.bakamitai.extensions.setSuccess
 import com.zc.bakamitai.ui.base.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class BookmarksViewModel(private val bookmarksRepository: BookmarksRepository) : BaseViewModel() {
     private val _bookmarks = MutableLiveData<Resource<List<Bookmark>>>()
@@ -18,9 +19,12 @@ class BookmarksViewModel(private val bookmarksRepository: BookmarksRepository) :
         get() = _bookmarks
 
     fun getBookmarks() {
+        Timber.d("Getting bookmarks from db")
         _bookmarks.setLoading()
+        _loading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             _bookmarks.setSuccess(bookmarksRepository.getBookmarks())
+            _loading.postValue(false)
         }
     }
 }
