@@ -56,4 +56,5 @@
     <string name="error">Error</string>
     <string name="empty_bookmarks">Whoops! You don\'t have any bookmarks. You can bookmark a show by going to its page. You
         will be notified of upcoming releases of shows that you bookmark.</string>
+    <string name="share_text">Hey, check out this great anime: %s</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.zc.bakamitai.ui.details
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
@@ -17,6 +18,7 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
     private val viewModel: DetailsViewModel by viewModel()
     override fun getViewBinding() = ActivityDetailsBinding.inflate(layoutInflater)
     private lateinit var page: String
+    private var show: ShowDetailsDto? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         hideActionBar()
@@ -31,7 +33,8 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
                 is Resource.Success -> {
                     binding.progressBar.hide()
                     binding.contentLayout.show()
-                    bindData(it.data!!)
+                    show = it.data!!
+                    bindData(show!!)
                 }
                 is Resource.Error -> {
                     binding.progressBar.invisible()
@@ -44,13 +47,28 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
         viewModel.isBookmarked.observe(this) {
             val bg = if (it) ContextCompat.getDrawable(this, R.drawable.ic_bookmark_filled)
             else ContextCompat.getDrawable(this, R.drawable.ic_bookmark_empty)
-            binding.ivBookmark.setImageDrawable(bg)
+            binding.ibBookmark.setImageDrawable(bg)
         }
     }
 
     override fun manageListeners() {
-        binding.ivBookmark.setOnClickListener {
+        binding.ibBookmark.setOnClickListener {
             viewModel.saveOrRemoveBookmark()
+        }
+        binding.ibShare.setOnClickListener {
+            share()
+        }
+    }
+
+    private fun share() {
+        show?.let {
+            val text = getString(R.string.share_text, it.getPageUrl())
+            val intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, text)
+                type = "text/plain"
+            }
+            startActivity(Intent.createChooser(intent, "Share To:"))
         }
     }
 
