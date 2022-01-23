@@ -9,15 +9,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.ShowDto
 import com.zc.bakamitai.listeners.PageListener
+import java.util.*
 
 class LibraryAdapter(private val pageListener: PageListener) : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
 
     private val items = mutableListOf<ShowDto>()
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        abstract fun bindData(showDto: ShowDto)
+    }
+
+    inner class ItemViewHolder(itemView: View) : ViewHolder(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.tvTitle)
 
-        fun bindData(showDto: ShowDto) {
+        override fun bindData(showDto: ShowDto) {
             tvName.text = showDto.title
             itemView.rootView.setOnClickListener {
                 pageListener.onPageClicked(showDto.link)
@@ -25,15 +30,26 @@ class LibraryAdapter(private val pageListener: PageListener) : RecyclerView.Adap
         }
     }
 
+    inner class HeaderViewHolder(itemView: View) : ViewHolder(itemView) {
+        private val tvIndex = itemView.findViewById<TextView>(R.id.tvIndex)
+
+        override fun bindData(showDto: ShowDto) {
+            tvIndex.text = showDto.title
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutRes = if (viewType == HEADER) R.layout.item_header
         else R.layout.item_library
         val view = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
-        return ViewHolder(view)
+        return if (viewType == HEADER) HeaderViewHolder(view)
+        else ItemViewHolder(view)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return ITEM
+        val item = this.items[position]
+        return if (item.isHeader) HEADER
+        else ITEM
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -45,18 +61,33 @@ class LibraryAdapter(private val pageListener: PageListener) : RecyclerView.Adap
 
     @SuppressLint("NotifyDataSetChanged")
     fun addItems(items: List<ShowDto>) {
-        val ordered = items.sortedBy { it.title }
-//        ordered.forEach {
-//            val firstLetter = it.link[0].uppercaseChar()
-//        }
+        val sortedItems = getSortedItems(items)
         this.items.clear()
-        this.items.addAll(ordered)
+        this.items.addAll(sortedItems)
         notifyDataSetChanged()
     }
 
-    class Header {
-        val index: Char = 'A'
-        val isSet: Boolean = false
+    private fun getSortedItems(items: List<ShowDto>): List<ShowDto> {
+        val map: SortedMap<String, MutableList<ShowDto>> = sortedMapOf()
+        items.forEach { showDto ->
+            val firstLetter = showDto.link[0].uppercaseChar().toString()
+            if (map.containsKey(firstLetter)) {
+                //get existing list by alphabet and append item
+                map[firstLetter]?.add(showDto)
+            } else {
+                val list = mutableListOf<ShowDto>()
+                list.add(showDto)
+                map[firstLetter] = list
+            }
+        }
+        val newItems = mutableListOf<ShowDto>()
+        map.forEach { kv ->
+            //sort
+            kv.value?.sortBy { it.title }
+            newItems.add(ShowDto(title = kv.key, isHeader = true))
+            newItems.addAll(kv.value)
+        }
+        return newItems
     }
 
     companion object {
