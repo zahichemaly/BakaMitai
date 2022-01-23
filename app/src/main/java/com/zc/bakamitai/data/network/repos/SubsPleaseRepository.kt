@@ -11,4 +11,5 @@ interface SubsPleaseRepository {
     suspend fun getSchedule(): Response<ScheduleResponse>
     suspend fun getTodaySchedule(): Response<TodayScheduleResponse>
     suspend fun getShowDetails(page: String): Response<Document>
+    suspend fun getShows(): Response<Document>
 }

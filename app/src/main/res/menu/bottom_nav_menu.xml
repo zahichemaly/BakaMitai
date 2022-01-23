@@ -12,6 +12,11 @@
         android:title="@string/title_schedule" />
 
     <item
+        android:id="@+id/navigation_library"
+        android:icon="@drawable/ic_library"
+        android:title="@string/title_library" />
+
+    <item
         android:id="@+id/navigation_bookmarks"
         android:icon="@drawable/ic_bookmarks"
         android:title="@string/title_bookmarks" />

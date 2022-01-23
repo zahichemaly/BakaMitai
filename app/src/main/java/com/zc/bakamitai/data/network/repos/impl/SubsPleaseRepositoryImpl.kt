@@ -34,4 +34,10 @@ class SubsPleaseRepositoryImpl(val subsPleaseService: SubsPleaseService) : SubsP
             subsPleaseService.getShowDetails(page)
         }
     }
+
+    override suspend fun getShows(): Response<Document> {
+        return withContext(Dispatchers.IO) {
+            subsPleaseService.getShows()
+        }
+    }
 }

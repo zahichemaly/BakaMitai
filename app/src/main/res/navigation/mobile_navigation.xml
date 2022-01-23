@@ -18,6 +18,12 @@
         tools:layout="@layout/fragment_schedule" />
 
     <fragment
+        android:id="@+id/navigation_library"
+        android:name="com.zc.bakamitai.ui.library.LibraryFragment"
+        android:label="@string/title_library"
+        tools:layout="@layout/fragment_library" />
+
+    <fragment
         android:id="@+id/navigation_bookmarks"
         android:name="com.zc.bakamitai.ui.bookmarks.BookmarksFragment"
         android:label="@string/title_bookmarks"

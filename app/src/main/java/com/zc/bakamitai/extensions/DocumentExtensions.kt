@@ -1,6 +1,7 @@
 package com.zc.bakamitai.extensions
 
 import com.zc.bakamitai.data.models.dtos.ShowDetailsDto
+import com.zc.bakamitai.data.models.dtos.ShowDto
 import org.jsoup.nodes.Document
 
 
@@ -16,4 +17,19 @@ fun Document.toShowDetailsDto(url: String): ShowDetailsDto {
     val sid = sidE?.attr("sid")
 
     return ShowDetailsDto(synopsis, image?.toImageUrl(), title, sid, url)
+}
+
+fun Document.toShowDtoList(): List<ShowDto> {
+    val shows = arrayListOf<ShowDto>()
+    val divs = this.select("div.all-shows").select("a[title]")
+    for (div in divs) {
+        val href = div.attr("href")
+        shows.add(
+            ShowDto(
+                title = div.attr("title"),
+                link = href.parsePage(),
+            )
+        )
+    }
+    return shows
 }

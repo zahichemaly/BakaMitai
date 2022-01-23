@@ -20,4 +20,7 @@ interface SubsPleaseService {
 
     @GET("shows/{page}")
     suspend fun getShowDetails(@Path("page") page: String): Response<Document>
+
+    @GET("shows")
+    suspend fun getShows(): Response<Document>
 }

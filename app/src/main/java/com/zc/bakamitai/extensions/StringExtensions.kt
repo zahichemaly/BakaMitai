@@ -67,3 +67,21 @@ fun String.toImageUrl(): String {
         .appendEncodedPath(this)
         .toString()
 }
+
+/**
+ * Parses the page name from [this].
+ *
+ * Example: /shows/100-man-no-inochi-no-ue-ni-ore-wa-tatte-iru.
+ *
+ * Segments: ["shows", "100-man-no-inochi-no-ue-ni-ore-wa-tatte-iru"]
+ *
+ * @return "100-man-no-inochi-no-ue-ni-ore-wa-tatte-iru"
+ */
+fun String.parsePage(): String {
+    val fullUrl = Uri.parse(Api.BASE_URL)
+        .buildUpon()
+        .appendEncodedPath(this)
+        .build()
+    val segments = fullUrl.pathSegments
+    return segments.getOrNull(1) ?: this
+}

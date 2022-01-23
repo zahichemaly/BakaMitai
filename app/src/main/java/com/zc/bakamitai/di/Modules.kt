@@ -13,6 +13,7 @@ import com.zc.bakamitai.data.room.AppDatabase
 import com.zc.bakamitai.ui.bookmarks.BookmarksViewModel
 import com.zc.bakamitai.ui.details.DetailsViewModel
 import com.zc.bakamitai.ui.home.HomeViewModel
+import com.zc.bakamitai.ui.library.LibraryViewModel
 import com.zc.bakamitai.ui.schedule.ScheduleViewModel
 import com.zc.bakamitai.utils.PreferenceUtil
 import org.koin.android.ext.koin.androidApplication
@@ -41,6 +42,7 @@ val viewModelsModule = module {
     viewModel { HomeViewModel(get()) }
     viewModel { ScheduleViewModel(get()) }
     viewModel { BookmarksViewModel(get()) }
+    viewModel { LibraryViewModel(get()) }
 }
 
 val utilsModule = module {
