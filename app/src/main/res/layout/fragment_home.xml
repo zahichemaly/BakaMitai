@@ -59,7 +59,7 @@
         <com.zc.bakamitai.ui.custom.LoadingView
             android:id="@+id/lvEntries"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/card_grid_height"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/spacing_small"
             android:layout_marginBottom="@dimen/spacing_small"

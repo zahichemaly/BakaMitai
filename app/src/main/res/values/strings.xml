@@ -23,6 +23,8 @@
     <!-- Error -->
     <string name="error_1">Nani? Something went wrong while fetching your data! &#128534;</string>
     <string name="error_2">Yare yare…\nYour data could not be fetched!</string>
+    <string name="error_3">Are? The data could not be fetched!</string>
+    <string name="error_4">Something went wrong, and we could not fetch your data ~desu</string>
 
     <!-- Preference Titles -->
     <string name="preferences">Preferences</string>

@@ -23,5 +23,7 @@
     <string-array name="error_messages">
         <item>@string/error_1</item>
         <item>@string/error_2</item>
+        <item>@string/error_3</item>
+        <item>@string/error_4</item>
     </string-array>
 </resources>

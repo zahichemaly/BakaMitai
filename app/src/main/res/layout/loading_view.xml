@@ -33,7 +33,7 @@
     <TextView
         android:id="@+id/tvError"
         android:layout_width="175dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_below="@id/ivError"
         android:layout_margin="@dimen/spacing_small"
         android:textAlignment="center"
@@ -44,7 +44,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivError"
-        tools:text="@string/empty_bookmarks"
+        tools:text="Error message test"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
