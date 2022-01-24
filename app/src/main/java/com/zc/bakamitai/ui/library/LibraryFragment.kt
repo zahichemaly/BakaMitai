@@ -10,6 +10,7 @@ class LibraryFragment : BaseFragment<FragmentLibraryBinding, LibraryViewModel>()
     override val viewModel: LibraryViewModel by viewModel()
     override fun getViewBinding() = FragmentLibraryBinding.inflate(layoutInflater)
     private lateinit var adapter: LibraryAdapter
+    override var isSearchable: Boolean = true
 
     override fun setupView() {
         adapter = LibraryAdapter(this)

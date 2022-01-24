@@ -2,6 +2,8 @@ package com.zc.bakamitai.ui.schedule
 
 import android.os.Bundle
 import android.view.View
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentScheduleBinding
@@ -15,6 +17,13 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
     override fun getViewBinding() = FragmentScheduleBinding.inflate(layoutInflater)
     private lateinit var adapter: SchedulePageAdapter
     private val preferenceUtil: PreferenceUtil by inject()
+    private val onPageChangeCallback: ViewPager2.OnPageChangeCallback by lazy {
+        object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrollStateChanged(state: Int) {
+                toggleRefreshing(state == ViewPager.SCROLL_STATE_IDLE)
+            }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,6 +45,7 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
         binding.swipeLayout.setOnRefreshListener {
             viewModel.getSchedule()
         }
+        binding.viewPager.registerOnPageChangeCallback(onPageChangeCallback)
     }
 
     override fun refreshData() {
@@ -58,5 +68,14 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
                 if (isRefreshing) isRefreshing = it
             }
         }
+    }
+
+    fun toggleRefreshing(enabled: Boolean) {
+        binding.swipeLayout.isEnabled = enabled
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
     }
 }
