@@ -1,8 +1,11 @@
 package com.zc.bakamitai.ui.base
 
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.zc.bakamitai.R
@@ -15,6 +18,7 @@ abstract class BaseFragment<VBinding : ViewBinding, VM : BaseViewModel> : Fragme
     protected val binding: VBinding by lazy { _binding!! }
     protected abstract val viewModel: VM
     protected abstract fun getViewBinding(): VBinding
+    protected lateinit var searchView: SearchView
     open var isSearchable: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +59,13 @@ abstract class BaseFragment<VBinding : ViewBinding, VM : BaseViewModel> : Fragme
         searchMenuItem?.apply {
             isVisible = isSearchable
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        // Associate searchable configuration with the SearchView
+        val searchManager = requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        searchView = menu.findItem(R.id.action_search).actionView as SearchView
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

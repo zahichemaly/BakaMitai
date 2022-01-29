@@ -1,5 +1,8 @@
 package com.zc.bakamitai.ui.library
 
+import android.view.Menu
+import android.view.MenuInflater
+import android.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentLibraryBinding
@@ -46,5 +49,18 @@ class LibraryFragment : BaseFragment<FragmentLibraryBinding, LibraryViewModel>()
                 if (isRefreshing) isRefreshing = it
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return adapter.filterItems(newText)
+            }
+        })
     }
 }

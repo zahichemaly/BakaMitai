@@ -13,6 +13,7 @@ import java.util.*
 
 class LibraryAdapter(private val pageListener: PageListener) : RecyclerView.Adapter<LibraryAdapter.ViewHolder>() {
 
+    private val filteredItems = mutableListOf<ShowDto>()
     private val items = mutableListOf<ShowDto>()
 
     abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -47,24 +48,42 @@ class LibraryAdapter(private val pageListener: PageListener) : RecyclerView.Adap
     }
 
     override fun getItemViewType(position: Int): Int {
-        val item = this.items[position]
+        val item = this.filteredItems[position]
         return if (item.isHeader) HEADER
         else ITEM
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = items[position]
+        val item = filteredItems[position]
         holder.bindData(item)
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int = filteredItems.size
 
     @SuppressLint("NotifyDataSetChanged")
     fun addItems(items: List<ShowDto>) {
         val sortedItems = getSortedItems(items)
         this.items.clear()
         this.items.addAll(sortedItems)
+        this.filteredItems.clear()
+        this.filteredItems.addAll(this.items)
         notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun filterItems(query: String?): Boolean {
+        return if (query.isNullOrBlank()) {
+            this.filteredItems.clear()
+            this.filteredItems.addAll(items)
+            notifyDataSetChanged()
+            false
+        } else {
+            val filtered = this.items.filter { it.title.contains(query, true) }
+            this.filteredItems.clear()
+            this.filteredItems.addAll(filtered)
+            notifyDataSetChanged()
+            true
+        }
     }
 
     private fun getSortedItems(items: List<ShowDto>): List<ShowDto> {
