@@ -5,18 +5,16 @@ import android.view.View
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentScheduleBinding
-import com.zc.bakamitai.ui.base.BaseFragment
-import com.zc.bakamitai.utils.PreferenceUtil
-import org.koin.android.ext.android.inject
+import com.zc.bakamitai.ui.base.BaseFragmentWithPrefs
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel>() {
+class ScheduleFragment : BaseFragmentWithPrefs<FragmentScheduleBinding, ScheduleViewModel>() {
     override val viewModel: ScheduleViewModel by viewModel()
     override fun getViewBinding() = FragmentScheduleBinding.inflate(layoutInflater)
     private lateinit var adapter: SchedulePageAdapter
-    private val preferenceUtil: PreferenceUtil by inject()
     private val onPageChangeCallback: ViewPager2.OnPageChangeCallback by lazy {
         object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrollStateChanged(state: Int) {
@@ -50,6 +48,14 @@ class ScheduleFragment : BaseFragment<FragmentScheduleBinding, ScheduleViewModel
 
     override fun refreshData() {
         viewModel.getSchedule()
+    }
+
+    override fun checkIfPrefsChanged(key: String): Boolean {
+        return key == getString(R.string.key_calendar) || key == getString(R.string.key_time_format)
+    }
+
+    override fun updateSettings() {
+        adapter.updateSettings()
     }
 
     override fun manageSubscriptions() {

@@ -14,11 +14,11 @@ import com.zc.bakamitai.listeners.PageListener
 import com.zc.bakamitai.utils.PreferenceUtil
 import com.zc.bakamitai.utils.TimeFormat
 
-class EntryGridAdapter(private val pageListener: PageListener, preferenceUtil: PreferenceUtil) :
+class EntryGridAdapter(private val pageListener: PageListener, private val preferenceUtil: PreferenceUtil) :
     RecyclerView.Adapter<EntryGridAdapter.EntryViewHolder>() {
 
     private val items: MutableList<EntryDto> = mutableListOf()
-    private val is12HourFormat = preferenceUtil.getTimeFormat() == TimeFormat.TF_12
+    private var is12HourFormat = preferenceUtil.getTimeFormat() == TimeFormat.TF_12
 
     inner class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName = itemView.findViewById<TextView>(R.id.tvName)
@@ -47,6 +47,11 @@ class EntryGridAdapter(private val pageListener: PageListener, preferenceUtil: P
     override fun onBindViewHolder(holder: EntryViewHolder, position: Int) {
         val data = items[position]
         holder.bindData(data)
+    }
+
+    fun updateSettings() {
+        is12HourFormat = preferenceUtil.getTimeFormat() == TimeFormat.TF_12
+        notifyDataSetChanged()
     }
 
     fun addItems(items: List<EntryDto>) {

@@ -21,6 +21,15 @@
             app:title="@string/time_format"
             app:useSimpleSummaryProvider="true" />
 
+        <ListPreference
+            android:icon="@drawable/ic_brush"
+            app:defaultValue="System"
+            app:entries="@array/theme_entries"
+            app:entryValues="@array/theme_values"
+            app:key="@string/key_theme"
+            app:title="@string/theme"
+            app:useSimpleSummaryProvider="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/information">
