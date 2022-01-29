@@ -19,14 +19,16 @@ class ReminderBroadcast : BroadcastReceiver() {
         val requestCode = intent?.getIntExtra(NotificationHelper.REQUEST_CODE, 0) ?: 0
         val title = intent?.getStringExtra(NotificationHelper.TITLE) ?: context.getString(R.string.notif_title)
         val content = intent?.getStringExtra(NotificationHelper.CONTENT) ?: ""
-        createNotification(context, requestCode, title, content)
+        val page = intent?.getStringExtra(NotificationHelper.PAGE) ?: ""
+        createNotification(context, requestCode, title, content, page)
     }
 
-    private fun createNotification(context: Context, id: Int, title: String, content: String) {
+    private fun createNotification(context: Context, id: Int, title: String, content: String, page: String) {
         createNotificationChannel(context)
 
         val intent = Intent(context, DetailsActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra(DetailsActivity.PAGE, page)
         }
         val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE

@@ -16,6 +16,7 @@ object NotificationHelper {
     const val REQUEST_CODE = "request_code"
     const val TITLE = "nt_title"
     const val CONTENT = "nt_content"
+    const val PAGE = "nt_page"
 
     fun addNotification(context: Context, schedule: Schedule) {
         val requestCode = schedule.id
@@ -23,6 +24,7 @@ object NotificationHelper {
             putExtra(REQUEST_CODE, requestCode)
             putExtra(TITLE, context.getString(R.string.notif_title))
             putExtra(CONTENT, context.getString(R.string.notif_content, schedule.name))
+            putExtra(PAGE, schedule.page)
         }
         val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
