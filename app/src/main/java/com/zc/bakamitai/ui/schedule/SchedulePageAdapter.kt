@@ -16,7 +16,7 @@ class SchedulePageAdapter(private val pageListener: PageListener, private val pr
     RecyclerView.Adapter<SchedulePageAdapter.ViewHolder>() {
 
     private val items: MutableList<ScheduleDto> = mutableListOf()
-    private val startsMonday = preferenceUtil.getFirstDayOfWeek() == FirstDayOfWeek.Monday
+    private var startsMonday = preferenceUtil.getFirstDayOfWeek() == FirstDayOfWeek.Monday
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val rvEntries = itemView.findViewById<RecyclerView>(R.id.rvEntries)
@@ -46,9 +46,14 @@ class SchedulePageAdapter(private val pageListener: PageListener, private val pr
         return items.getOrNull(position)
     }
 
+    fun updateSettings() {
+        startsMonday = preferenceUtil.getFirstDayOfWeek() == FirstDayOfWeek.Monday
+        addItems(this.items)
+    }
+
     fun addItems(items: List<ScheduleDto>) {
-        this.items.clear()
         val sorted = items.sortedBy { it.day.toDayOfWeekNumber(startsMonday) }
+        this.items.clear()
         this.items.addAll(sorted)
         notifyDataSetChanged()
     }
