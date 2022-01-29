@@ -33,6 +33,11 @@
     <!-- Messages Preferences -->
     <string name="calendar_format">First day of week</string>
     <string name="time_format">Time format</string>
+    <string name="monday">Monday</string>
+    <string name="sunday">Sunday</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="system">System</string>
 
     <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>
@@ -43,12 +48,14 @@
     <string name="information">Information</string>
     <string name="version">Version</string>
     <string name="version_no">1.0.0</string>
+    <string name="theme">Theme</string>
     <string name="about">About</string>
     <string name="author">github.com/zahichemaly</string>
-    <string name="key_calendar">key_calendar</string>
-    <string name="key_time_format">key_time_format</string>
-    <string name="key_about">key_about</string>
-    <string name="key_version">key_version</string>
+    <string name="key_calendar">first_day</string>
+    <string name="key_time_format">time_format</string>
+    <string name="key_about">about</string>
+    <string name="key_version">version</string>
+    <string name="key_theme">theme</string>
 
     <!-- Notifications-->
     <string name="channel_name">Notifications</string>

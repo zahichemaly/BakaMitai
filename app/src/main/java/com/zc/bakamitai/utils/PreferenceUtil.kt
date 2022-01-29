@@ -19,6 +19,7 @@ class PreferenceUtil(private val context: Context) {
 
     fun getFirstDayOfWeek(): FirstDayOfWeek = FirstDayOfWeek.valueOf(getValue(R.string.key_calendar, R.array.calendar_values))
     fun getTimeFormat() = TimeFormat.valueOf(getValue(R.string.key_time_format, R.array.time_values))
+    fun getTheme() = Theme.valueOf(getValue(R.string.key_theme, R.array.theme_values))
 }
 
 enum class FirstDayOfWeek {
@@ -27,4 +28,8 @@ enum class FirstDayOfWeek {
 
 enum class TimeFormat {
     TF_24, TF_12
+}
+
+enum class Theme {
+    Light, Dark, System
 }

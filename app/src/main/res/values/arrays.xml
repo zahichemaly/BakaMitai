@@ -11,13 +11,25 @@
     </string-array>
 
     <string-array name="calendar_entries">
-        <item>Sunday</item>
-        <item>Monday</item>
+        <item>@string/sunday</item>
+        <item>@string/monday</item>
     </string-array>
 
     <string-array name="calendar_values">
         <item>Sunday</item>
         <item>Monday</item>
+    </string-array>
+
+    <string-array name="theme_entries">
+        <item>@string/light</item>
+        <item>@string/dark</item>
+        <item>@string/system</item>
+    </string-array>
+
+    <string-array name="theme_values">
+        <item>Light</item>
+        <item>Dark</item>
+        <item>System</item>
     </string-array>
 
     <string-array name="error_messages">
