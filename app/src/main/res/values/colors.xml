@@ -11,4 +11,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="color_aired">#8BC34A</color>
     <color name="color_not_aired">#FF5B4F</color>
+    <color name="color_dark_main">#121212</color>
+    <color name="color_dark_secondary">#2D2D2D</color>
 </resources>

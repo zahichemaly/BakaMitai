@@ -74,10 +74,6 @@ abstract class BaseFragment<VBinding : ViewBinding, VM : BaseViewModel> : Fragme
                 refreshData()
                 true
             }
-            R.id.action_search -> {
-                //TODO handle search
-                true
-            }
             else -> super.onOptionsItemSelected(item)
         }
     }
