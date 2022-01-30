@@ -10,16 +10,16 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.zc.bakamitai.R
+import com.zc.bakamitai.data.Constants
 import com.zc.bakamitai.ui.details.DetailsActivity
-import com.zc.bakamitai.utils.NotificationHelper
 
 class ReminderBroadcast : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
-        val requestCode = intent?.getIntExtra(NotificationHelper.REQUEST_CODE, 0) ?: 0
-        val title = intent?.getStringExtra(NotificationHelper.TITLE) ?: context.getString(R.string.notif_title)
-        val content = intent?.getStringExtra(NotificationHelper.CONTENT) ?: ""
-        val page = intent?.getStringExtra(NotificationHelper.PAGE) ?: ""
+        val requestCode = intent?.getIntExtra(Constants.Notification.REQUEST_CODE, 0) ?: 0
+        val title = intent?.getStringExtra(Constants.Notification.TITLE) ?: context.getString(R.string.notif_title)
+        val content = intent?.getStringExtra(Constants.Notification.CONTENT) ?: ""
+        val page = intent?.getStringExtra(Constants.Notification.PAGE) ?: ""
         createNotification(context, requestCode, title, content, page)
     }
 
@@ -28,7 +28,7 @@ class ReminderBroadcast : BroadcastReceiver() {
 
         val intent = Intent(context, DetailsActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra(DetailsActivity.PAGE, page)
+            putExtra(Constants.Intent.PAGE, page)
         }
         val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
@@ -37,7 +37,7 @@ class ReminderBroadcast : BroadcastReceiver() {
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(context, id, intent, flags)
 
-        val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, Constants.Notification.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText(content)
@@ -58,7 +58,7 @@ class ReminderBroadcast : BroadcastReceiver() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(
-                NotificationHelper.CHANNEL_ID,
+                Constants.Notification.CHANNEL_ID,
                 context.getString(R.string.channel_name),
                 importance
             ).apply {

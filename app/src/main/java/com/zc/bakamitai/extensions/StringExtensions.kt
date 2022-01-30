@@ -1,7 +1,7 @@
 package com.zc.bakamitai.extensions
 
 import android.net.Uri
-import com.zc.bakamitai.data.network.Api
+import com.zc.bakamitai.data.Constants
 import timber.log.Timber
 import java.text.DateFormatSymbols
 import java.text.ParseException
@@ -28,21 +28,24 @@ fun String.toDate(format: String): Date? {
 /**
  * Converts string to [Date] using format Sat, 15 Jan 2022 14:32:05 +0200.
  */
-fun String.toDateTime(): Date? = toDate("EEE, d LLL yyyy HH:mm:sss Z")
+fun String.toDateTime(): Date? = toDate(Constants.DateFormat.DATE_TIME_TZ)
 
 /**
  * 15:00 ~> 3:00 PM.
  */
 fun String.to12HourFormat(): String {
-    val date = toDate("HH:mm")
-    return date?.format("hh:mm aa") ?: this
+    val date = toDate(Constants.DateFormat.TIME)
+    return date?.format(Constants.DateFormat.TIME_AM_PM) ?: Constants.Common.NOT_AVAILABLE
+}
+
+fun String.isDayOfWeek(): Boolean {
+    val days = DateFormatSymbols().weekdays.toList()
+    return days.any { it.contentEquals(this, true) }
 }
 
 fun String.toDayOfWeekNumber(startsMonday: Boolean): Int {
-    val days = DateFormatSymbols().weekdays.toList()
-    val exists = days.any { it.contentEquals(this, true) }
-    if (!exists) return 10 //for TBD shows, put them at the end
-    val sdf = SimpleDateFormat("EEEE", locale)
+    if (!isDayOfWeek()) return 10 //for TBD shows, put them at the end
+    val sdf = SimpleDateFormat(Constants.DateFormat.DAY_OF_WEEK, locale)
     val date = try {
         sdf.parse(this)
     } catch (ex: ParseException) {
@@ -59,10 +62,10 @@ fun String.toDayOfWeekNumber(startsMonday: Boolean): Int {
 }
 
 /**
- * Appends [this] to [Api.BASE_URL].
+ * Appends [this] to [Constants.Api.BASE_URL].
  */
 fun String.toImageUrl(): String {
-    return Uri.parse(Api.BASE_URL)
+    return Uri.parse(Constants.Api.BASE_URL)
         .buildUpon()
         .appendEncodedPath(this)
         .toString()
@@ -78,7 +81,7 @@ fun String.toImageUrl(): String {
  * @return "100-man-no-inochi-no-ue-ni-ore-wa-tatte-iru"
  */
 fun String.parsePage(): String {
-    val fullUrl = Uri.parse(Api.BASE_URL)
+    val fullUrl = Uri.parse(Constants.Api.BASE_URL)
         .buildUpon()
         .appendEncodedPath(this)
         .build()

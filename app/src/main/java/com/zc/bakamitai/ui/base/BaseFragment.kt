@@ -9,6 +9,7 @@ import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.zc.bakamitai.R
+import com.zc.bakamitai.data.Constants
 import com.zc.bakamitai.listeners.PageListener
 import com.zc.bakamitai.ui.details.DetailsActivity
 
@@ -50,7 +51,7 @@ abstract class BaseFragment<VBinding : ViewBinding, VM : BaseViewModel> : Fragme
 
     override fun onPageClicked(page: String) {
         val intent = Intent(requireActivity(), DetailsActivity::class.java)
-        intent.putExtra(DetailsActivity.PAGE, page)
+        intent.putExtra(Constants.Intent.PAGE, page)
         startActivity(intent)
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.zc.bakamitai.R
+import com.zc.bakamitai.data.Constants
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.data.models.dtos.ShowDetailsDto
 import com.zc.bakamitai.databinding.ActivityDetailsBinding
@@ -23,7 +24,7 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         hideActionBar()
         super.onCreate(savedInstanceState)
-        page = intent.getStringExtra(PAGE)!!
+        page = intent.getStringExtra(Constants.Intent.PAGE)!!
         viewModel.getShowDetails(page)
     }
 
@@ -79,9 +80,5 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
             .load(showDetailsDto.image)
             .into(binding.ivEntry)
         viewModel.setIsBookmarked(showDetailsDto.sid!!)
-    }
-
-    companion object {
-        const val PAGE = "page"
     }
 }

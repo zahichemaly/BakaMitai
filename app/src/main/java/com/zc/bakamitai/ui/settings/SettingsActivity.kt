@@ -10,6 +10,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.zc.bakamitai.BuildConfig
 import com.zc.bakamitai.R
+import com.zc.bakamitai.data.Constants
 import com.zc.bakamitai.utils.Theme
 
 class SettingsActivity : AppCompatActivity() {
@@ -43,7 +44,7 @@ class SettingsActivity : AppCompatActivity() {
                 true
             }
             aboutPrefs.setOnPreferenceClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/zahichemaly"))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.Common.GITHUB_URL))
                 startActivity(intent)
                 true
             }

@@ -1,5 +1,6 @@
 package com.zc.bakamitai.extensions
 
+import com.zc.bakamitai.data.Constants
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -13,5 +14,5 @@ fun Date.format(format: String): String {
     return sdf.format(this)
 }
 
-fun Date.formatToDay(): String = format("EEE, d LLL yyyy HH:mm")
-fun Date.formatToDay12Hour(): String = format("EEE, d LLL yyyy hh:mm aa")
+fun Date.formatToDay(): String = format(Constants.DateFormat.DATE_TIME)
+fun Date.formatToDay12Hour(): String = format(Constants.DateFormat.DATE_TIME_AM_PM)

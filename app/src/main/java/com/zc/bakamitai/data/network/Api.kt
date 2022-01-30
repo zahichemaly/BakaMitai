@@ -2,6 +2,7 @@ package com.zc.bakamitai.data.network
 
 import com.google.gson.GsonBuilder
 import com.zc.bakamitai.BakaApplication
+import com.zc.bakamitai.data.Constants
 import com.zc.bakamitai.data.network.interceptors.OfflineInterceptor
 import com.zc.bakamitai.data.network.interceptors.OnlineInterceptor
 import com.zc.bakamitai.data.network.interceptors.ParamInterceptor
@@ -13,13 +14,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 
 object Api {
-
-    const val BASE_URL = "https://subsplease.org/"
-
-    object Headers {
-        const val CACHE_CONTROL = "Cache-Control"
-        const val PRAGMA = "Pragma"
-    }
 
     private val loggingInterceptor = HttpLoggingInterceptor { message ->
         Timber.i(message)
@@ -43,7 +37,7 @@ object Api {
         .build()
 
     var retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(Constants.Api.BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(JsoupConverterFactory)
         .addConverterFactory(GsonConverterFactory.create(gson))

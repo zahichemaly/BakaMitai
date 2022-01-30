@@ -1,6 +1,7 @@
 package com.zc.bakamitai.data.models.dtos
 
 import android.net.Uri
+import com.zc.bakamitai.data.Constants
 import com.zc.bakamitai.data.network.Api
 import com.zc.bakamitai.data.room.entities.Bookmark
 
@@ -21,7 +22,7 @@ data class ShowDetailsDto(
     }
 
     fun getPageUrl(): String {
-        return Uri.parse(Api.BASE_URL)
+        return Uri.parse(Constants.Api.BASE_URL)
             .buildUpon()
             .appendEncodedPath("shows")
             .appendEncodedPath(url)

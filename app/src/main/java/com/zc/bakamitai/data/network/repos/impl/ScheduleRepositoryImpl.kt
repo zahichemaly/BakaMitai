@@ -8,6 +8,7 @@ import com.zc.bakamitai.data.room.entities.Bookmark
 import com.zc.bakamitai.data.room.entities.Schedule
 import com.zc.bakamitai.utils.NotificationHelper
 import timber.log.Timber
+import java.util.*
 
 class ScheduleRepositoryImpl(
     private val context: Context,
@@ -62,7 +63,13 @@ class ScheduleRepositoryImpl(
         if (isScheduled) {
             val isAlreadyScheduled = NotificationHelper.isNotificationSet(context, schedule.id)
             if (!isAlreadyScheduled) {
-                NotificationHelper.addNotification(context, schedule)
+                val today = Date()
+                if (schedule.date > today.time) {
+                    Timber.d("Adding notification for ${schedule.name}")
+                    NotificationHelper.addNotification(context, schedule)
+                } else {
+                    Timber.d("Skipping adding notification: show has already been released.")
+                }
             }
         } else {
             NotificationHelper.removeNotification(context, schedule.id)
