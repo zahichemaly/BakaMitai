@@ -11,7 +11,7 @@ import com.zc.bakamitai.data.models.dtos.ShowDownloadDto
 import com.zc.bakamitai.databinding.ItemDownloadDetailsBinding
 import com.zc.bakamitai.databinding.ItemDownloadSummaryBinding
 
-class DownloadsAdapter : RecyclerView.Adapter<DownloadsAdapter.ViewHolder>() {
+class DownloadsAdapter(private val listener: DownloadLinkAdapter.Listener) : RecyclerView.Adapter<DownloadsAdapter.ViewHolder>() {
 
     private val items: MutableList<ShowDownloadDto> = mutableListOf()
 
@@ -36,7 +36,7 @@ class DownloadsAdapter : RecyclerView.Adapter<DownloadsAdapter.ViewHolder>() {
 
         override fun bindData(position: Int, showDownloadDto: ShowDownloadDto) {
             super.bindData(position, showDownloadDto)
-            val adapter = DownloadLinkAdapter(showDownloadDto.downloads)
+            val adapter = DownloadLinkAdapter(showDownloadDto.downloads, listener)
             val episodeText = binding.root.context.getString(R.string.episode_, showDownloadDto.getFormattedEpisode())
             binding.tvTitle.text = episodeText
             binding.rvDownloads.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)

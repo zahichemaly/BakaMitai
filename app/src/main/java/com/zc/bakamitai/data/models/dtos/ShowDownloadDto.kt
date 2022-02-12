@@ -1,6 +1,5 @@
 package com.zc.bakamitai.data.models.dtos
 
-import com.zc.bakamitai.data.models.DownloadsItem
 import java.text.DecimalFormat
 
 data class ShowDownloadDto(
@@ -8,7 +7,7 @@ data class ShowDownloadDto(
     val time: String = "",
     val releaseDate: String = "",
     val episode: Float = 0F,
-    val downloads: List<DownloadsItem> = listOf(),
+    val downloads: List<DownloadDto> = listOf(),
     var isExpanded: Boolean = false
 ) {
     fun getFormattedEpisode(): String {

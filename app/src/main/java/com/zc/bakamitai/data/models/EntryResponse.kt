@@ -3,6 +3,7 @@ package com.zc.bakamitai.data.models
 import com.google.gson.annotations.SerializedName
 import com.zc.bakamitai.BakaApplication
 import com.zc.bakamitai.R
+import com.zc.bakamitai.data.models.dtos.DownloadDto
 import com.zc.bakamitai.data.models.dtos.EntryDto
 import com.zc.bakamitai.extensions.toImageUrl
 
@@ -58,4 +59,14 @@ data class DownloadsItem(
 
     @field:SerializedName("xdcc")
     val xdcc: String
-)
+) {
+
+    fun toDownloadDto(): DownloadDto {
+        return DownloadDto(
+            res = res.toIntOrNull() ?: 0,
+            magnet = magnet,
+            torrent = torrent,
+            xdcc = xdcc
+        )
+    }
+}

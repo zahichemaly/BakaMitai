@@ -2,24 +2,29 @@ package com.zc.bakamitai.ui.details
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.zc.bakamitai.data.models.DownloadsItem
+import com.zc.bakamitai.data.enums.LinkType
+import com.zc.bakamitai.data.models.dtos.DownloadDto
 import com.zc.bakamitai.databinding.ItemDownloadBinding
 
-class DownloadLinkAdapter(private val items: List<DownloadsItem>) : RecyclerView.Adapter<DownloadLinkAdapter.ViewHolder>() {
+class DownloadLinkAdapter(
+    private val items: List<DownloadDto>,
+    private val listener: Listener
+) : RecyclerView.Adapter<DownloadLinkAdapter.ViewHolder>() {
 
-    class ViewHolder(private val binding: ItemDownloadBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: ItemDownloadBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bindData(downloadsItem: DownloadsItem) {
-            binding.tvTitle.text = downloadsItem.res
-            setLink(binding.cvMagnet, downloadsItem.torrent)
-            setLink(binding.cvTorrent, downloadsItem.magnet)
-            setLink(binding.cvXdcc, downloadsItem.xdcc)
-        }
-
-        private fun setLink(cardView: CardView, link: String) {
-
+        fun bindData(downloadDto: DownloadDto) {
+            binding.tvTitle.text = downloadDto.getFormattedResolution()
+            binding.cvMagnet.setOnClickListener {
+                listener.onLinkClicked(downloadDto.magnet, LinkType.Magnet)
+            }
+            binding.cvTorrent.setOnClickListener {
+                listener.onLinkClicked(downloadDto.torrent, LinkType.Torrent)
+            }
+            binding.cvXdcc.setOnClickListener {
+                listener.onLinkClicked(downloadDto.getXdccLink(), LinkType.Xdcc)
+            }
         }
     }
 
@@ -34,4 +39,8 @@ class DownloadLinkAdapter(private val items: List<DownloadsItem>) : RecyclerView
     }
 
     override fun getItemCount(): Int = items.size
+
+    interface Listener {
+        fun onLinkClicked(link: String, linkType: LinkType)
+    }
 }

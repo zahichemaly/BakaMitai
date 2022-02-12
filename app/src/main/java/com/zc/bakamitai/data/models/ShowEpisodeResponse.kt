@@ -20,7 +20,7 @@ data class ShowEpisodeResponse(
                 time = show.time,
                 releaseDate = show.releaseDate,
                 episode = show.episode.toFloatOrNull() ?: 0F,
-                downloads = show.downloads
+                downloads = show.downloads.map { d -> d.toDownloadDto() }.sortedByDescending { d -> d.res }
             )
         })
         result.addAll(episode.map {
@@ -30,7 +30,7 @@ data class ShowEpisodeResponse(
                 time = show.time,
                 releaseDate = show.releaseDate,
                 episode = show.episode.toFloatOrNull() ?: 0F,
-                downloads = show.downloads
+                downloads = show.downloads.map { d -> d.toDownloadDto() }.sortedByDescending { d -> d.res }
             )
         })
         return result.sortedByDescending { it.episode }

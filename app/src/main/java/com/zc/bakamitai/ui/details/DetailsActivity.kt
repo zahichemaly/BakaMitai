@@ -1,12 +1,16 @@
 package com.zc.bakamitai.ui.details
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.Constants
+import com.zc.bakamitai.data.enums.LinkType
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.data.models.dtos.ShowDetailsDto
 import com.zc.bakamitai.databinding.ActivityDetailsBinding
@@ -15,8 +19,9 @@ import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.ui.base.BaseActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
-class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
+class DetailsActivity : BaseActivity<ActivityDetailsBinding>(), DownloadLinkAdapter.Listener {
     private val viewModel: DetailsViewModel by viewModel()
     override fun getViewBinding() = ActivityDetailsBinding.inflate(layoutInflater)
     private lateinit var adapter: DownloadsAdapter
@@ -31,7 +36,7 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
     }
 
     override fun setupView() {
-        adapter = DownloadsAdapter()
+        adapter = DownloadsAdapter(this)
         binding.rvDownloads.layoutManager = LinearLayoutManager(this)
         binding.rvDownloads.adapter = adapter
     }
@@ -104,5 +109,16 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
             .load(showDetailsDto.image)
             .into(binding.ivEntry)
         viewModel.setIsBookmarked(showDetailsDto.sid!!)
+    }
+
+    override fun onLinkClicked(link: String, linkType: LinkType) {
+        Timber.d("Clicked link ~> $link")
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Timber.e(e)
+            Toast.makeText(this, getString(R.string.no_app_found_for_action), Toast.LENGTH_LONG).show()
+        }
     }
 }
