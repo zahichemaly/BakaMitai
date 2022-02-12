@@ -8,7 +8,8 @@ data class ShowDownloadDto(
     val time: String = "",
     val releaseDate: String = "",
     val episode: Float = 0F,
-    val downloads: List<DownloadsItem> = listOf()
+    val downloads: List<DownloadsItem> = listOf(),
+    var isExpanded: Boolean = false
 ) {
     fun getFormattedEpisode(): String {
         val df = DecimalFormat("0.#")

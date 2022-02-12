@@ -2,10 +2,11 @@ package com.zc.bakamitai.ui.details
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
+import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.dtos.ShowDownloadDto
 import com.zc.bakamitai.databinding.ItemDownloadDetailsBinding
 import com.zc.bakamitai.databinding.ItemDownloadSummaryBinding
@@ -14,22 +15,31 @@ class DownloadsAdapter : RecyclerView.Adapter<DownloadsAdapter.ViewHolder>() {
 
     private val items: MutableList<ShowDownloadDto> = mutableListOf()
 
-    abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        abstract fun bindData(showDownloadDto: ShowDownloadDto)
-    }
-
-    class ParentViewHolder(val binding: ItemDownloadSummaryBinding) : ViewHolder(binding.root) {
-
-        override fun bindData(showDownloadDto: ShowDownloadDto) {
-            binding.tvTitle.text = showDownloadDto.getFormattedEpisode()
+    abstract inner class ViewHolder(open val binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
+        open fun bindData(position: Int, showDownloadDto: ShowDownloadDto) {
+            binding.root.setOnClickListener {
+                expandOrCollapse(position, showDownloadDto)
+            }
         }
     }
 
-    class ChildViewHolder(val binding: ItemDownloadDetailsBinding) : ViewHolder(binding.root) {
+    inner class ParentViewHolder(override val binding: ItemDownloadSummaryBinding) : ViewHolder(binding) {
 
-        override fun bindData(showDownloadDto: ShowDownloadDto) {
+        override fun bindData(position: Int, showDownloadDto: ShowDownloadDto) {
+            super.bindData(position, showDownloadDto)
+            val episodeText = binding.root.context.getString(R.string.episode_, showDownloadDto.getFormattedEpisode())
+            binding.tvTitle.text = episodeText
+        }
+    }
+
+    inner class ChildViewHolder(override val binding: ItemDownloadDetailsBinding) : ViewHolder(binding) {
+
+        override fun bindData(position: Int, showDownloadDto: ShowDownloadDto) {
+            super.bindData(position, showDownloadDto)
             val adapter = DownloadLinkAdapter(showDownloadDto.downloads)
-            binding.rvDownloads.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
+            val episodeText = binding.root.context.getString(R.string.episode_, showDownloadDto.getFormattedEpisode())
+            binding.tvTitle.text = episodeText
+            binding.rvDownloads.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
             binding.rvDownloads.adapter = adapter
         }
     }
@@ -48,14 +58,23 @@ class DownloadsAdapter : RecyclerView.Adapter<DownloadsAdapter.ViewHolder>() {
         }
     }
 
-    override fun getItemViewType(position: Int): Int = PARENT
+    override fun getItemViewType(position: Int): Int {
+        val item = items[position]
+        return if (item.isExpanded) CHILD
+        else PARENT
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        holder.bindData(item)
+        holder.bindData(position, item)
     }
 
     override fun getItemCount(): Int = items.size
+
+    private fun expandOrCollapse(position: Int, showDownloadDto: ShowDownloadDto) {
+        showDownloadDto.isExpanded = !showDownloadDto.isExpanded
+        notifyItemChanged(position)
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     fun addItems(items: List<ShowDownloadDto>) {

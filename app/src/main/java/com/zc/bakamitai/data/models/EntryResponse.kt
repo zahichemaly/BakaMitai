@@ -33,7 +33,7 @@ data class EntryResponse(
     val page: String
 ) {
     fun toEntryDto(): EntryDto {
-        val episode = BakaApplication.getContext().getString(R.string.episode, episode)
+        val episode = BakaApplication.getContext().getString(R.string.ep_, episode)
         return EntryDto(
             time = time,
             name = show,
