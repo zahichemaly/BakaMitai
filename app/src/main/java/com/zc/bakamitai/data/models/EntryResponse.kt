@@ -51,5 +51,11 @@ data class DownloadsItem(
     val res: String,
 
     @field:SerializedName("magnet")
-    val magnet: String
+    val magnet: String,
+
+    @field:SerializedName("torrent")
+    val torrent: String,
+
+    @field:SerializedName("xdcc")
+    val xdcc: String
 )

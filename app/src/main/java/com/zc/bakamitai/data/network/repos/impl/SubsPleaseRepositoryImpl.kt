@@ -2,6 +2,7 @@ package com.zc.bakamitai.data.network.repos.impl
 
 import com.zc.bakamitai.data.models.EntryResponse
 import com.zc.bakamitai.data.models.ScheduleResponse
+import com.zc.bakamitai.data.models.ShowEpisodeResponse
 import com.zc.bakamitai.data.models.TodayScheduleResponse
 import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
 import com.zc.bakamitai.data.network.services.SubsPleaseService
@@ -38,6 +39,12 @@ class SubsPleaseRepositoryImpl(val subsPleaseService: SubsPleaseService) : SubsP
     override suspend fun getShows(): Response<Document> {
         return withContext(Dispatchers.IO) {
             subsPleaseService.getShows()
+        }
+    }
+
+    override suspend fun getShowEpisodes(id: String): Response<ShowEpisodeResponse> {
+        return withContext(Dispatchers.IO) {
+            subsPleaseService.getShowEpisodes(id)
         }
     }
 }

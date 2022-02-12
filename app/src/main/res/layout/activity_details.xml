@@ -131,6 +131,18 @@
                     android:padding="@dimen/spacing_normal" />
             </com.ms.square.android.expandabletextview.ExpandableTextView>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/downloads"
+                android:textColor="?attr/colorOnSecondary"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDownloads"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:listitem="@layout/item_download_summary" />
 
         </LinearLayout>
 

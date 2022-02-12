@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.data.models.dtos.ShowDetailsDto
+import com.zc.bakamitai.data.models.dtos.ShowDownloadDto
 import com.zc.bakamitai.data.network.repos.BookmarksRepository
 import com.zc.bakamitai.data.network.repos.ScheduleRepository
 import com.zc.bakamitai.data.network.repos.SubsPleaseRepository
@@ -30,6 +31,9 @@ class DetailsViewModel(
     val isBookmarked: LiveData<Boolean>
         get() = _isBookmarked
 
+    private val _episodes = MutableLiveData<Resource<List<ShowDownloadDto>>>()
+    val episodes: LiveData<Resource<List<ShowDownloadDto>>>
+        get() = _episodes
 
     fun getShowDetails(page: String) {
         performNetworkCall {
@@ -38,12 +42,31 @@ class DetailsViewModel(
             if (response.isSuccessful && response.body() != null) {
                 Timber.d("Finished getting show details $page")
                 val result = response.body()!!.toShowDetailsDto(page)
+                val id = result.sid ?: ""
                 _show.setSuccess(result)
                 Timber.d(result.toString())
+                getEpisodes(id)
             } else {
                 Timber.d("Error getting show details $page")
                 onError(response.message())
                 _show.setError(response)
+            }
+        }
+    }
+
+    private fun getEpisodes(id: String) {
+        performNetworkCall {
+            _episodes.setLoading()
+            val response = subsPleaseRepository.getShowEpisodes(id)
+            if (response.isSuccessful && response.body() != null) {
+                Timber.d("Finished getting show episodes $id")
+                val result = response.body()!!.toShowDownloadsDto()
+                _episodes.setSuccess(result)
+                Timber.d(result.toString())
+            } else {
+                Timber.d("Error getting show episodes $id")
+                onError(response.message())
+                _episodes.setError(response)
             }
         }
     }

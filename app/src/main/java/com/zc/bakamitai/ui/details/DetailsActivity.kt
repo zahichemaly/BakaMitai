@@ -3,6 +3,7 @@ package com.zc.bakamitai.ui.details
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.Constants
@@ -18,6 +19,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
     private val viewModel: DetailsViewModel by viewModel()
     override fun getViewBinding() = ActivityDetailsBinding.inflate(layoutInflater)
+    private lateinit var adapter: DownloadsAdapter
     private lateinit var page: String
     private var show: ShowDetailsDto? = null
 
@@ -26,6 +28,12 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
         super.onCreate(savedInstanceState)
         page = intent.getStringExtra(Constants.Intent.PAGE)!!
         viewModel.getShowDetails(page)
+    }
+
+    override fun setupView() {
+        adapter = DownloadsAdapter()
+        binding.rvDownloads.layoutManager = LinearLayoutManager(this)
+        binding.rvDownloads.adapter = adapter
     }
 
     override fun manageSubscriptions() {
@@ -42,6 +50,22 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>() {
                 }
                 is Resource.Loading -> {
                     binding.progressBar.show()
+                }
+            }
+        }
+        viewModel.episodes.observe(this) {
+            when (it) {
+                is Resource.Success -> {
+                    //binding.progressBar.hide()
+                    //binding.contentLayout.show()
+                    val items = it.data ?: listOf()
+                    adapter.addItems(items)
+                }
+                is Resource.Error -> {
+                    //binding.progressBar.invisible()
+                }
+                is Resource.Loading -> {
+                    //binding.progressBar.show()
                 }
             }
         }

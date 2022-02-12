@@ -68,4 +68,8 @@
     <string name="share_text">Hey, check out this great anime: %s</string>
     <string name="refresh">Refresh</string>
     <string name="search">Search</string>
+    <string name="downloads">Downloads</string>
+    <string name="magnet">Magnet</string>
+    <string name="torrent">Torrent</string>
+    <string name="xdcc">XDCC</string>
 </resources>
