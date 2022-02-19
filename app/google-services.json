@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "681703331758",
+    "project_id": "bakamitai-bb066",
+    "storage_bucket": "bakamitai-bb066.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681703331758:android:37622484420df1f25c1a3f",
+        "android_client_info": {
+          "package_name": "com.zc.bakamitai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "681703331758-5r3u1rtfv4cus5r5uflqlgjs5m78mkto.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClgpiUs4et2BlJwMJ6eYk6NrYEbuYkQFA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "681703331758-5r3u1rtfv4cus5r5uflqlgjs5m78mkto.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
