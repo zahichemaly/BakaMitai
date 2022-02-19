@@ -1,7 +1,5 @@
 package com.zc.bakamitai.ui.home
 
-import android.os.Bundle
-import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.bakamitai.R
 import com.zc.bakamitai.data.models.Resource
@@ -9,7 +7,6 @@ import com.zc.bakamitai.databinding.FragmentHomeBinding
 import com.zc.bakamitai.extensions.hide
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.listeners.PageListener
-import com.zc.bakamitai.ui.base.BaseFragment
 import com.zc.bakamitai.ui.base.BaseFragmentWithPrefs
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -18,11 +15,6 @@ class HomeFragment : BaseFragmentWithPrefs<FragmentHomeBinding, HomeViewModel>()
     override fun getViewBinding() = FragmentHomeBinding.inflate(layoutInflater)
     private lateinit var entryAdapter: EntryAdapter
     private lateinit var entryGridAdapter: EntryGridAdapter
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel.refreshLatest()
-    }
 
     override fun setupView() {
         entryAdapter = EntryAdapter(this, preferenceUtil)

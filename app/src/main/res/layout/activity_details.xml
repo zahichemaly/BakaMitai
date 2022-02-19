@@ -73,7 +73,8 @@
                     android:background="@android:color/transparent"
                     android:checked="false"
                     android:contentDescription="@string/download"
-                    android:src="@drawable/ic_download" />
+                    android:src="@drawable/ic_download"
+                    android:visibility="gone" />
 
                 <ImageButton
                     android:id="@+id/ibShare"

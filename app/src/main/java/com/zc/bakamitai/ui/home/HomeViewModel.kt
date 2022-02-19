@@ -25,6 +25,10 @@ class HomeViewModel(private val subsPleaseRepository: SubsPleaseRepository) :
 
     val loadingAll: MediatorLiveData<Boolean> = _latestEntries.combineLoading(_todayEntries)
 
+    init {
+        refreshLatest()
+    }
+
     fun refreshLatest() {
         getLatest()
         getTodaySchedule()

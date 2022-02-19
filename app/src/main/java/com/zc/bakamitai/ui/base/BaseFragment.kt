@@ -16,7 +16,7 @@ import com.zc.bakamitai.ui.details.DetailsActivity
 
 abstract class BaseFragment<VBinding : ViewBinding, VM : BaseViewModel> : Fragment(), PageListener {
     private var _binding: VBinding? = null
-    protected val binding: VBinding by lazy { _binding!! }
+    protected val binding: VBinding get() = _binding!!
     protected abstract val viewModel: VM
     protected abstract fun getViewBinding(): VBinding
     protected lateinit var searchView: SearchView

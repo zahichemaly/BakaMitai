@@ -80,8 +80,8 @@ class ScheduleFragment : BaseFragmentWithPrefs<FragmentScheduleBinding, Schedule
         binding.swipeLayout.isEnabled = enabled
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
         binding.viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
+        super.onDestroyView()
     }
 }
