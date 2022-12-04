@@ -14,8 +14,6 @@ import com.zc.bakamitai.data.enums.LinkType
 import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.data.models.dtos.ShowDetailsDto
 import com.zc.bakamitai.databinding.ActivityDetailsBinding
-import com.zc.bakamitai.extensions.hide
-import com.zc.bakamitai.extensions.invisible
 import com.zc.bakamitai.extensions.show
 import com.zc.bakamitai.ui.base.BaseActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -45,16 +43,16 @@ class DetailsActivity : BaseActivity<ActivityDetailsBinding>(), DownloadLinkAdap
         viewModel.show.observe(this) {
             when (it) {
                 is Resource.Success -> {
-                    binding.progressBar.hide()
+                    binding.loadingView.setSuccess()
                     binding.contentLayout.show()
                     show = it.data!!
                     bindData(show!!)
                 }
                 is Resource.Error -> {
-                    binding.progressBar.invisible()
+                    binding.loadingView.setError()
                 }
                 is Resource.Loading -> {
-                    binding.progressBar.show()
+                    binding.loadingView.setLoading()
                 }
             }
         }
