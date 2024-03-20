@@ -1,5 +1,6 @@
 package com.zc.bakamitai.di
 
+import android.app.Application
 import androidx.room.Room
 import com.zc.bakamitai.data.network.Api
 import com.zc.bakamitai.data.network.repos.BookmarksRepository
@@ -19,9 +20,11 @@ import com.zc.bakamitai.utils.PreferenceUtil
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import retrofit2.Retrofit
 
 val servicesModule = module {
-    factory<SubsPleaseService> { Api.retrofit.create(SubsPleaseService::class.java) }
+    single<Retrofit> { Api.getRetrofit(get<Application>()) }
+    single<SubsPleaseService> { get<Retrofit>().create(SubsPleaseService::class.java) }
 }
 
 val reposModule = module {

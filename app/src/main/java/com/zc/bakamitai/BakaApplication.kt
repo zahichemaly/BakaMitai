@@ -39,9 +39,13 @@ class BakaApplication : Application() {
             Timber.plant(Timber.DebugTree())
         }
         startKoin {
-            //androidLogger()
             androidContext(this@BakaApplication)
-            modules(servicesModule, reposModule, viewModelsModule, utilsModule)
+            modules(
+                servicesModule,
+                reposModule,
+                viewModelsModule,
+                utilsModule
+            )
         }
         setTheme()
         applicationScope.launch(Dispatchers.IO) {
