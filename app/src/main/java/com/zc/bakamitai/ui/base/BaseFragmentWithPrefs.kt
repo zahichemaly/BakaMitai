@@ -13,7 +13,9 @@ abstract class BaseFragmentWithPrefs<VBinding : ViewBinding, VM : BaseViewModel>
     private val preferenceListener: SharedPreferences.OnSharedPreferenceChangeListener by lazy {
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             Timber.d("Preference value with key $key has changed")
-            isPrefsChanged = checkIfPrefsChanged(key)
+            key?.let {
+                isPrefsChanged = checkIfPrefsChanged(it)
+            }
         }
     }
 
