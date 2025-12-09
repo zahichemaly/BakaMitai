@@ -18,7 +18,7 @@ import com.zc.bakamitai.ui.library.LibraryViewModel
 import com.zc.bakamitai.ui.schedule.ScheduleViewModel
 import com.zc.bakamitai.utils.PreferenceUtil
 import org.koin.android.ext.koin.androidApplication
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 
@@ -31,7 +31,7 @@ val reposModule = module {
     factory<SubsPleaseRepository> { SubsPleaseRepositoryImpl(get()) }
     single {
         Room.databaseBuilder(androidApplication(), AppDatabase::class.java, "baka-db")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(false)
             .build()
     }
     factory { get<AppDatabase>().bookmarkDao() }
