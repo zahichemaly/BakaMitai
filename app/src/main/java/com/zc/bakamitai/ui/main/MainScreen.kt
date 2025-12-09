@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,6 +17,7 @@ import com.zc.bakamitai.features.home.HomeScreen
 import com.zc.bakamitai.features.library.LibraryScreen
 import com.zc.bakamitai.features.schedule.ScheduleScreen
 import com.zc.bakamitai.navigation.Screen
+import com.zc.bakamitai.navigation.navigationItems
 
 /**
  * Created by Zahi Chemaly on 09/12/2025.
@@ -22,11 +26,22 @@ import com.zc.bakamitai.navigation.Screen
 fun MainScreen() {
 
     val navController = rememberNavController()
+    val currentNavItem = remember {
+        mutableStateOf(navigationItems.first())
+    }
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
-        bottomBar = { NavBar(navController) }
+        bottomBar = {
+            NavBar(onNavigate = { navigationItem ->
+                currentNavItem.value = navigationItem
+                navController.navigate(navigationItem.route)
+            })
+        },
+        topBar = {
+            AppBar(currentNavItem.value.title)
+        }
     ) { innerPadding ->
 
         val graph =
@@ -50,4 +65,10 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MainScreenPreview() {
+    MainScreen()
 }

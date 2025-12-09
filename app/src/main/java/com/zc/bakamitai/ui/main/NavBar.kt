@@ -10,7 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
-import androidx.navigation.NavController
+import androidx.compose.ui.tooling.preview.Preview
+import com.zc.bakamitai.navigation.NavigationItem
 import com.zc.bakamitai.navigation.navigationItems
 
 /**
@@ -18,7 +19,7 @@ import com.zc.bakamitai.navigation.navigationItems
  */
 @Composable
 fun NavBar(
-    navController: NavController
+    onNavigate: (NavigationItem) -> Unit,
 ) {
     val selectedNavigationIndex = rememberSaveable {
         mutableIntStateOf(0)
@@ -32,7 +33,7 @@ fun NavBar(
                 selected = selectedNavigationIndex.intValue == index,
                 onClick = {
                     selectedNavigationIndex.intValue = index
-                    navController.navigate(item.route)
+                    onNavigate(item)
                 },
                 icon = {
                     Icon(imageVector = item.icon, contentDescription = item.title)
@@ -49,8 +50,13 @@ fun NavBar(
                     selectedIconColor = MaterialTheme.colorScheme.surface,
                     indicatorColor = MaterialTheme.colorScheme.primary
                 )
-
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun NavBarPreview() {
+    NavBar(onNavigate = {})
 }
