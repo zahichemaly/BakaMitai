@@ -91,6 +91,7 @@ dependencies {
     // Image
     implementation("com.github.bumptech.glide:glide:$glide")
     ksp("com.github.bumptech.glide:compiler:$glide")
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
