@@ -11,9 +11,7 @@ import com.zc.bakamitai.di.viewModelsModule
 import com.zc.bakamitai.utils.PreferenceUtil
 import com.zc.bakamitai.utils.Theme
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -48,9 +46,9 @@ class BakaApplication : Application() {
             )
         }
         setTheme()
-        applicationScope.launch(Dispatchers.IO) {
-            scheduleRepository.fetchSchedules(false)
-        }
+//        applicationScope.launch(Dispatchers.IO) {
+//            scheduleRepository.fetchSchedules(false)
+//        }
     }
 
     private fun setTheme() {

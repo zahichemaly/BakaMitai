@@ -28,9 +28,7 @@ import com.zc.bakamitai.R
 @Composable
 fun AppBar(
     title: String,
-    onSearchClick: () -> Unit = {},
-    onRefreshClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
+    onMenuAction: (AppBarMenuAction) -> Unit = {},
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -66,7 +64,7 @@ fun AppBar(
                     },
                     onClick = {
                         menuExpanded = false
-                        onSearchClick()
+                        onMenuAction(AppBarMenuAction.Search)
                     }
                 )
 
@@ -80,7 +78,7 @@ fun AppBar(
                     },
                     onClick = {
                         menuExpanded = false
-                        onRefreshClick()
+                        onMenuAction(AppBarMenuAction.Refresh)
                     }
                 )
 
@@ -95,12 +93,18 @@ fun AppBar(
                     },
                     onClick = {
                         menuExpanded = false
-                        onSettingsClick()
+                        onMenuAction(AppBarMenuAction.Settings)
                     }
                 )
             }
         },
     )
+}
+
+enum class AppBarMenuAction {
+    Search,
+    Refresh,
+    Settings,
 }
 
 @Preview

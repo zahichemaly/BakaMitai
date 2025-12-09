@@ -18,6 +18,7 @@ import com.zc.bakamitai.features.library.LibraryScreen
 import com.zc.bakamitai.features.schedule.ScheduleScreen
 import com.zc.bakamitai.navigation.Screen
 import com.zc.bakamitai.navigation.navigationItems
+import timber.log.Timber
 
 /**
  * Created by Zahi Chemaly on 09/12/2025.
@@ -40,7 +41,22 @@ fun MainScreen() {
             })
         },
         topBar = {
-            AppBar(currentNavItem.value.title)
+            AppBar(currentNavItem.value.title) { onMenuAction ->
+                Timber.d("Selected app bar menu action: $onMenuAction")
+                when (onMenuAction) {
+                    AppBarMenuAction.Search -> {
+
+                    }
+
+                    AppBarMenuAction.Refresh -> {
+
+                    }
+
+                    AppBarMenuAction.Settings -> {
+
+                    }
+                }
+            }
         }
     ) { innerPadding ->
 
