@@ -14,7 +14,7 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedule WHERE page = :page")
     fun getByPage(page: String): Schedule?
 
-    @Query("SELECT * FROM schedule s INNER JOIN bookmark b ON s.page = b.page")
+    @Query("SELECT s.id, s.name, s.page, s.date, s.isScheduled FROM schedule s INNER JOIN bookmark b ON s.page = b.page")
     fun getFromBookmarks(): List<Schedule>
 
     @Query("UPDATE schedule SET isScheduled = :isScheduled")

@@ -1,17 +1,18 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.zc.bakamitai"
-        minSdk = 21
-        targetSdk = 34
+        minSdk = 23
+        targetSdk = 36
         versionCode = 3
         versionName = "1.0.2"
 
@@ -33,35 +34,47 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
     namespace = "com.zc.bakamitai"
 }
 
 dependencies {
-    val retrofit = "2.10.0"
-    val koin = "3.5.3"
-    val room = "2.6.1"
-    val glide = "4.12.0"
+    val retrofit = "3.0.0"
+    val koin = "4.1.1"
+    val room = "2.8.4"
+    val glide = "5.0.5"
 
     // AndroidX
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.6")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.6")
+    implementation("androidx.work:work-runtime-ktx:2.11.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
+
+    // Compose
+    val composeBom = platform("androidx.compose:compose-bom:2024.04.01")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.activity:activity-compose:1.12.1")
+    implementation("androidx.compose.ui:ui-viewbinding:1.10.0")
+
 
     // Networking & Serialization
     implementation("com.squareup.retrofit2:retrofit:$retrofit")
     implementation("com.squareup.retrofit2:converter-gson:$retrofit")
     implementation("com.squareup.retrofit2:converter-scalars:$retrofit")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.7")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("org.jsoup:jsoup:1.14.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.3.2")
+    implementation("com.google.code.gson:gson:2.13.2")
+    implementation("org.jsoup:jsoup:1.21.2")
 
     // DI
     implementation("io.insert-koin:koin-core:$koin")
@@ -79,18 +92,18 @@ dependencies {
     ksp("com.github.bumptech.glide:compiler:$glide")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    //implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Misc
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("de.hdodenhof:circleimageview:3.1.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("com.ms-square:expandableTextView:0.1.4")
-    implementation("com.google.android.material:material:1.12.0")
+    implementation("com.google.android.material:material:1.13.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
 }
