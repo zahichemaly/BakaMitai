@@ -66,6 +66,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.activity:activity-compose:1.12.1")
     implementation("androidx.compose.ui:ui-viewbinding:1.10.0")
+    implementation("androidx.navigation:navigation-compose:2.9.6")
 
 
     // Networking & Serialization
