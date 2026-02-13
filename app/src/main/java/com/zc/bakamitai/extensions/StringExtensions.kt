@@ -8,6 +8,7 @@ import java.text.DecimalFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.core.net.toUri
 
 /**
  * Converts string to [Date] using format [format].
@@ -66,9 +67,9 @@ fun String.toDayOfWeekNumber(startsMonday: Boolean): Int {
  * Appends [this] to [Constants.Api.BASE_URL].
  */
 fun String.toImageUrl(): String {
-    return Uri.parse(Constants.Api.BASE_URL)
+    return Constants.Api.BASE_URL.toUri()
         .buildUpon()
-        .appendEncodedPath(this)
+        .appendEncodedPath(this.removePrefix("/"))
         .toString()
 }
 
@@ -82,7 +83,7 @@ fun String.toImageUrl(): String {
  * @return "100-man-no-inochi-no-ue-ni-ore-wa-tatte-iru"
  */
 fun String.parsePage(): String {
-    val fullUrl = Uri.parse(Constants.Api.BASE_URL)
+    val fullUrl = Constants.Api.BASE_URL.toUri()
         .buildUpon()
         .appendEncodedPath(this)
         .build()

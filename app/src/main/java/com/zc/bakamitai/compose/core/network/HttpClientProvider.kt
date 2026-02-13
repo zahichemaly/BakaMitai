@@ -1,5 +1,6 @@
 package com.zc.bakamitai.compose.core.network
 
+import com.zc.bakamitai.data.Constants
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
@@ -30,7 +31,7 @@ object HttpClientProvider {
                 json(jsonConfig, contentType = ContentType.Text.Html)
             }
             install(DefaultRequest) {
-                url("https://subsplease.org/")
+                url(Constants.Api.BASE_URL)
                 url.parameters.append("tz", TimeZone.getDefault().id)
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)

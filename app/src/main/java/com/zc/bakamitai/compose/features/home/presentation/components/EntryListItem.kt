@@ -1,5 +1,6 @@
 package com.zc.bakamitai.compose.features.home.presentation.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,7 +37,8 @@ fun EntryListItem(
     val context = LocalContext.current
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(8.dp),
 //            .clickable(onClick = {
 //                onPageClicked(entryDto.page)
 //            })
@@ -46,6 +50,7 @@ fun EntryListItem(
                 .crossfade(true)
                 .build(),
             contentDescription = release.show,
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier
                 .size(75.dp)
                 .clip(CircleShape),
@@ -54,18 +59,19 @@ fun EntryListItem(
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 16.dp)
+                .align(Alignment.CenterVertically)
         ) {
             Text(
                 text = release.show,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSecondary,
+                color = Color.Black,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = release.time,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSecondary,
+                color = Color.Black,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

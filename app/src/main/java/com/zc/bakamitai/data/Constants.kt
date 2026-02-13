@@ -3,7 +3,7 @@ package com.zc.bakamitai.data
 object Constants {
 
     object Api {
-        const val BASE_URL = "https://subsplease.org/"
+        const val BASE_URL = "https://subsplease.org"
         const val CACHE_CONTROL = "Cache-Control"
         const val PRAGMA = "Pragma"
     }

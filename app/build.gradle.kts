@@ -62,7 +62,7 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
 
-    // Ktor
+    //region New dependencies after re-write
     val ktorVersion = "3.4.0" // Use latest version
     implementation("io.ktor:ktor-client-android:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -70,9 +70,14 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-xml:${ktorVersion}")
     implementation("io.ktor:ktor-client-logging:${ktorVersion}")
+
     implementation("io.insert-koin:koin-androidx-compose:${koin}")
     implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
+    //endregion
 
     // Compose
     val composeBom = platform("androidx.compose:compose-bom:2024.04.01")
@@ -108,7 +113,6 @@ dependencies {
     // Image
     implementation("com.github.bumptech.glide:glide:$glide")
     ksp("com.github.bumptech.glide:compiler:$glide")
-    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
