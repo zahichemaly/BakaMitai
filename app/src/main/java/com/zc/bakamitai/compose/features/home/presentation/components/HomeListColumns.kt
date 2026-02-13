@@ -1,7 +1,6 @@
 package com.zc.bakamitai.compose.features.home.presentation.components
 
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,10 +11,8 @@ fun HomeListColumns(
     modifier: Modifier = Modifier,
     items: List<Release>
 ) {
-    LazyColumn(modifier = modifier) {
-        items(items = items, key = {
-            it.show
-        }) { item ->
+    Column(modifier = modifier) {
+        items.forEach { item ->
             EntryListItem(release = item) { }
             HorizontalDivider()
         }

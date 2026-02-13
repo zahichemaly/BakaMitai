@@ -24,7 +24,10 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.zc.bakamitai.R
+import com.zc.bakamitai.compose.common.UiText
 import com.zc.bakamitai.compose.features.home.domain.model.Release
+import com.zc.bakamitai.compose.ui.ColorBlackLight
 
 @Composable
 fun EntryListItem(
@@ -68,7 +71,7 @@ fun EntryListItem(
             Text(
                 text = release.time,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black,
+                color = ColorBlackLight,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -81,7 +84,7 @@ fun EntryListItem(
             )
         ) {
             Text(
-                text = release.episode,
+                text = UiText.StringResource(R.string.ep_, release.episode).asString(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier

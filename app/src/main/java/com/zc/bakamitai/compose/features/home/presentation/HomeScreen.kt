@@ -1,8 +1,8 @@
 package com.zc.bakamitai.compose.features.home.presentation
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,26 +29,34 @@ fun HomeScreen() {
 
 @Composable
 fun HomeContent(homeUiModel: HomeUiModel) {
-    Column(
+    LazyColumn(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
     ) {
-        HomeHeader(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            title = UiText.StringResource(R.string.today).asString()
-        )
-        HomeListRows(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            items = homeUiModel.todayReleases.schedule
-        )
-        HomeHeader(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            title = UiText.StringResource(R.string.latest_releases).asString()
-        )
-        HomeListColumns(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            items = homeUiModel.latestReleases.values.toList()
-        )
+        item {
+            HomeHeader(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = UiText.StringResource(R.string.today).asString()
+            )
+        }
+        item {
+            HomeListRows(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                items = homeUiModel.todayReleases.schedule
+            )
+        }
+        item {
+            HomeHeader(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = UiText.StringResource(R.string.latest_releases).asString()
+            )
+        }
+        item {
+            HomeListColumns(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                items = homeUiModel.latestReleases.values.toList()
+            )
+        }
     }
 }
 

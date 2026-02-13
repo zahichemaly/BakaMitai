@@ -16,7 +16,6 @@ fun LatestReleaseDTO.toDomain(): LatestRelease {
 }
 
 fun ReleaseDTO.toDomain(): Release {
-    val episode = BakaApplication.getContext().getString(R.string.ep_, episode)
     return Release(
         time = time,
         show = show,
