@@ -16,7 +16,7 @@ import com.zc.bakamitai.compose.features.bookmark.BookmarkScreen
 import com.zc.bakamitai.compose.features.home.presentation.HomeScreen
 import com.zc.bakamitai.compose.features.library.LibraryScreen
 import com.zc.bakamitai.compose.features.schedule.ScheduleScreen
-import com.zc.bakamitai.compose.navigation.Screen
+import com.zc.bakamitai.compose.navigation.HomeGraph
 import com.zc.bakamitai.compose.navigation.navigationItems
 import com.zc.bakamitai.ui.main.AppBar
 import com.zc.bakamitai.ui.main.AppBarMenuAction
@@ -63,17 +63,20 @@ fun MainScreen() {
     ) { innerPadding ->
 
         val graph =
-            navController.createGraph(startDestination = Screen.Home.route) {
-                composable(route = Screen.Home.route) {
-                    HomeScreen()
+            navController.createGraph(
+                startDestination = HomeGraph.Destination.Home.route,
+                route = HomeGraph.route
+            ) {
+                composable(route = HomeGraph.Destination.Home.route) {
+                    HomeScreen(navController)
                 }
-                composable(route = Screen.Schedule.route) {
+                composable(route = HomeGraph.Destination.Schedule.route) {
                     ScheduleScreen()
                 }
-                composable(route = Screen.Library.route) {
+                composable(route = HomeGraph.Destination.Library.route) {
                     LibraryScreen()
                 }
-                composable(route = Screen.Bookmark.route) {
+                composable(route = HomeGraph.Destination.Bookmark.route) {
                     BookmarkScreen()
                 }
             }

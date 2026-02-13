@@ -24,6 +24,7 @@ private val infraModule = module {
 }
 
 
+
 val homeModule = module {
     includes(networkModule)
     includes(infraModule)

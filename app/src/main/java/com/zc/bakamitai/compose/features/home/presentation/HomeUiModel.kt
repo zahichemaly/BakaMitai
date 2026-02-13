@@ -8,4 +8,5 @@ import com.zc.bakamitai.compose.features.home.domain.model.TodaySchedule
 data class HomeUiModel(
     val todayReleases: TodaySchedule = TodaySchedule(),
     val latestReleases: LatestRelease = emptyMap(),
+    val isLoading: Boolean = false
 )

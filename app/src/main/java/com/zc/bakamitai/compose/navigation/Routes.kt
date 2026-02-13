@@ -13,21 +13,21 @@ val navigationItems = listOf(
     NavigationItem(
         title = "Home",
         icon = Icons.Default.Home,
-        route = Screen.Home.route
+        route = HomeGraph.Destination.Home.route
     ),
     NavigationItem(
         title = "Schedule",
         icon = Icons.Default.DateRange,
-        route = Screen.Schedule.route
+        route = HomeGraph.Destination.Schedule.route
     ),
     NavigationItem(
         title = "All Shows",
         icon = Icons.AutoMirrored.Filled.List,
-        route = Screen.Library.route
+        route = HomeGraph.Destination.Library.route
     ),
     NavigationItem(
         title = "Bookmarks",
         icon = Icons.Default.Favorite,
-        route = Screen.Bookmark.route
+        route = HomeGraph.Destination.Bookmark.route
     )
 )

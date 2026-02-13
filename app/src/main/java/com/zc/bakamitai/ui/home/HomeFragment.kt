@@ -27,7 +27,7 @@ class HomeFragment : BaseFragmentWithPrefs<FragmentHomeBinding, HomeViewModel>()
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 // In Compose world
-                HomeScreen()
+                //HomeScreen()
             }
         }
         return view
