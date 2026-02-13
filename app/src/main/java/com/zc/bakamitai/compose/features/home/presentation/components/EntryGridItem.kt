@@ -35,7 +35,9 @@ import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.UiText
 import com.zc.bakamitai.compose.common.roundedBackground
 import com.zc.bakamitai.compose.features.home.domain.model.Schedule
+import com.zc.bakamitai.compose.ui.ColorAired
 import com.zc.bakamitai.compose.ui.ColorGreyLight
+import com.zc.bakamitai.compose.ui.ColorNotAired
 
 @Composable
 fun EntryGridItem(
@@ -75,10 +77,10 @@ fun EntryGridItem(
 
                 if (item.aired) {
                     airedText = UiText.StringResource(R.string.aired).asString()
-                    airedTextColor = colorResource(R.color.color_aired)
+                    airedTextColor = ColorAired
                 } else {
                     airedText = UiText.StringResource(R.string.not_aired).asString()
-                    airedTextColor = colorResource(R.color.color_not_aired)
+                    airedTextColor = ColorNotAired
                 }
                 Row(
                     modifier = Modifier

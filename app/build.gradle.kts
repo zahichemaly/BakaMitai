@@ -80,14 +80,14 @@ dependencies {
     //endregion
 
     // Compose
-    val composeBom = platform("androidx.compose:compose-bom:2024.04.01")
+    val composeBom = platform("androidx.compose:compose-bom:2024.12.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.activity:activity-compose:1.12.1")
-    implementation("androidx.compose.ui:ui-viewbinding:1.10.0")
+    implementation("androidx.compose.ui:ui-viewbinding") // Removed hardcoded version to follow BOM
     implementation("androidx.navigation:navigation-compose:2.9.6")
 
 

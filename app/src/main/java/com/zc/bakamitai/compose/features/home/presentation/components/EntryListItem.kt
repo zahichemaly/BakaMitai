@@ -48,7 +48,7 @@ fun EntryListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .clickable {
                 onClick(item.release.page)
             }
@@ -75,7 +75,7 @@ fun EntryListItem(
         ) {
             Text(
                 text = item.release.show,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontSize = 16.sp,
@@ -89,11 +89,11 @@ fun EntryListItem(
                     painter = painterResource(id = R.drawable.ic_time),
                     contentDescription = "Airing time",
                     modifier = Modifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(ColorGreyLight, BlendMode.SrcIn)
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground, BlendMode.SrcIn)
                 )
                 Text(
                     text = item.formattedDate.asString(),
-                    color = ColorGreyLight,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 12.sp,
                 )
             }
@@ -101,9 +101,9 @@ fun EntryListItem(
         Text(
             text = UiText.StringResource(R.string.ep_, item.release.episode).asString(),
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             modifier = Modifier
-                .roundedBackground(ColorGreyLight)
+                .roundedBackground(MaterialTheme.colorScheme.primary)
                 .align(Alignment.CenterVertically)
                 .padding(8.dp)
         )

@@ -1,19 +1,14 @@
 package com.zc.bakamitai.compose.features.home.presentation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,23 +45,10 @@ fun HomeContent(
     homeUiModel: HomeUiModel,
     onRefresh: () -> Unit
 ) {
-    val pullToRefreshState = rememberPullToRefreshState()
-
-    if (pullToRefreshState.isRefreshing) {
-        LaunchedEffect(true) {
-            onRefresh()
-        }
-    }
-
-    LaunchedEffect(homeUiModel.isLoading) {
-        if (homeUiModel.isLoading) {
-            pullToRefreshState.startRefresh()
-        } else {
-            pullToRefreshState.endRefresh()
-        }
-    }
-
-    Box(modifier = Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
+    PullToRefreshBox(
+        isRefreshing = homeUiModel.isLoading,
+        onRefresh = onRefresh
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -96,11 +78,6 @@ fun HomeContent(
                 )
             }
         }
-
-        PullToRefreshContainer(
-            modifier = Modifier.align(Alignment.TopCenter),
-            state = pullToRefreshState
-        )
     }
 }
 

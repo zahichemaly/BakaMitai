@@ -25,9 +25,16 @@ import timber.log.Timber
 /**
  * Created by Zahi Chemaly on 09/12/2025.
  */
-@Composable
-fun MainScreen() {
 
+@Composable
+fun MainScreen(modifier: Modifier = Modifier) {
+    AppTheme {
+        MainScreenContent(modifier)
+    }
+}
+
+@Composable
+fun MainScreenContent(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val currentNavItem = remember {
         mutableStateOf(navigationItems.first())

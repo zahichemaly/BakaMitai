@@ -26,7 +26,7 @@ fun NavBar(
     }
 
     NavigationBar(
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
         navigationItems.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -42,13 +42,13 @@ fun NavBar(
                     Text(
                         item.title,
                         color = if (index == selectedNavigationIndex.intValue)
-                            Color.Black
+                            MaterialTheme.colorScheme.primary
                         else Color.Gray
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.surface,
-                    indicatorColor = MaterialTheme.colorScheme.primary
+                    indicatorColor = MaterialTheme.colorScheme.primary,
                 )
             )
         }
