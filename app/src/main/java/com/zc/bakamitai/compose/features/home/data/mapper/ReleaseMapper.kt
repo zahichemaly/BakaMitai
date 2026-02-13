@@ -8,6 +8,7 @@ import com.zc.bakamitai.compose.features.home.data.model.ReleaseDTO
 import com.zc.bakamitai.compose.features.home.domain.model.DownloadItem
 import com.zc.bakamitai.compose.features.home.domain.model.LatestRelease
 import com.zc.bakamitai.compose.features.home.domain.model.Release
+import com.zc.bakamitai.extensions.to12HourFormat
 import com.zc.bakamitai.extensions.toImageUrl
 
 fun LatestReleaseDTO.toDomain(): LatestRelease {
@@ -22,7 +23,7 @@ fun ReleaseDTO.toDomain(): Release {
         episode = episode,
         imageUrl = imageUrl?.toImageUrl(),
         releaseDate = releaseDate,
-        page = page.toIntOrNull() ?: 0,
+        page = page,
         xdcc = xdcc,
         downloads = downloads.map { it.toDomain() }
     )

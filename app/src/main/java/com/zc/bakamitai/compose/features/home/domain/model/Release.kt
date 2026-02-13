@@ -31,7 +31,7 @@ data class Release(
     val time: String,
 
     @SerialName("page")
-    val page: Int
+    val page: String
 )
 
 @Serializable
