@@ -1,4 +1,4 @@
-package com.zc.bakamitai.features.home.components
+package com.zc.bakamitai.compose.features.home.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,18 +22,20 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.zc.bakamitai.R
-import com.zc.bakamitai.data.models.dtos.EntryDto
+import com.zc.bakamitai.compose.features.home.domain.model.Release
+import com.zc.bakamitai.compose.features.home.domain.model.Schedule
+import com.zc.bakamitai.compose.features.home.domain.model.TodaySchedule
 
 @Composable
 fun EntryGridItem(
-    entryDto: EntryDto,
+    release: Schedule,
     is12HourFormat: Boolean,
     onPageClicked: (String) -> Unit
 ) {
     val context = LocalContext.current
     Card(
         onClick = {
-            onPageClicked(entryDto.page)
+            onPageClicked(release.page)
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -46,11 +48,11 @@ fun EntryGridItem(
         Column {
             AsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(entryDto.imageUrl)
+                    .data(release.imageUrl)
                     .crossfade(true)
                     .build(),
                 //placeholder = painterResource(R.mipmap.ic_launcher),
-                contentDescription = entryDto.name,
+                contentDescription = release.title,
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -62,14 +64,14 @@ fun EntryGridItem(
                     .padding(dimensionResource(id = R.dimen.spacing_small))
             ) {
                 Text(
-                    text = entryDto.name,
+                    text = release.title,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = entryDto.getFormattedTime(is12HourFormat),
+                    text = release.time,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 1,
@@ -78,7 +80,7 @@ fun EntryGridItem(
                 val airedText: String
                 val airedTextColor: Color
 
-                if (entryDto.aired) {
+                if (release.aired) {
                     airedText = stringResource(R.string.aired)
                     airedTextColor = colorResource(R.color.color_aired)
                 } else {
@@ -100,26 +102,26 @@ fun EntryGridItem(
 @Preview
 @Composable
 fun PreviewEntryGridItem() {
-    val entries = listOf(
-        EntryDto(
-            name = "Detective Conan Detective Conan Detective Conan Detective Conan Detective Conan",
+    val releases = listOf(
+        Schedule(
+            title = "Detective Conan Detective Conan Detective Conan Detective Conan Detective Conan",
             page = "https://www.detectiveconanworld.com/",
             imageUrl = "https://subsplease.org/wp-content/uploads/2020/10/75199.jpg",
             time = "18:00",
-            aired = true
+            aired = true,
         ),
-        EntryDto(
-            name = "Detective Conan",
+        Schedule(
+            title = "Detective Conan",
             page = "https://www.detectiveconanworld.com/",
             imageUrl = "https://subsplease.org/wp-content/uploads/2020/10/75199.jpg",
             time = "18:00",
-            aired = false
+            aired = false,
         )
     )
     Column {
-        entries.forEach { entry ->
+        releases.forEach { entry ->
             EntryGridItem(
-                entryDto = entry,
+                release = entry,
                 is12HourFormat = entry.aired,
                 onPageClicked = {}
             )

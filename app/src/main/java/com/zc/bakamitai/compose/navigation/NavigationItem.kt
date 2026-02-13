@@ -1,4 +1,4 @@
-package com.zc.bakamitai.navigation
+package com.zc.bakamitai.compose.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

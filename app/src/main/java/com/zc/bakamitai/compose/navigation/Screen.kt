@@ -1,4 +1,4 @@
-package com.zc.bakamitai.navigation
+package com.zc.bakamitai.compose.navigation
 
 /**
  * Created by Zahi Chemaly on 09/12/2025.

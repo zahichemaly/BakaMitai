@@ -1,4 +1,4 @@
-package com.zc.bakamitai.features.home.components
+package com.zc.bakamitai.compose.features.home.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,11 +23,11 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.zc.bakamitai.R
-import com.zc.bakamitai.data.models.dtos.EntryDto
+import com.zc.bakamitai.compose.features.home.domain.model.Release
 
 @Composable
 fun EntryListItem(
-    entryDto: EntryDto,
+    release: Release,
     is12HourFormat: Boolean,
     onPageClicked: (String) -> Unit
 ) {
@@ -42,10 +42,10 @@ fun EntryListItem(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context)
-                .data(entryDto.imageUrl)
+                .data(release.imageUrl)
                 .crossfade(true)
                 .build(),
-            contentDescription = entryDto.name,
+            contentDescription = release.show,
             modifier = Modifier
                 .size(75.dp)
                 .clip(CircleShape),
@@ -56,14 +56,14 @@ fun EntryListItem(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = entryDto.name,
+                text = release.show,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSecondary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = entryDto.getFormattedTime(is12HourFormat),
+                text = release.time,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSecondary,
                 maxLines = 1,
@@ -77,7 +77,7 @@ fun EntryListItem(
             )
         ) {
             Text(
-                text = entryDto.episode,
+                text = release.episode,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.spacing_xsmall))
@@ -89,15 +89,18 @@ fun EntryListItem(
 @Preview
 @Composable
 fun PreviewEntryListItem() {
-    val entry = EntryDto(
-        name = "Detective Conan",
-        page = "https://www.detectiveconanworld.com/",
+    val release = Release(
+        show = "Detective Conan",
+        page = 0,
         imageUrl = "https://subsplease.org/wp-content/uploads/2020/10/75199.jpg",
         time = "07:01",
-        episode = "Ep 13"
+        episode = "Ep 13",
+        xdcc = "",
+        releaseDate = "",
+        downloads = emptyList(),
     )
     EntryListItem(
-        entryDto = entry,
+        release = release,
         is12HourFormat = true,
         onPageClicked = {}
     )

@@ -1,9 +1,12 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
 }
 
 android {
@@ -25,11 +28,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
     buildFeatures {
         viewBinding = true
@@ -56,6 +61,18 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.11.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
+
+    // Ktor
+    val ktorVersion = "3.4.0" // Use latest version
+    implementation("io.ktor:ktor-client-android:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-xml:${ktorVersion}")
+    implementation("io.ktor:ktor-client-logging:${ktorVersion}")
+    implementation("io.insert-koin:koin-androidx-compose:${koin}")
+    implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     // Compose
     val composeBom = platform("androidx.compose:compose-bom:2024.04.01")

@@ -5,13 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.zc.bakamitai.R
-import com.zc.bakamitai.data.models.Resource
 import com.zc.bakamitai.databinding.FragmentHomeBinding
-import com.zc.bakamitai.extensions.hide
-import com.zc.bakamitai.extensions.show
-import com.zc.bakamitai.features.home.HomeScreen
+import com.zc.bakamitai.compose.features.home.presentation.HomeScreen
 import com.zc.bakamitai.listeners.PageListener
 import com.zc.bakamitai.ui.base.BaseFragmentWithPrefs
 import org.koin.androidx.viewmodel.ext.android.viewModel

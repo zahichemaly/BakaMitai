@@ -1,4 +1,4 @@
-package com.zc.bakamitai.ui.main
+package com.zc.bakamitai.compose
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,12 +12,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
-import com.zc.bakamitai.features.bookmark.BookmarkScreen
-import com.zc.bakamitai.features.home.HomeScreen
-import com.zc.bakamitai.features.library.LibraryScreen
-import com.zc.bakamitai.features.schedule.ScheduleScreen
-import com.zc.bakamitai.navigation.Screen
-import com.zc.bakamitai.navigation.navigationItems
+import com.zc.bakamitai.compose.features.bookmark.BookmarkScreen
+import com.zc.bakamitai.compose.features.home.presentation.HomeScreen
+import com.zc.bakamitai.compose.features.library.LibraryScreen
+import com.zc.bakamitai.compose.features.schedule.ScheduleScreen
+import com.zc.bakamitai.compose.navigation.Screen
+import com.zc.bakamitai.compose.navigation.navigationItems
+import com.zc.bakamitai.ui.main.AppBar
+import com.zc.bakamitai.ui.main.AppBarMenuAction
 import timber.log.Timber
 
 /**

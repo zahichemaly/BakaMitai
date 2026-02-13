@@ -1,5 +1,4 @@
-package com.zc.bakamitai.features.schedule
-
+package com.zc.bakamitai.compose.features.bookmark
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,14 +12,14 @@ import androidx.compose.ui.Modifier
  * Created by Zahi Chemaly on 09/12/2025.
  */
 @Composable
-fun ScheduleScreen() {
+fun BookmarkScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Schedule Screen",
+            text = "Bookmark Screen",
             style = MaterialTheme.typography.headlineLarge
         )
     }

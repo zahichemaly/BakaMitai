@@ -1,4 +1,4 @@
-package com.zc.bakamitai.ui.main
+package com.zc.bakamitai.compose
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -11,8 +11,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.zc.bakamitai.navigation.NavigationItem
-import com.zc.bakamitai.navigation.navigationItems
+import com.zc.bakamitai.compose.navigation.NavigationItem
+import com.zc.bakamitai.compose.navigation.navigationItems
 
 /**
  * Created by Zahi Chemaly on 09/12/2025.
