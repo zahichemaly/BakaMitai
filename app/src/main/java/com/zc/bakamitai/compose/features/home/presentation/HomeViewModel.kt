@@ -2,8 +2,11 @@ package com.zc.bakamitai.compose.features.home.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zc.bakamitai.compose.core.domain.DateFormattedResult
 import com.zc.bakamitai.compose.core.domain.Resource
 import com.zc.bakamitai.compose.features.home.domain.repository.ReleaseRepository
+import com.zc.bakamitai.extensions.toDateFormattedResult
+import com.zc.bakamitai.extensions.toDateTime
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,10 +45,19 @@ class HomeViewModel(private val releaseRepository: ReleaseRepository) : ViewMode
             val todayReleases = todayReleaseDef.await()
 
             if (latestReleases is Resource.Success && todayReleases is Resource.Success) {
+                val latestReleases = latestReleases.data
+                val todayReleases = todayReleases.data
+
+                val releaseUiModels = latestReleases.mapValues { keyValue ->
+                    val date = keyValue.value.releaseDate.toDateTime()?.toDateFormattedResult()
+                        ?: DateFormattedResult.None
+                    ReleaseUiModel(keyValue.value, date)
+                }
+
                 _homeUiModel.update {
                     HomeUiModel(
-                        latestReleases = latestReleases.data,
-                        todayReleases = todayReleases.data,
+                        latestReleases = releaseUiModels,
+                        todayReleases = todayReleases,
                         isLoading = false
                     )
                 }

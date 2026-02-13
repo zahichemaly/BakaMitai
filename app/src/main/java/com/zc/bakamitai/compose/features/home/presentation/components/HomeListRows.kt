@@ -15,7 +15,7 @@ fun HomeListRows(
         items(items = items, key = {
             it.title
         }) { item ->
-            EntryGridItem(release = item) { }
+            EntryGridItem(item = item) { }
         }
     }
 }

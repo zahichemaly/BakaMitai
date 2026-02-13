@@ -7,7 +7,7 @@
     <string name="title_library">All Shows</string>
     <string name="title_bookmarks">Bookmarks</string>
     <string name="title_settings">Settings</string>
-    <string name="ep_">Ep %s</string>
+    <string name="ep_">#%s</string>
     <string name="episode_">Episode %s</string>
     <string name="loading">Loading…</string>
     <string name="today">Today</string>
@@ -20,6 +20,11 @@
     <string name="collapse_button">Collapse button</string>
     <string name="bookmark">Bookmark</string>
     <string name="download">Download</string>
+
+    <string name="date_today_at">Today at %1$s</string>
+    <string name="date_tomorrow_at">Tomorrow at %1$s</string>
+    <string name="date_yesterday_at">Yesterday at %1$s</string>
+    <string name="date_day_at">%1$s at %2$s</string>
 
     <!-- Error -->
     <string name="error_1">Nani? Something went wrong while fetching your data! &#128534;</string>

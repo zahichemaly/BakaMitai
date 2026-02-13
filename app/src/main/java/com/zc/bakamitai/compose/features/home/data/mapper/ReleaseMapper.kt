@@ -1,14 +1,11 @@
 package com.zc.bakamitai.compose.features.home.data.mapper
 
-import com.zc.bakamitai.BakaApplication
-import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.features.home.data.model.DownloadItemDTO
 import com.zc.bakamitai.compose.features.home.data.model.LatestReleaseDTO
 import com.zc.bakamitai.compose.features.home.data.model.ReleaseDTO
 import com.zc.bakamitai.compose.features.home.domain.model.DownloadItem
 import com.zc.bakamitai.compose.features.home.domain.model.LatestRelease
 import com.zc.bakamitai.compose.features.home.domain.model.Release
-import com.zc.bakamitai.extensions.to12HourFormat
 import com.zc.bakamitai.extensions.toImageUrl
 
 fun LatestReleaseDTO.toDomain(): LatestRelease {

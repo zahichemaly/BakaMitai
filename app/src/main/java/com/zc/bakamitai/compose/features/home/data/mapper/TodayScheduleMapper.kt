@@ -4,6 +4,7 @@ import com.zc.bakamitai.compose.features.home.data.model.ScheduleDTO
 import com.zc.bakamitai.compose.features.home.data.model.TodayScheduleDTO
 import com.zc.bakamitai.compose.features.home.domain.model.Schedule
 import com.zc.bakamitai.compose.features.home.domain.model.TodaySchedule
+import com.zc.bakamitai.extensions.to12HourFormat
 import com.zc.bakamitai.extensions.toImageUrl
 import timber.log.Timber
 
@@ -20,7 +21,7 @@ private fun ScheduleDTO.toDomain(): Schedule {
         aired = aired,
         imageUrl = imageUrl.toImageUrl(),
         page = page,
-        time = time,
+        time = time.to12HourFormat(),
         title = title
     )
 }

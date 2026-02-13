@@ -1,10 +1,8 @@
 package com.zc.bakamitai.data.models.dtos
 
-import com.zc.bakamitai.extensions.formatToDay
-import com.zc.bakamitai.extensions.formatToDay12Hour
 import com.zc.bakamitai.extensions.to12HourFormat
 import com.zc.bakamitai.extensions.toDateTime
-import java.util.*
+import java.util.Date
 
 data class EntryDto(
     val page: String = "",
@@ -17,8 +15,7 @@ data class EntryDto(
 ) {
 
     fun getFormattedDate(is12HourFormat: Boolean): String {
-        return if (is12HourFormat) getDateTime()?.formatToDay12Hour() ?: date
-        else getDateTime()?.formatToDay() ?: date
+        return ""
     }
 
     fun getFormattedTime(is12HourFormat: Boolean): String {

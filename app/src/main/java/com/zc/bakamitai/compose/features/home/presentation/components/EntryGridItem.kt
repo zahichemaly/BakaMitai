@@ -1,22 +1,28 @@
 package com.zc.bakamitai.compose.features.home.presentation.components
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,20 +33,22 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.UiText
+import com.zc.bakamitai.compose.common.roundedBackground
 import com.zc.bakamitai.compose.features.home.domain.model.Schedule
+import com.zc.bakamitai.compose.ui.ColorGreyLight
 
 @Composable
 fun EntryGridItem(
-    release: Schedule, onClick: (String) -> Unit = {}
+    item: Schedule, onClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     Card(
         onClick = {
-            onClick(release.page)
+            onClick(item.page)
         },
         modifier = Modifier
             .width(200.dp)
-            .height(300.dp)
+            .height(200.dp)
             .padding(8.dp),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
@@ -51,13 +59,12 @@ fun EntryGridItem(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
             ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context).data(release.imageUrl).crossfade(true)
+                    model = ImageRequest.Builder(context).data(item.imageUrl).crossfade(true)
                         .build(),
                     //placeholder = painterResource(R.mipmap.ic_launcher),
-                    contentDescription = release.title,
+                    contentDescription = item.title,
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -66,47 +73,69 @@ fun EntryGridItem(
                 val airedText: String
                 val airedTextColor: Color
 
-                if (release.aired) {
+                if (item.aired) {
                     airedText = UiText.StringResource(R.string.aired).asString()
                     airedTextColor = colorResource(R.color.color_aired)
                 } else {
                     airedText = UiText.StringResource(R.string.not_aired).asString()
                     airedTextColor = colorResource(R.color.color_not_aired)
                 }
-                Text(
+                Row(
                     modifier = Modifier
-                        .padding(8.dp)
-                        .background(Color.Gray)
-                        .padding(2.dp),
-                    text = airedText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = airedTextColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                )
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Aired/Not Aired text
+                    Text(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .roundedBackground(ColorGreyLight)
+                            .padding(horizontal = 8.dp),
+                        text = airedText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = airedTextColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 10.sp,
+                    )
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .roundedBackground(ColorGreyLight)
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_time),
+                            contentDescription = "Airing time",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = item.time,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
+                        )
+                    }
+
+                }
             }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.Top,
             ) {
                 Text(
-                    text = release.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.defaultMinSize(minHeight = 14.dp),
+                    text = item.title,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    fontSize = 14.sp,
-                )
-                Text(
-                    text = release.time,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                 )
             }
         }
@@ -134,7 +163,7 @@ fun PreviewEntryGridItem() {
     Column {
         releases.forEach { entry ->
             EntryGridItem(
-                release = entry
+                item = entry
             )
         }
     }
