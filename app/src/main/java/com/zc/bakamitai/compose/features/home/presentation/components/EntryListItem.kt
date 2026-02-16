@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -37,14 +36,11 @@ import com.zc.bakamitai.compose.core.domain.DateFormattedResult
 import com.zc.bakamitai.compose.core.domain.asString
 import com.zc.bakamitai.compose.features.home.domain.model.Release
 import com.zc.bakamitai.compose.features.home.presentation.ReleaseUiModel
-import com.zc.bakamitai.compose.ui.ColorGreyLight
 
 @Composable
 fun EntryListItem(
-    item: ReleaseUiModel,
-    onClick: (String) -> Unit = {}
+    item: ReleaseUiModel, onClick: (String) -> Unit = {}
 ) {
-    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -52,11 +48,9 @@ fun EntryListItem(
             .clickable {
                 onClick(item.release.page)
             }
-            .padding(8.dp),
-        verticalAlignment = Alignment.Top
-    ) {
+            .padding(8.dp), verticalAlignment = Alignment.Top) {
         AsyncImage(
-            model = ImageRequest.Builder(context)
+            model = ImageRequest.Builder(LocalContext.current)
                 .data(item.release.imageUrl)
                 .crossfade(true)
                 .build(),
@@ -89,7 +83,9 @@ fun EntryListItem(
                     painter = painterResource(id = R.drawable.ic_time),
                     contentDescription = "Airing time",
                     modifier = Modifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground, BlendMode.SrcIn)
+                    colorFilter = ColorFilter.tint(
+                        MaterialTheme.colorScheme.onBackground, BlendMode.SrcIn
+                    )
                 )
                 Text(
                     text = item.formattedDate.asString(),
@@ -123,8 +119,7 @@ fun PreviewEntryListItem() {
             xdcc = "",
             releaseDate = "Fri, 13 Feb 2026 04:02:03 +0200",
             downloads = emptyList(),
-        ),
-        formattedDate = DateFormattedResult.None
+        ), formattedDate = DateFormattedResult.None
     )
     EntryListItem(
         item = releaseUiModel,
