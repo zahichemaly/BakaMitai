@@ -10,11 +10,12 @@ import com.zc.bakamitai.compose.features.home.presentation.ReleaseUiModel
 @Composable
 fun HomeListColumns(
     modifier: Modifier = Modifier,
-    items: List<ReleaseUiModel>
+    items: List<ReleaseUiModel>,
+    onItemClick: (String) -> Unit = {}
 ) {
     Column(modifier = modifier) {
         items.forEach { item ->
-            EntryListItem(item = item) { }
+            EntryListItem(item = item, onClick = onItemClick)
             HorizontalDivider()
         }
     }

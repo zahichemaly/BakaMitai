@@ -9,13 +9,14 @@ import com.zc.bakamitai.compose.features.home.domain.model.Schedule
 @Composable
 fun HomeListRows(
     modifier: Modifier = Modifier,
-    items: List<Schedule>
+    items: List<Schedule>,
+    onItemClick: (String) -> Unit = {}
 ) {
     LazyRow(modifier = modifier) {
         items(items = items, key = {
             it.title
         }) { item ->
-            EntryGridItem(item = item) { }
+            EntryGridItem(item = item, onClick = onItemClick)
         }
     }
 }

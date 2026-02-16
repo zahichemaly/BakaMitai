@@ -4,18 +4,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.zc.bakamitai.compose.features.bookmark.BookmarkScreen
+import com.zc.bakamitai.compose.features.details.onDetailsGraph
 import com.zc.bakamitai.compose.features.home.presentation.HomeScreen
 import com.zc.bakamitai.compose.features.library.LibraryScreen
 import com.zc.bakamitai.compose.features.schedule.ScheduleScreen
+import com.zc.bakamitai.compose.navigation.HomeDestination
 import com.zc.bakamitai.compose.navigation.HomeGraph
 import com.zc.bakamitai.compose.navigation.navigationItems
 import com.zc.bakamitai.ui.main.AppBar
@@ -27,18 +31,25 @@ import timber.log.Timber
  */
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen() {
     AppTheme {
-        MainScreenContent(modifier)
+        MainScreenContent()
     }
 }
 
 @Composable
-fun MainScreenContent(modifier: Modifier = Modifier) {
+fun MainScreenContent() {
     val navController = rememberNavController()
     val currentNavItem = remember {
         mutableStateOf(navigationItems.first())
     }
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    Timber.d("Current destination: $currentDestination")
+    Timber.d("Current nav item: ${currentNavItem.value.title}")
+    Timber.d("Current route: ${currentDestination?.route}")
+    Timber.d("Current arguments: ${navBackStackEntry?.arguments}")
 
     Scaffold(
         modifier = Modifier
@@ -50,7 +61,7 @@ fun MainScreenContent(modifier: Modifier = Modifier) {
             })
         },
         topBar = {
-            AppBar(currentNavItem.value.title) { onMenuAction ->
+            AppBar(currentNavItem.value.title.asString()) { onMenuAction ->
                 Timber.d("Selected app bar menu action: $onMenuAction")
                 when (onMenuAction) {
                     AppBarMenuAction.Search -> {
@@ -71,21 +82,22 @@ fun MainScreenContent(modifier: Modifier = Modifier) {
 
         val graph =
             navController.createGraph(
-                startDestination = HomeGraph.Destination.Home.route,
+                startDestination = HomeDestination.Home.route,
                 route = HomeGraph.route
             ) {
-                composable(route = HomeGraph.Destination.Home.route) {
+                composable(route = HomeDestination.Home.route) {
                     HomeScreen(navController)
                 }
-                composable(route = HomeGraph.Destination.Schedule.route) {
+                composable(route = HomeDestination.Schedule.route) {
                     ScheduleScreen()
                 }
-                composable(route = HomeGraph.Destination.Library.route) {
+                composable(route = HomeDestination.Library.route) {
                     LibraryScreen()
                 }
-                composable(route = HomeGraph.Destination.Bookmark.route) {
+                composable(route = HomeDestination.Bookmark.route) {
                     BookmarkScreen()
                 }
+                onDetailsGraph()
             }
         NavHost(
             navController = navController,

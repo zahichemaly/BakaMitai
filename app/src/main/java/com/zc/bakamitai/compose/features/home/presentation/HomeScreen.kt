@@ -15,6 +15,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.UiText
+import com.zc.bakamitai.compose.features.details.DetailsUiModel
+import com.zc.bakamitai.compose.features.details.navigateToDetailsScreen
 import com.zc.bakamitai.compose.features.home.domain.model.Release
 import com.zc.bakamitai.compose.features.home.presentation.components.HomeHeader
 import com.zc.bakamitai.compose.features.home.presentation.components.HomeListColumns
@@ -35,7 +37,17 @@ fun HomeScreen(navController: NavController) {
 
     HomeContent(
         homeUiModel = homeUiModel,
-        onRefresh = viewModel::onRefresh
+        onRefresh = viewModel::onRefresh,
+        onItemClick = { page ->
+            navController.navigateToDetailsScreen(
+                params = DetailsUiModel(
+                    title = "Test",
+                    summary = "Test",
+                    imageUrl = "",
+                    downloads = emptyList()
+                )
+            )
+        }
     )
 }
 
@@ -43,7 +55,8 @@ fun HomeScreen(navController: NavController) {
 @Composable
 fun HomeContent(
     homeUiModel: HomeUiModel,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onItemClick: (String) -> Unit = {}
 ) {
     PullToRefreshBox(
         isRefreshing = homeUiModel.isLoading,
@@ -62,7 +75,8 @@ fun HomeContent(
             item {
                 HomeListRows(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    items = homeUiModel.todayReleases.schedule
+                    items = homeUiModel.todayReleases.schedule,
+                    onItemClick = onItemClick
                 )
             }
             item {
@@ -74,7 +88,8 @@ fun HomeContent(
             item {
                 HomeListColumns(
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    items = homeUiModel.latestReleases.values.toList()
+                    items = homeUiModel.latestReleases.values.toList(),
+                    onItemClick = onItemClick
                 )
             }
         }

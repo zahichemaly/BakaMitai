@@ -5,29 +5,31 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import com.zc.bakamitai.R
+import com.zc.bakamitai.compose.common.UiText
 
 /**
  * Created by Zahi Chemaly on 09/12/2025.
  */
 val navigationItems = listOf(
     NavigationItem(
-        title = "Home",
+        title = UiText.StringResource(R.string.home),
         icon = Icons.Default.Home,
-        route = HomeGraph.Destination.Home.route
+        route = HomeDestination.Home.route
     ),
     NavigationItem(
-        title = "Schedule",
+        title = UiText.StringResource(R.string.schedule),
         icon = Icons.Default.DateRange,
-        route = HomeGraph.Destination.Schedule.route
+        route = HomeDestination.Schedule.route
     ),
     NavigationItem(
-        title = "All Shows",
+        title = UiText.StringResource(R.string.all_shows),
         icon = Icons.AutoMirrored.Filled.List,
-        route = HomeGraph.Destination.Library.route
+        route = HomeDestination.Library.route
     ),
     NavigationItem(
-        title = "Bookmarks",
+        title = UiText.StringResource(R.string.favorites),
         icon = Icons.Default.Favorite,
-        route = HomeGraph.Destination.Bookmark.route
+        route = HomeDestination.Bookmark.route
     )
 )

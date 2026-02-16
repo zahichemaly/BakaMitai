@@ -79,4 +79,9 @@
     <string name="torrent">Torrent</string>
     <string name="xdcc">XDCC</string>
     <string name="no_app_found_for_action">Could not find an app that could handle the performed action!</string>
+
+    <string name="home">Home</string>
+    <string name="schedule">Schedule</string>
+    <string name="all_shows">All Shows</string>
+    <string name="favorites">Favorites</string>
 </resources>

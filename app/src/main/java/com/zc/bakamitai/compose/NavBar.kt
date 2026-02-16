@@ -36,11 +36,11 @@ fun NavBar(
                     onNavigate(item)
                 },
                 icon = {
-                    Icon(imageVector = item.icon, contentDescription = item.title)
+                    Icon(imageVector = item.icon, contentDescription = item.title.asString())
                 },
                 label = {
                     Text(
-                        item.title,
+                        item.title.asString(),
                         color = if (index == selectedNavigationIndex.intValue)
                             MaterialTheme.colorScheme.primary
                         else Color.Gray

@@ -174,7 +174,7 @@ private fun DetailsScreenTest() {
         title = "Detective Conan",
         imageUrl = "https://subsplease.org/wp-content/uploads/2020/10/75199.jpg",
         summary = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt bibendum purus, sed congue sem aliquet non. Nullam tincidunt pretium gravida. Maecenas lacinia est justo, eget fringilla lectus interdum nec. Suspendisse molestie luctus elementum. Fusce id ante nec orci lobortis suscipit. Sed gravida, ligula eget sagittis sodales, risus lacus feugiat tortor, pulvinar euismod ante dolor nec mauris. Vivamus in eleifend ex. Duis eu odio sit amet purus finibus auctor. Ut a ultricies nisi. Donec elementum, nulla non finibus tincidunt, lorem nibh sollicitudin nisi, vel rhoncus metus tellus id leo. Morbi molestie nunc felis, pharetra vulputate elit feugiat et. Cras non diam maximus, pharetra nunc sit amet, tincidunt mauris. Sed at elementum sem, eget faucibus lorem. Etiam lobortis suscipit eros sed sodales. Donec luctus dictum augue, vel rhoncus purus tempus volutpat. Nunc et neque lectus.",
-        downloads
+        downloads = downloads
     )
     DetailsScreen(detailsUiModel)
 }
