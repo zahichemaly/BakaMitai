@@ -1,6 +1,7 @@
 package com.zc.bakamitai.compose.features.details
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.zc.bakamitai.R
+import com.zc.bakamitai.compose.common.UiText
 import com.zc.bakamitai.compose.common.roundedBackground
 
 data class DownloadUiModel(
@@ -32,6 +35,7 @@ data class DownloadUrl(
 data class DownloadLink(
     val source: String,
     val link: String,
+    val onClick: () -> Unit = {}
 )
 
 @Composable
@@ -46,7 +50,7 @@ fun DownloadSectionView(itemModels: List<DownloadUiModel>) {
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurface,
-            text = "Downloads",
+            text = UiText.StringResource(R.string.downloads).asString()
         )
         LazyColumn(
             modifier = Modifier
@@ -85,6 +89,9 @@ fun DownloadSectionView(itemModels: List<DownloadUiModel>) {
                                         Text(
                                             modifier = Modifier
                                                 .roundedBackground(MaterialTheme.colorScheme.primary)
+                                                .clickable {
+                                                    link.onClick()
+                                                }
                                                 .padding(horizontal = 16.dp, vertical = 4.dp),
                                             color = MaterialTheme.colorScheme.surface,
                                             text = link.source,
