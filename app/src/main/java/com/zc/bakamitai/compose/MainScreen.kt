@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.createGraph
 import com.zc.bakamitai.compose.features.bookmark.BookmarkScreen
-import com.zc.bakamitai.compose.features.details.onDetailsGraph
+import com.zc.bakamitai.compose.features.details.navigation.onDetailsGraph
 import com.zc.bakamitai.compose.features.home.presentation.HomeScreen
 import com.zc.bakamitai.compose.features.library.LibraryScreen
 import com.zc.bakamitai.compose.features.schedule.ScheduleScreen

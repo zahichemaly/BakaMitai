@@ -1,4 +1,4 @@
-package com.zc.bakamitai.compose.features.details
+package com.zc.bakamitai.compose.features.details.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +29,10 @@ import coil3.request.crossfade
 import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.ExpandableText
 import com.zc.bakamitai.compose.common.UiText
+import com.zc.bakamitai.compose.features.details.presentation.component.DownloadItemView
+import com.zc.bakamitai.compose.features.details.presentation.component.DownloadLink
+import com.zc.bakamitai.compose.features.details.presentation.component.DownloadUiModel
+import com.zc.bakamitai.compose.features.details.presentation.component.DownloadUrl
 
 @Composable
 fun DetailsScreen(detailsUiModel: DetailsUiModel) {

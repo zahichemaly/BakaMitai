@@ -1,4 +1,4 @@
-package com.zc.bakamitai.compose.features.details
+package com.zc.bakamitai.compose.features.details.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -7,6 +7,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.zc.bakamitai.compose.features.details.presentation.DetailsScreen
+import com.zc.bakamitai.compose.features.details.presentation.DetailsUiModel
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -14,6 +14,7 @@ import io.ktor.client.request.accept
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.serialization.kotlinx.xml.xml
 import kotlinx.serialization.json.Json
 import java.util.TimeZone
 
@@ -29,21 +30,25 @@ object HttpClientProvider {
                 }
                 json(jsonConfig)
                 json(jsonConfig, contentType = ContentType.Text.Html)
+                xml()
             }
+
             install(DefaultRequest) {
                 url(Constants.Api.BASE_URL)
                 url.parameters.append("tz", TimeZone.getDefault().id)
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
             }
+
             install(Logging) {
                 logger = Logger.SIMPLE
                 level = LogLevel.ALL
             }
+
             install(HttpTimeout) {
-                connectTimeoutMillis = 60000
-                requestTimeoutMillis = 60000
-                socketTimeoutMillis = 60000
+                connectTimeoutMillis = 15_000
+                requestTimeoutMillis = 30_000
+                socketTimeoutMillis = 30_000
             }
         }
     }

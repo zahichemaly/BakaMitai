@@ -1,4 +1,4 @@
-package com.zc.bakamitai.compose.features.details
+package com.zc.bakamitai.compose.features.details.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.navigation

@@ -1,4 +1,4 @@
-package com.zc.bakamitai.compose.features.details
+package com.zc.bakamitai.compose.features.details.presentation.component
 
 data class DownloadUiModel(
     val title: String,

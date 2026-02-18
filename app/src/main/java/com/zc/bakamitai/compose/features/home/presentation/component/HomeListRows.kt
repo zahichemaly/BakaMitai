@@ -1,4 +1,4 @@
-package com.zc.bakamitai.compose.features.home.presentation.components
+package com.zc.bakamitai.compose.features.home.presentation.component
 
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items

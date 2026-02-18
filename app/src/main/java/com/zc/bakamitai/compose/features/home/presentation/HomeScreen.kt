@@ -15,12 +15,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.UiText
-import com.zc.bakamitai.compose.features.details.DetailsUiModel
-import com.zc.bakamitai.compose.features.details.navigateToDetailsScreen
+import com.zc.bakamitai.compose.features.details.presentation.DetailsUiModel
+import com.zc.bakamitai.compose.features.details.navigation.navigateToDetailsScreen
 import com.zc.bakamitai.compose.features.home.domain.model.Release
-import com.zc.bakamitai.compose.features.home.presentation.components.HomeHeader
-import com.zc.bakamitai.compose.features.home.presentation.components.HomeListColumns
-import com.zc.bakamitai.compose.features.home.presentation.components.HomeListRows
+import com.zc.bakamitai.compose.features.home.presentation.component.HomeHeader
+import com.zc.bakamitai.compose.features.home.presentation.component.HomeListColumns
+import com.zc.bakamitai.compose.features.home.presentation.component.HomeListRows
 import com.zc.bakamitai.compose.navigation.MAIN_GRAPH
 import org.koin.androidx.compose.koinViewModel
 

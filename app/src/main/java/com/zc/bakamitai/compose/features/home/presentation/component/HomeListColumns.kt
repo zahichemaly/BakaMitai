@@ -1,10 +1,9 @@
-package com.zc.bakamitai.compose.features.home.presentation.components
+package com.zc.bakamitai.compose.features.home.presentation.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.zc.bakamitai.compose.features.home.domain.model.Release
 import com.zc.bakamitai.compose.features.home.presentation.ReleaseUiModel
 
 @Composable

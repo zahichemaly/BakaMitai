@@ -1,4 +1,4 @@
-package com.zc.bakamitai.compose.features.details
+package com.zc.bakamitai.compose.features.details.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

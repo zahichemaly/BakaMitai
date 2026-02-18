@@ -1,4 +1,4 @@
-package com.zc.bakamitai.compose.features.home.presentation.components
+package com.zc.bakamitai.compose.features.home.presentation.component
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
