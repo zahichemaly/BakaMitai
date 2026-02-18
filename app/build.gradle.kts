@@ -13,7 +13,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.zc.bakamitai"
+        applicationId = "com.zc.bakamitai.v2"
         minSdk = 23
         targetSdk = 36
         versionCode = 3

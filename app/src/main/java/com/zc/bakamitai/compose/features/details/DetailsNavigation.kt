@@ -24,14 +24,16 @@ fun NavController.navigateToDetailsScreen(
             title = params.title,
             summary = params.summary,
             imageUrl = params.imageUrl
-        ), navOptions
+        ),
+        navOptions = navOptions
     )
 }
 
 internal fun NavGraphBuilder.onDetailsNavigation() {
     composable<DetailsNavRoute>(
         enterTransition = { fadeIn() },
-        exitTransition = { fadeOut() }) { backStackEntry ->
+        exitTransition = { fadeOut() },
+    ) { backStackEntry ->
 
         val route = backStackEntry.toRoute<DetailsNavRoute>()
 

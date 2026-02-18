@@ -1,4 +1,4 @@
-package com.zc.bakamitai.compose
+package com.zc.bakamitai.compose.navigation
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -10,25 +10,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import com.zc.bakamitai.compose.navigation.NavigationItem
-import com.zc.bakamitai.compose.navigation.navigationItems
+import com.zc.bakamitai.compose.common.UiText
 
 /**
  * Created by Zahi Chemaly on 09/12/2025.
  */
 @Composable
-fun NavBar(
-    onNavigate: (NavigationItem) -> Unit,
+fun AppBottomNavBar(
+    onNavigate: (TopLevelDestination) -> Unit,
 ) {
     val selectedNavigationIndex = rememberSaveable {
         mutableIntStateOf(0)
     }
 
+    val topLevelDestinations = TopLevelDestination.entries
+
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface
     ) {
-        navigationItems.forEachIndexed { index, item ->
+        topLevelDestinations.forEachIndexed { index, item ->
+            val title = UiText.StringResource(item.titleId).asString()
             NavigationBarItem(
                 selected = selectedNavigationIndex.intValue == index,
                 onClick = {
@@ -36,11 +37,11 @@ fun NavBar(
                     onNavigate(item)
                 },
                 icon = {
-                    Icon(imageVector = item.icon, contentDescription = item.title.asString())
+                    Icon(imageVector = item.icon, contentDescription = title)
                 },
                 label = {
                     Text(
-                        item.title.asString(),
+                        title,
                         color = if (index == selectedNavigationIndex.intValue)
                             MaterialTheme.colorScheme.primary
                         else Color.Gray
@@ -53,10 +54,4 @@ fun NavBar(
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun NavBarPreview() {
-    NavBar(onNavigate = {})
 }

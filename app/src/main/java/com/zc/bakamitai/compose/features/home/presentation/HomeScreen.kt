@@ -21,7 +21,7 @@ import com.zc.bakamitai.compose.features.home.domain.model.Release
 import com.zc.bakamitai.compose.features.home.presentation.components.HomeHeader
 import com.zc.bakamitai.compose.features.home.presentation.components.HomeListColumns
 import com.zc.bakamitai.compose.features.home.presentation.components.HomeListRows
-import com.zc.bakamitai.compose.navigation.HomeGraph
+import com.zc.bakamitai.compose.navigation.MAIN_GRAPH
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -30,7 +30,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(navController: NavController) {
     val parentEntry = remember(navController.currentBackStackEntry) {
-        navController.getBackStackEntry(HomeGraph.route)
+        navController.getBackStackEntry(MAIN_GRAPH)
     }
     val viewModel = koinViewModel<HomeViewModel>(viewModelStoreOwner = parentEntry)
     val homeUiModel by viewModel.homeUiModel.collectAsStateWithLifecycle()
@@ -66,31 +66,33 @@ fun HomeContent(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            item {
-                HomeHeader(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    title = UiText.StringResource(R.string.today).asString()
-                )
-            }
-            item {
-                HomeListRows(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    items = homeUiModel.todayReleases.schedule,
-                    onItemClick = onItemClick
-                )
-            }
-            item {
-                HomeHeader(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    title = UiText.StringResource(R.string.latest_releases).asString()
-                )
-            }
-            item {
-                HomeListColumns(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    items = homeUiModel.latestReleases.values.toList(),
-                    onItemClick = onItemClick
-                )
+            if (homeUiModel.hasData()) {
+                item {
+                    HomeHeader(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        title = UiText.StringResource(R.string.today).asString()
+                    )
+                }
+                item {
+                    HomeListRows(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        items = homeUiModel.todayReleases.schedule,
+                        onItemClick = onItemClick
+                    )
+                }
+                item {
+                    HomeHeader(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        title = UiText.StringResource(R.string.latest_releases).asString()
+                    )
+                }
+                item {
+                    HomeListColumns(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        items = homeUiModel.latestReleases.values.toList(),
+                        onItemClick = onItemClick
+                    )
+                }
             }
         }
     }
