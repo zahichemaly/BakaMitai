@@ -3,6 +3,8 @@ package com.zc.bakamitai
 import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
+import com.zc.bakamitai.compose.core.di.coreModule
+import com.zc.bakamitai.compose.features.details.di.detailsModule
 import com.zc.bakamitai.compose.features.home.di.homeModule
 import com.zc.bakamitai.data.network.repos.ScheduleRepository
 import com.zc.bakamitai.di.reposModule
@@ -44,7 +46,11 @@ class BakaApplication : Application() {
                 reposModule,
                 viewModelsModule,
                 utilsModule,
-                homeModule
+                //region New modules
+                coreModule,
+                homeModule,
+                detailsModule,
+                //endregion
             )
         }
         setTheme()

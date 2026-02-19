@@ -1,5 +1,6 @@
 package com.zc.bakamitai.compose.core.network
 
+import com.zc.bakamitai.compose.core.network.converters.registerJsoupHtml
 import com.zc.bakamitai.data.Constants
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -14,11 +15,11 @@ import io.ktor.client.request.accept
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.serialization.kotlinx.xml.xml
 import kotlinx.serialization.json.Json
 import java.util.TimeZone
 
 object HttpClientProvider {
+
     fun getHttpClient(): HttpClient {
         return HttpClient(OkHttp) {
             install(ContentNegotiation) {
@@ -29,8 +30,8 @@ object HttpClientProvider {
                     explicitNulls = false
                 }
                 json(jsonConfig)
+                registerJsoupHtml(Constants.Api.BASE_URL)
                 json(jsonConfig, contentType = ContentType.Text.Html)
-                xml()
             }
 
             install(DefaultRequest) {

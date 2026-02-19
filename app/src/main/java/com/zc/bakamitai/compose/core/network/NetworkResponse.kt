@@ -21,13 +21,14 @@ data class ErrorResponse(
 typealias GenericResponse<T> = NetworkResponse<T, ErrorResponse>
 
 inline fun <reified DTO, Domain> GenericResponse<DTO>.toResource(crossinline mapper: (DTO) -> Domain): Resource<Domain> {
-    when(this) {
+    when (this) {
         is NetworkResponse.Failure<ErrorResponse> -> {
             val code = this.error?.code ?: 500
             val message = this.error?.message ?: "Something went wrong"
             return Resource.Failure(message, code)
 
         }
+
         is NetworkResponse.Success<*> -> {
             val dto = this.data as DTO
             val domain = mapper(dto)
@@ -35,3 +36,4 @@ inline fun <reified DTO, Domain> GenericResponse<DTO>.toResource(crossinline map
         }
     }
 }
+
