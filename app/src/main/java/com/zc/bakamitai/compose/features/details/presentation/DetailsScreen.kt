@@ -33,9 +33,12 @@ import com.zc.bakamitai.compose.features.details.presentation.component.Download
 import com.zc.bakamitai.compose.features.details.presentation.component.DownloadLink
 import com.zc.bakamitai.compose.features.details.presentation.component.DownloadUiModel
 import com.zc.bakamitai.compose.features.details.presentation.component.DownloadUrl
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun DetailsScreen(detailsUiModel: DetailsUiModel) {
+    val viewModel = koinViewModel<DetailsViewModel>()
+    
     Column(
         modifier = Modifier
             .fillMaxWidth()

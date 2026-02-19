@@ -34,3 +34,9 @@ fun Document.toShowDetails(page: String, episodeContentDTO: EpisodeContentDTO): 
         episodes = episodeContentDTO.toDomain()
     )
 }
+
+fun Document.toShowSID(): String? {
+    val sidE = this.selectFirst("table[sid]")
+    val sid = sidE?.attr("sid")
+    return sid
+}

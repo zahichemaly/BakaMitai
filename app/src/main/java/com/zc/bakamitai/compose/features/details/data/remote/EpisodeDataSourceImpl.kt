@@ -10,7 +10,7 @@ class EpisodeDataSourceImpl(private val httpClientWrapper: HttpClientWrapper) : 
 
     override suspend fun getEpisodes(sid: String): GenericResponse<EpisodeContentDTO> {
         return withContext(Dispatchers.IO) {
-            httpClientWrapper.get<EpisodeContentDTO>("/api/?f=latest") {
+            httpClientWrapper.get<EpisodeContentDTO>("/api/?f=show") {
                 url {
                     parameters.append("sid", sid)
                 }

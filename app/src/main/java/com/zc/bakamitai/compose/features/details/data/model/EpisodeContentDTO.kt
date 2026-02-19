@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EpisodeContentDTO(
     @SerialName("episode")
-    val episode: Map<String, EpisodeDTO>
+    val episode: Map<String, EpisodeDTO> = emptyMap()
 )

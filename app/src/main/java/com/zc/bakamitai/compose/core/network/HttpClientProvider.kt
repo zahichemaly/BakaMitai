@@ -29,9 +29,9 @@ object HttpClientProvider {
                     isLenient = true
                     explicitNulls = false
                 }
-                json(jsonConfig)
                 registerJsoupHtml(Constants.Api.BASE_URL)
                 json(jsonConfig, contentType = ContentType.Text.Html)
+                json(jsonConfig, contentType = ContentType.Application.Json)
             }
 
             install(DefaultRequest) {
