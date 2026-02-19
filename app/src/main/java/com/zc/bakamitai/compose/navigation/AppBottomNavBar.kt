@@ -7,9 +7,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
+import androidx.navigation3.runtime.NavKey
 import com.zc.bakamitai.compose.common.UiText
 
 /**
@@ -17,23 +16,20 @@ import com.zc.bakamitai.compose.common.UiText
  */
 @Composable
 fun AppBottomNavBar(
+    currentRoute: NavKey,
     onNavigate: (TopLevelDestination) -> Unit,
 ) {
-    val selectedNavigationIndex = rememberSaveable {
-        mutableIntStateOf(0)
-    }
-
     val topLevelDestinations = TopLevelDestination.entries
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface
     ) {
-        topLevelDestinations.forEachIndexed { index, item ->
+        topLevelDestinations.forEach { item ->
+            val isSelected = item.route == currentRoute
             val title = UiText.StringResource(item.titleId).asString()
             NavigationBarItem(
-                selected = selectedNavigationIndex.intValue == index,
+                selected = isSelected,
                 onClick = {
-                    selectedNavigationIndex.intValue = index
                     onNavigate(item)
                 },
                 icon = {
@@ -42,7 +38,7 @@ fun AppBottomNavBar(
                 label = {
                     Text(
                         title,
-                        color = if (index == selectedNavigationIndex.intValue)
+                        color = if (isSelected)
                             MaterialTheme.colorScheme.primary
                         else Color.Gray
                     )

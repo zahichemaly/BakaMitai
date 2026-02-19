@@ -80,6 +80,11 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     //endregion
 
+    // Navigation 3
+    implementation("androidx.navigation3:navigation3-runtime:1.0.1")
+    implementation("androidx.navigation3:navigation3-ui:1.0.1")
+    //implementation("androidx.lifecycle:lifecycle-viewmodel-navigation3:2.10.0")
+
     // Compose
     val composeBom = platform("androidx.compose:compose-bom:2024.12.01")
     implementation(composeBom)
@@ -89,7 +94,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.activity:activity-compose:1.12.1")
     implementation("androidx.compose.ui:ui-viewbinding") // Removed hardcoded version to follow BOM
-    implementation("androidx.navigation:navigation-compose:2.9.6")
+    // implementation("androidx.navigation:navigation-compose:2.9.6") // Removing Nav 2
 
 
     // Networking & Serialization

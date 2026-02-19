@@ -7,44 +7,40 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.zc.bakamitai.compose.common.UiText
 import com.zc.bakamitai.compose.core.domain.StringResource
-import com.zc.bakamitai.compose.features.details.navigation.navigateToDetailsScreen
-import com.zc.bakamitai.compose.features.details.presentation.DetailsUiModel
+import com.zc.bakamitai.compose.features.details.navigation.DetailsNavRoute
 import com.zc.bakamitai.compose.features.home.domain.model.Release
 import com.zc.bakamitai.compose.features.home.presentation.component.HomeHeader
 import com.zc.bakamitai.compose.features.home.presentation.component.HomeListColumns
 import com.zc.bakamitai.compose.features.home.presentation.component.HomeListRows
-import com.zc.bakamitai.compose.navigation.MAIN_GRAPH
+import com.zc.bakamitai.compose.navigation.Navigator
 import org.koin.androidx.compose.koinViewModel
 
 /**
  * Created by Zahi Chemaly on 04/12/2025.
  */
 @Composable
-fun HomeScreen(navController: NavController) {
-    val parentEntry = remember(navController.currentBackStackEntry) {
-        navController.getBackStackEntry(MAIN_GRAPH)
-    }
-    val viewModel = koinViewModel<HomeViewModel>(viewModelStoreOwner = parentEntry)
+fun HomeScreen(navigator: Navigator) {
+    // In Navigation 3, we can use the local ViewModel or a shared one. 
+    // For now, let's use the standard koinViewModel. 
+    // If MAIN_GRAPH scoping was essential, further adjustments with NavEntry might be needed.
+    val viewModel = koinViewModel<HomeViewModel>()
     val homeUiModel by viewModel.homeUiModel.collectAsStateWithLifecycle()
 
     HomeContent(
         homeUiModel = homeUiModel,
         onRefresh = viewModel::onRefresh,
         onItemClick = { page ->
-            navController.navigateToDetailsScreen(
-                params = DetailsUiModel(
+            navigator.navigate(
+                DetailsNavRoute(
                     title = "Test",
                     summary = "Test",
-                    imageUrl = "",
-                    downloads = emptyList()
+                    imageUrl = ""
                 )
             )
         }

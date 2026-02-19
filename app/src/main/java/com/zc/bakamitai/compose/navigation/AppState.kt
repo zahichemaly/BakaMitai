@@ -2,62 +2,39 @@ package com.zc.bakamitai.compose.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.navigation.NavDestination
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.NavKey
 
 @Stable
 class AppState(
-    val navController: NavHostController,
+    val navigationState: NavigationState,
+    val navigator: Navigator,
 ) {
-
-    private val previousDestination = mutableStateOf<NavDestination?>(null)
-
-    val currentDestination: NavDestination?
-        @Composable get() {
-            val currentEntry =
-                navController.currentBackStackEntryFlow
-                    .collectAsState(initial = null)
-
-            return currentEntry.value?.destination.also { destination ->
-                if (destination != null) {
-                    previousDestination.value = destination
-                }
-            } ?: previousDestination.value
-        }
-
     val currentTopLevelDestination: TopLevelDestination?
         @Composable get() {
-            return TopLevelDestination.entries.firstOrNull { topLevelDestination ->
-                currentDestination?.route == topLevelDestination.route
-            }
+            return TopLevelDestination.entries.firstOrNull { it.route == navigationState.topLevelRoute }
         }
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
-        navController.navigate(topLevelDestination.route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
+        navigator.navigate(topLevelDestination.route)
     }
 
     val shouldShowBottomBar: Boolean
         @Composable
         get() = currentTopLevelDestination != null
-
 }
 
 @Composable
-fun rememberAppState(navController: NavHostController = rememberNavController()): AppState {
-    return remember(navController) {
-        AppState(
-            navController = navController
-        )
+fun rememberAppState(
+    startRoute: NavKey = HomeRoute,
+    topLevelRoutes: Set<NavKey> = TopLevelDestination.entries.map { it.route }.toSet()
+): AppState {
+    val navigationState = rememberNavigationState(
+        startRoute = startRoute,
+        topLevelRoutes = topLevelRoutes
+    )
+    val navigator = remember(navigationState) { Navigator(navigationState) }
+    return remember(navigationState, navigator) {
+        AppState(navigationState, navigator)
     }
 }

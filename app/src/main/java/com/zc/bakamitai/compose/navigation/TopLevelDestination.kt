@@ -6,33 +6,45 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation3.runtime.NavKey
 import com.zc.bakamitai.compose.core.domain.StringResource
+import kotlinx.serialization.Serializable
+
+@Serializable
+object HomeRoute : NavKey
+
+@Serializable
+object ScheduleRoute : NavKey
+
+@Serializable
+object LibraryRoute : NavKey
+
+@Serializable
+object BookmarkRoute : NavKey
 
 enum class TopLevelDestination(
     val titleId: Int,
     val icon: ImageVector,
-    val route: String,
+    val route: NavKey,
 ) {
     Home(
         titleId = StringResource.home,
         icon = Icons.Default.Home,
-        route = "home"
+        route = HomeRoute
     ),
     Schedule(
         titleId = StringResource.schedule,
         icon = Icons.Default.DateRange,
-        route = "schedule"
+        route = ScheduleRoute
     ),
     Library(
         titleId = StringResource.all_shows,
         icon = Icons.AutoMirrored.Filled.List,
-        route = "library",
+        route = LibraryRoute,
     ),
     Bookmark(
         titleId = StringResource.favorites,
         icon = Icons.Default.Favorite,
-        route = "bookmarks"
+        route = BookmarkRoute
     )
 }
-
-const val MAIN_GRAPH = "main_graph"
