@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.ExpandableText
 import com.zc.bakamitai.compose.common.UiText
+import com.zc.bakamitai.compose.core.domain.StringResource
 import com.zc.bakamitai.compose.features.details.presentation.component.DownloadItemView
 import com.zc.bakamitai.compose.features.details.presentation.component.DownloadLink
 import com.zc.bakamitai.compose.features.details.presentation.component.DownloadUiModel
@@ -38,7 +38,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun DetailsScreen(detailsUiModel: DetailsUiModel) {
     val viewModel = koinViewModel<DetailsViewModel>()
-    
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -72,7 +72,7 @@ fun DetailsScreen(detailsUiModel: DetailsUiModel) {
 
         //region Summary Section
         DetailsHeaderView(
-            title = UiText.StringResource(R.string.synopsis).asString()
+            title = UiText.StringResource(StringResource.synopsis).asString()
         )
 
         ExpandableText(
@@ -89,7 +89,7 @@ fun DetailsScreen(detailsUiModel: DetailsUiModel) {
 
         //region Downloads Section
         DetailsHeaderView(
-            title = UiText.StringResource(R.string.downloads).asString()
+            title = UiText.StringResource(StringResource.downloads).asString()
         )
 
         detailsUiModel.downloads.forEach { downloadItem ->

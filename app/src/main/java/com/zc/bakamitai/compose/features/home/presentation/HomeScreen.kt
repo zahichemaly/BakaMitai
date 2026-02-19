@@ -13,10 +13,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.UiText
-import com.zc.bakamitai.compose.features.details.presentation.DetailsUiModel
+import com.zc.bakamitai.compose.core.domain.StringResource
 import com.zc.bakamitai.compose.features.details.navigation.navigateToDetailsScreen
+import com.zc.bakamitai.compose.features.details.presentation.DetailsUiModel
 import com.zc.bakamitai.compose.features.home.domain.model.Release
 import com.zc.bakamitai.compose.features.home.presentation.component.HomeHeader
 import com.zc.bakamitai.compose.features.home.presentation.component.HomeListColumns
@@ -70,7 +70,7 @@ fun HomeContent(
                 item {
                     HomeHeader(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        title = UiText.StringResource(R.string.today).asString()
+                        title = UiText.StringResource(StringResource.today).asString()
                     )
                 }
                 item {
@@ -83,7 +83,7 @@ fun HomeContent(
                 item {
                     HomeHeader(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        title = UiText.StringResource(R.string.latest_releases).asString()
+                        title = UiText.StringResource(StringResource.latest_releases).asString()
                     )
                 }
                 item {

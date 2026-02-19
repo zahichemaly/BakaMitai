@@ -33,6 +33,7 @@ import coil3.request.crossfade
 import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.UiText
 import com.zc.bakamitai.compose.common.roundedBackground
+import com.zc.bakamitai.compose.core.domain.StringResource
 import com.zc.bakamitai.compose.features.home.domain.model.Schedule
 import com.zc.bakamitai.compose.ui.ColorAired
 import com.zc.bakamitai.compose.ui.ColorGreyLight
@@ -75,10 +76,10 @@ fun EntryGridItem(
                 val airedTextColor: Color
 
                 if (item.aired) {
-                    airedText = UiText.StringResource(R.string.aired).asString()
+                    airedText = UiText.StringResource(StringResource.aired).asString()
                     airedTextColor = ColorAired
                 } else {
-                    airedText = UiText.StringResource(R.string.not_aired).asString()
+                    airedText = UiText.StringResource(StringResource.not_aired).asString()
                     airedTextColor = ColorNotAired
                 }
                 Row(

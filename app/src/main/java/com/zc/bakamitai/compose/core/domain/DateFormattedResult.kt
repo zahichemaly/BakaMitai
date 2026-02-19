@@ -15,16 +15,16 @@ sealed class DateFormattedResult {
 @Composable
 fun DateFormattedResult.asString(): String {
     return when (this) {
-        is DateFormattedResult.Today -> UiText.StringResource(R.string.date_today_at, time)
+        is DateFormattedResult.Today -> UiText.StringResource(StringResource.date_today_at, time)
             .asString()
 
-        is DateFormattedResult.Tomorrow -> UiText.StringResource(R.string.date_tomorrow_at, time)
+        is DateFormattedResult.Tomorrow -> UiText.StringResource(StringResource.date_tomorrow_at, time)
             .asString()
 
-        is DateFormattedResult.Yesterday -> UiText.StringResource(R.string.date_yesterday_at, time)
+        is DateFormattedResult.Yesterday -> UiText.StringResource(StringResource.date_yesterday_at, time)
             .asString()
 
-        is DateFormattedResult.Other -> UiText.StringResource(R.string.date_day_at, dayOfWeek, time)
+        is DateFormattedResult.Other -> UiText.StringResource(StringResource.date_day_at, dayOfWeek, time)
             .asString()
 
         else -> ""

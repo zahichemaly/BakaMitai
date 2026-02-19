@@ -33,6 +33,7 @@ import com.zc.bakamitai.R
 import com.zc.bakamitai.compose.common.UiText
 import com.zc.bakamitai.compose.common.roundedBackground
 import com.zc.bakamitai.compose.core.domain.DateFormattedResult
+import com.zc.bakamitai.compose.core.domain.StringResource
 import com.zc.bakamitai.compose.core.domain.asString
 import com.zc.bakamitai.compose.features.home.domain.model.Release
 import com.zc.bakamitai.compose.features.home.presentation.ReleaseUiModel
@@ -95,7 +96,7 @@ fun EntryListItem(
             }
         }
         Text(
-            text = UiText.StringResource(R.string.ep_, item.release.episode).asString(),
+            text = UiText.StringResource(StringResource.ep_, item.release.episode).asString(),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier

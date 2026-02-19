@@ -84,4 +84,5 @@
     <string name="schedule">Schedule</string>
     <string name="all_shows">All Shows</string>
     <string name="favorites">Favorites</string>
+    <string name="error_message_unknown">Something went wrong</string>
 </resources>

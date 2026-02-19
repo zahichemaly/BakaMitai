@@ -6,7 +6,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.zc.bakamitai.R
+import com.zc.bakamitai.compose.core.domain.StringResource
 
 enum class TopLevelDestination(
     val titleId: Int,
@@ -14,22 +14,22 @@ enum class TopLevelDestination(
     val route: String,
 ) {
     Home(
-        titleId = R.string.home,
+        titleId = StringResource.home,
         icon = Icons.Default.Home,
         route = "home"
     ),
     Schedule(
-        titleId = R.string.schedule,
+        titleId = StringResource.schedule,
         icon = Icons.Default.DateRange,
         route = "schedule"
     ),
     Library(
-        titleId = R.string.all_shows,
+        titleId = StringResource.all_shows,
         icon = Icons.AutoMirrored.Filled.List,
         route = "library",
     ),
     Bookmark(
-        titleId = R.string.favorites,
+        titleId = StringResource.favorites,
         icon = Icons.Default.Favorite,
         route = "bookmarks"
     )
