@@ -1,6 +1,6 @@
 package com.zc.bakamitai.compose.features.details.data.remote
 
-import com.zc.bakamitai.compose.core.network.HttpClientWrapper
+import com.zc.bakamitai.compose.core.network.AppClient
 import com.zc.bakamitai.compose.core.network.NetworkResponse
 import com.zc.bakamitai.compose.core.network.converters.registerJsoupHtml
 import io.ktor.client.HttpClient
@@ -55,8 +55,8 @@ class DetailsDataSourceImplTest {
                 registerJsoupHtml("https://subsplease.org")
             }
         }
-        val httpClientWrapper = HttpClientWrapper(httpClient)
-        val dataSource = DetailsDataSourceImpl(httpClientWrapper)
+        val appClient = AppClient(httpClient)
+        val dataSource = DetailsDataSourceImpl(appClient)
 
         // Act
         val response = dataSource.getDetails(pageSlug)
@@ -84,8 +84,8 @@ class DetailsDataSourceImplTest {
                 registerJsoupHtml("https://subsplease.org")
             }
         }
-        val httpClientWrapper = HttpClientWrapper(httpClient)
-        val dataSource = DetailsDataSourceImpl(httpClientWrapper)
+        val appClient = AppClient(httpClient)
+        val dataSource = DetailsDataSourceImpl(appClient)
 
         // Act
         val response = dataSource.getDetails(pageSlug)

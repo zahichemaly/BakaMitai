@@ -7,7 +7,7 @@ import com.zc.bakamitai.data.Constants
 import com.zc.bakamitai.extensions.toImageUrl
 import org.jsoup.nodes.Document
 
-fun Document.toShowDetails(page: String, episodeContentDTO: EpisodeContentDTO): ShowDetails {
+fun Document.toShowDetails(page: String, episodeContent: EpisodeContentDTO): ShowDetails {
     val imageE = this.selectFirst("img[class='img-responsive img-center']")
     val synopsisE = this.selectFirst("div.series-syn")
     val titleE = this.selectFirst("h1.entry-title")
@@ -31,7 +31,7 @@ fun Document.toShowDetails(page: String, episodeContentDTO: EpisodeContentDTO): 
         sid = sid,
         page = page,
         pageUrl = pageUrl,
-        episodes = episodeContentDTO.toDomain()
+        episodes = episodeContent.toDomain()
     )
 }
 

@@ -3,7 +3,6 @@ package com.zc.bakamitai.compose.features.home.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zc.bakamitai.compose.core.domain.DateFormattedResult
-import com.zc.bakamitai.compose.core.domain.Resource
 import com.zc.bakamitai.compose.features.home.domain.repository.ReleaseRepository
 import com.zc.bakamitai.extensions.toDateFormattedResult
 import com.zc.bakamitai.extensions.toDateTime
@@ -37,33 +36,35 @@ class HomeViewModel(private val releaseRepository: ReleaseRepository) : ViewMode
         }
 
         viewModelScope.launch {
-            _homeUiModel.update { it.copy(isLoading = true) }
-
-            val latestDef = async { releaseRepository.getLatest() }
-            val todayReleaseDef = async { releaseRepository.getToday() }
-            val latestReleases = latestDef.await()
-            val todayReleases = todayReleaseDef.await()
-
-            if (latestReleases is Resource.Success && todayReleases is Resource.Success) {
-                val latestReleases = latestReleases.data
-                val todayReleases = todayReleases.data
-
-                val releaseUiModels = latestReleases.mapValues { keyValue ->
-                    val date = keyValue.value.releaseDate.toDateTime()?.toDateFormattedResult()
-                        ?: DateFormattedResult.None
-                    ReleaseUiModel(keyValue.value, date)
-                }
-
-                _homeUiModel.update {
-                    HomeUiModel(
-                        latestReleases = releaseUiModels,
-                        todayReleases = todayReleases,
-                        isLoading = false
-                    )
-                }
-            } else {
-                _homeUiModel.update { it.copy(isLoading = false) }
+            runCatching {
+                val latestDef = async { releaseRepository.getLatest() }
+                val todayReleaseDef = async { releaseRepository.getToday() }
+                val latestReleases = latestDef.await()
+                val todayReleases = todayReleaseDef.await()
+                latestReleases to todayReleases
             }
+                .onSuccess { response ->
+                    val latestReleases = response.first
+                    val todayReleases = response.second
+
+                    val releaseUiModels = latestReleases.mapValues { keyValue ->
+                        val date = keyValue.value.releaseDate.toDateTime()?.toDateFormattedResult()
+                            ?: DateFormattedResult.None
+                        ReleaseUiModel(keyValue.value, date)
+                    }
+
+                    _homeUiModel.update {
+                        HomeUiModel(
+                            latestReleases = releaseUiModels,
+                            todayReleases = todayReleases,
+                            isLoading = false
+                        )
+                    }
+                }
+                .onFailure {
+                    //TODO handle error later
+                    _homeUiModel.update { it.copy(isLoading = false) }
+                }
         }
     }
 }

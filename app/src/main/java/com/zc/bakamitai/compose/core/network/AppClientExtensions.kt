@@ -1,17 +1,22 @@
 package com.zc.bakamitai.compose.core.network
 
+import com.zc.bakamitai.compose.common.UiText
+import com.zc.bakamitai.compose.core.domain.exception.ServerException
 import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.accept
 import io.ktor.client.request.request
-import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import kotlin.coroutines.cancellation.CancellationException
 
-suspend inline fun <reified T> HttpClientWrapper.execute(method: HttpMethod, urlString: String, block: HttpRequestBuilder.() -> Unit): GenericResponse<T> {
+suspend inline fun <reified T> AppClient.execute(
+    method: HttpMethod,
+    urlString: String,
+    block: HttpRequestBuilder.() -> Unit
+): T {
     val builder =
         HttpRequestBuilder().apply {
             url(urlString)
@@ -23,29 +28,24 @@ suspend inline fun <reified T> HttpClientWrapper.execute(method: HttpMethod, url
     return getResponse(builder = builder)
 }
 
-suspend inline fun <reified T> HttpClientWrapper.getResponse(
+suspend inline fun <reified T> AppClient.getResponse(
     builder: HttpRequestBuilder
-): GenericResponse<T> {
+): T {
     runCatchingNetwork {
         httpClient.request(builder)
     }.fold(
         onSuccess = {
             if (it.status.value in NetworkResponse.successCodeRange) {
                 val successResponse = it.body<T>()
-                return NetworkResponse.Success(successResponse)
+                return successResponse
             } else {
-                val errorResponse = ErrorResponse(
-                    code = it.status.value,
-                    message = it.body<String?>().toString()
-                )
-                return NetworkResponse.Failure(errorResponse)
+                val errorCode = it.status.value
+                //TODO this is temporary
+                throw exceptionManager.transform(ServerException(UiText.StringValue(errorCode.toString())))
             }
         },
         onFailure = {
-            return NetworkResponse.Failure(ErrorResponse(
-                code = 500,
-                message = it.stackTraceToString()
-            ))
+            throw exceptionManager.transform(it)
         }
     )
 }
