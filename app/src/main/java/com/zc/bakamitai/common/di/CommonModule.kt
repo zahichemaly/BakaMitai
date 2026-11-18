@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
+import kotlin.time.Clock
 
 /**
  * Shared bindings. `@ComponentScan` registers the annotated classes in `common`; the providers below are for
@@ -27,4 +28,8 @@ class CommonModule {
         userAgent = "BakaMitai/${BuildConfig.VERSION_NAME} (Android)",
         logLevel = if (BuildConfig.DEBUG) LogLevel.INFO else LogLevel.NONE,
     )
+
+    /** The current instant for "today" and time conversions; tests inject a fixed clock instead. */
+    @Single
+    fun clock(): Clock = Clock.System
 }

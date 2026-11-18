@@ -42,7 +42,8 @@ com.zc.bakamitai/
 │   │   ├── repository/              # Interfaces used by 2+ features (e.g. SettingsRepository)
 │   │   ├── usecase/                 # Use cases used by 2+ features (e.g. ObserveSettingsUseCase)
 │   │   └── util/
-│   │       └── DispatcherProvider.kt  # DispatcherProvider interface + DefaultDispatcherProvider
+│   │       ├── DispatcherProvider.kt  # DispatcherProvider interface + DefaultDispatcherProvider
+│   │       └── TimeZoneProvider.kt    # TimeZoneProvider interface + SystemTimeZoneProvider (device zone)
 │   ├── di/
 │   │   └── CommonModule.kt          # @Module @ComponentScan(common) + @Single providers for Json, HttpClient, Clock, DataStore
 │   └── ui/
@@ -170,6 +171,7 @@ Rules are in `library-management`.
 | `DomainError` and other error/result/value types used by 2+ features' domains (incl. `AppSettings`) | `common/domain/model/` |
 | Repository interface / use case used by 2+ features (e.g. settings) | `common/domain/{repository,usecase}/` |
 | `DispatcherProvider` / `DefaultDispatcherProvider` | `common/domain/util/DispatcherProvider.kt` |
+| `TimeZoneProvider` / `SystemTimeZoneProvider` | `common/domain/util/TimeZoneProvider.kt` |
 | Koin providers for types we don't own (`HttpClient`, `Json`, `Clock`, `DataStore`) | `common/di/CommonModule.kt` |
 | Theme, colors, typography | `common/ui/theme/` |
 | `ObserveAsEvents`, `@AdaptivePreviews` and other non-visual Compose helpers | `common/ui/util/` |
@@ -308,7 +310,7 @@ grep -rlE "import com\.zc\.bakamitai\.app\." app/src/main/java/com/zc/bakamitai/
 
 ### Current repo state
 
-The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/AppRoute.kt` shows a placeholder until the first feature adds `app/navigation/` (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`).
+The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`) is the first feature; Schedule, All Shows and Bookmarks show as disabled destinations until their features land. Shared-looking Home code (`Show`, `ScheduledShow`, the schedule DTO, image-URL mapping, the time formatter, `CoverImageView`) stays in `feature/home/` until a second feature needs it ([docs/1-home.md §6](../../../docs/1-home.md#6-dependencies)).
 
 ## 8. Checklist
 

@@ -1,0 +1,33 @@
+{
+  "tz": "America/New_York",
+  "schedule": [
+    {
+      "title": "Sasaki to Pii-chan S2",
+      "page": "sasaki-to-pii-chan-s2",
+      "image_url": "/wp-content/uploads/2026/10/159979.jpg",
+      "time": "08:00",
+      "aired": true
+    },
+    {
+      "title": "Tensei Shitara Ken Deshita S2",
+      "page": "tensei-shitara-ken-deshita-s2",
+      "image_url": "/wp-content/uploads/2026/09/159559.jpg",
+      "time": "10:30",
+      "aired": true
+    },
+    {
+      "title": "Juuou Mujin Dandivine",
+      "page": "juuou-mujin-dandivine",
+      "image_url": "/wp-content/uploads/2026/10/160013.jpg",
+      "time": "12:00",
+      "aired": false
+    },
+    {
+      "title": "Kikansha no Mahou wa Tokubetsu desu",
+      "page": "kikansha-no-mahou-wa-tokubetsu-desu",
+      "image_url": "/wp-content/uploads/2023/10/138532.jpg",
+      "time": "12:15",
+      "aired": false
+    }
+  ]
+}

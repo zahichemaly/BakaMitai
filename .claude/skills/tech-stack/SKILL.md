@@ -24,6 +24,7 @@ Quality rules for using these libraries (performance, Detekt, error handling, te
 | Dates/time | kotlinx-datetime |
 | Immutable collections | kotlinx-collections-immutable |
 | UI | Jetpack Compose + Material 3 |
+| Icons | Material Icons Extended (`Icons.*` `ImageVector`s; R8 strips the unused ones) |
 | Adaptive UI | Material 3 Adaptive (navigation suite, adaptive layout, adaptive Navigation 3 scenes) |
 | Lifecycle | Lifecycle runtime/ViewModel Compose, ViewModel Navigation 3 |
 | Rich text | Compose RichText (CommonMark) |
@@ -95,6 +96,7 @@ grep -rnE "runBlocking|GlobalScope|KoinComponent|by inject\(\)" app/src/main
 | Ktor Client | — | ✅ | — | — | ✅ create `HttpClient` | — |
 | DataStore | — | ✅ | — | — | ✅ create instance | — |
 | Compose, Material 3, Adaptive | — | — | ✅ | ✅ | — | ✅ |
+| Material Icons Extended | — | — | ✅ | ✅ | — | ✅ |
 | Compose RichText | — | — | ✅ | ✅ | — | — |
 | Coil | — | — | ✅ | ✅ | ✅ `DiskCache` provider | ✅ `ImageLoader` setup |
 | Navigation 3 | — | — | ✅ `NavKey`s and entry functions (`presentation/navigation/`) only | ✅ `common/ui/navigation/` plumbing | — | ✅ `NavDisplay`, back stack, entry wiring |

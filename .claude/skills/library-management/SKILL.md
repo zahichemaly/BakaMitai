@@ -34,6 +34,7 @@ Each approved library from `tech-stack` §1, with its catalog accessor and coord
 | kotlinx-datetime | `libs.kotlinx.datetime` | `org.jetbrains.kotlinx:kotlinx-datetime` |
 | kotlinx-collections-immutable | `libs.kotlinx.collections.immutable` | `org.jetbrains.kotlinx:kotlinx-collections-immutable` |
 | Compose + Material 3 | `libs.androidx.compose.bom`, `libs.androidx.compose.material3` *BOM*, `libs.androidx.activity.compose` | `androidx.compose:compose-bom`, `androidx.compose.material3:material3`, `androidx.activity:activity-compose` |
+| Material Icons Extended | `libs.androidx.compose.material.icons.extended` *BOM* | `androidx.compose.material:material-icons-extended` |
 | Material 3 Adaptive | `libs.androidx.compose.material3.adaptive.navigation.suite`, `libs.androidx.compose.material3.adaptive.*` | `androidx.compose.material3:material3-adaptive-navigation-suite`, `androidx.compose.material3.adaptive:adaptive`, `adaptive-layout`, `adaptive-navigation3` |
 | Lifecycle | `libs.androidx.lifecycle.runtime.compose`, `libs.androidx.lifecycle.viewmodel.compose`, `libs.androidx.lifecycle.viewmodel.navigation3` | `androidx.lifecycle:lifecycle-runtime-compose`, `lifecycle-viewmodel-compose`, `lifecycle-viewmodel-navigation3` |
 | Compose RichText | `libs.richtext.ui.material3`, `libs.richtext.commonmark` | `com.halilibo.compose-richtext:richtext-ui-material3`, `richtext-commonmark` |

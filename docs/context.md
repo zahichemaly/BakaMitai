@@ -128,15 +128,24 @@ Every call below passes `tz=<device IANA zone>`. Response shapes and quirks are 
 
 ### 4.1 Home
 
-1. Fetch **today's schedule** ([api.md §3.1](api.md#31-todays-schedule)) and **latest releases** ([api.md §3.3](api.md#33-latest-releases), `p=1`, plus `p=2` only if every item on page 1 was released today) **in parallel**.
-2. **Upcoming** = schedule items with `aired == false`. Time = the schedule `time`.
-3. **Latest** = latest-release items whose `release_date`, converted to the device zone, falls on **today's local date**. Time = the actual release time. Use the `episode` field as-is (it can be a batch range or "Movie"). The same show can appear more than once on one day, for example two episodes. Show each release separately.
+The full derivation is in [1-home.md §4.3](1-home.md#43-derivation-domain); this is the summary.
+
+1. Fetch these **in parallel**:
+   - **today's schedule** ([api.md §3.1](api.md#31-todays-schedule)), required
+   - **latest releases** ([api.md §3.3](api.md#33-latest-releases), `p=1`), required
+   - **the newest releases** from search with an empty query ([api.md §3.4](api.md#34-search-releases)), best effort. `f=latest` sometimes lags by days, and this one doesn't.
+
+   Then fetch `p=2` (best effort) only if page 1 isn't empty and every item on it was released today.
+2. **Known releases** = page 1 + newest + page 2, with duplicates removed by `(page, episode)`.
+3. **Latest** = known releases whose `release_date`, converted to the device zone, falls on **today's local date**. Time = the release time. Use the `episode` field as-is (it can be a batch range or "Movie"). The same show can appear more than once on one day, for example two episodes. Show each release separately.
    - Why not use `aired == true` from the schedule? The schedule doesn't carry episode numbers, and it misses unscheduled releases such as batches.
-4. **Episode number for Upcoming items** = the highest *numeric* episode already released for that `page`, plus 1:
-   - First look in the latest-release items you already have (match on `page`).
+   - `release_date` is currently an hour early ([api.md §3.5](api.md#35-show-episodes)). It's shown as-is.
+4. **Upcoming** = schedule items with `aired != true` **whose show isn't already in Latest**, which covers `aired` lagging the real release ([api.md §3.1](api.md#31-todays-schedule)). Time = the schedule `time`.
+5. **Episode number for Upcoming items** = the highest *numeric* episode already released for that `page`, plus 1:
+   - First look in the known releases you already have (match on `page`).
    - If the show isn't there (for example, it last aired a week ago), call search ([api.md §3.4](api.md#34-search-releases)) with the title, keep results where `page == slug`, and take the highest numeric `episode`. Run these lookups in parallel. There are only about 10 per day.
    - If it's still unknown, hide the episode badge. Never guess.
-5. **Clock** for "today" and time conversions: inject a `kotlinx.datetime.Clock` and use `TimeZone.currentSystemDefault()`. Don't call system time directly. The `structure` skill already has `CommonModule` provide a `Clock`.
+6. **Clock and zone** for "today" and time conversions: inject a `kotlin.time.Clock` (`kotlinx.datetime.Clock` is deprecated in kotlinx-datetime 0.8) and a `TimeZoneProvider` (`common/domain/util/`). Don't call system time or `TimeZone.currentSystemDefault()` directly. `CommonModule` provides the `Clock`.
 
 ### 4.2 Schedule
 
@@ -168,7 +177,7 @@ Every call below passes `tz=<device IANA zone>`. Response shapes and quirks are 
 - **Times:** the API's `"HH:mm"` → `LocalTime` → format with kotlinx-datetime according to the setting:
   - 12-hour: `amPmHour()`, `:`, `minute()`, space, `amPmMarker("AM", "PM")` → "8:00 AM"
   - 24-hour: `hour()`, `:`, `minute()` → "08:00"
-- **Release instants:** `Instant` → `toLocalDateTime(TimeZone.currentSystemDefault())`, then format the same way.
+- **Release instants:** `Instant` → `toLocalDateTime(timeZoneProvider.current())`, then format the same way.
 - **Bookmark "added" date:** a short, locale-appropriate date, e.g. "Nov 18, 2026".
 
 ---

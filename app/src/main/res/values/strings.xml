@@ -3,6 +3,13 @@
 
     <!-- Actions -->
     <string name="action_retry">Retry</string>
+    <string name="cd_settings">Settings</string>
+
+    <!-- Navigation (app/navigation) -->
+    <string name="nav_home">Home</string>
+    <string name="nav_schedule">Schedule</string>
+    <string name="nav_all_shows">All Shows</string>
+    <string name="nav_bookmarks">Bookmarks</string>
 
     <!-- Errors (common/ui/component/error) -->
     <string name="error_network">Can\'t reach SubsPlease. Check your connection and try again.</string>
@@ -10,4 +17,36 @@
     <string name="error_rate_limited">SubsPlease is getting too many requests. Try again in a moment.</string>
     <string name="error_unauthorized">SubsPlease refused the request.</string>
     <string name="error_generic">Something went wrong. Try again.</string>
+
+    <!-- Home (feature/home) -->
+    <string name="home_app_bar_subtitle">HOME</string>
+    <string name="home_summary_title">Today\'s Broadcasts</string>
+    <!-- %1$s: the offset after "UTC": "+9", "-5", "+5:30", or empty at zero. -->
+    <string name="home_utc_offset">UTC%1$s</string>
+    <string name="home_section_upcoming">Upcoming Today</string>
+    <string name="home_section_latest">Latest Releases</string>
+    <string name="home_section_latest_badge">Aired Today</string>
+    <!-- Episode badges are uppercase (DESIGN.md). %1$s: "07", or a batch range "01-24". -->
+    <string name="home_episode">EP %1$s</string>
+    <string name="home_episode_batch">BATCH %1$s</string>
+    <string name="home_episode_movie">MOVIE</string>
+    <string name="cd_episode">Episode %1$s</string>
+    <string name="cd_episode_batch">Batch, episodes %1$s</string>
+    <string name="cd_episode_movie">Movie</string>
+    <string name="home_upcoming_empty">Nothing else is scheduled for today.</string>
+    <string name="home_latest_empty">Nothing has been released yet today.</string>
+    <string name="home_empty">Nothing is on the schedule for today.</string>
+
+    <plurals name="home_summary_airing">
+        <item quantity="one">%d Airing</item>
+        <item quantity="other">%d Airing</item>
+    </plurals>
+    <plurals name="home_summary_available">
+        <item quantity="one">%d Available</item>
+        <item quantity="other">%d Available</item>
+    </plurals>
+    <plurals name="home_section_upcoming_count">
+        <item quantity="one">%d show</item>
+        <item quantity="other">%d shows</item>
+    </plurals>
 </resources>
