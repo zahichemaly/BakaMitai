@@ -29,7 +29,7 @@ Each approved library from `tech-stack` §1, with its catalog accessor and coord
 
 | Library | Catalog accessor(s) | Coordinates |
 |---|---|---|
-| Kotlin plugins | `libs.plugins.kotlin.compose`, `libs.plugins.kotlin.serialization` | `org.jetbrains.kotlin.plugin.compose`, `org.jetbrains.kotlin.plugin.serialization` |
+| Kotlin plugins | `libs.plugins.kotlin.compose`, `libs.plugins.kotlin.serialization`, `libs.plugins.kotlin.android` (root `apply false` only, see §4) | `org.jetbrains.kotlin.plugin.compose`, `org.jetbrains.kotlin.plugin.serialization`, `org.jetbrains.kotlin.android` |
 | Coroutines | `libs.kotlinx.coroutines.android` | `org.jetbrains.kotlinx:kotlinx-coroutines-android` |
 | kotlinx-datetime | `libs.kotlinx.datetime` | `org.jetbrains.kotlinx:kotlinx-datetime` |
 | kotlinx-collections-immutable | `libs.kotlinx.collections.immutable` | `org.jetbrains.kotlinx:kotlinx-collections-immutable` |
@@ -44,7 +44,7 @@ Each approved library from `tech-stack` §1, with its catalog accessor and coord
 | DataStore | `libs.androidx.datastore.preferences` (or `libs.androidx.datastore`) | `androidx.datastore:datastore-preferences` / `androidx.datastore:datastore` |
 | Koin | `libs.koin.bom`, `libs.koin.android` *BOM*, `libs.koin.androidx.compose` *BOM*, `libs.koin.annotations` *BOM*, `libs.plugins.koin.compiler` | `io.insert-koin:koin-bom`, `koin-android`, `koin-androidx-compose`, `koin-annotations`, plugin `io.insert-koin.compiler.plugin` |
 | Detekt (2.x) | `libs.plugins.detekt`, `libs.detekt.formatting`, `libs.compose.rules.detekt` | plugin `dev.detekt`, `dev.detekt:detekt-rules-ktlint-wrapper`, `io.nlopez.compose.rules:detekt` (Compose rules 0.6.x require Detekt 2.x) |
-| Testing | `libs.bundles.test.unit` | `junit:junit`, `org.jetbrains.kotlin:kotlin-test`, `org.jetbrains.kotlinx:kotlinx-coroutines-test`, `app.cash.turbine:turbine`, `io.ktor:ktor-client-mock`, `io.insert-koin:koin-test` |
+| Testing | `libs.bundles.test.unit` | `junit:junit`, `org.jetbrains.kotlin:kotlin-test-junit` (provides `kotlin.test.Test`; AGP's built-in Kotlin doesn't pick the JUnit variant of plain `kotlin-test`), `org.jetbrains.kotlinx:kotlinx-coroutines-test`, `app.cash.turbine:turbine`, `io.ktor:ktor-client-mock`, `io.insert-koin:koin-test` |
 | build-logic compile-only | `libs.android.gradle.plugin`, `libs.kotlin.gradle.plugin`, `libs.compose.gradle.plugin`, `libs.detekt.gradle.plugin` | `com.android.tools.build:gradle`, `org.jetbrains.kotlin:kotlin-gradle-plugin`, `org.jetbrains.kotlin:compose-compiler-gradle-plugin`, `dev.detekt:detekt-gradle-plugin` |
 
 ---
@@ -255,7 +255,11 @@ class KotlinOnlyConventionPlugin : Plugin<Project> {
 }
 ```
 
-> **Current state:** `build-logic/` exists and is included from `settings.gradle.kts`. It has only `bakamitai.detekt` so far (`DetektConventionPlugin.kt` + `extension/ProjectExtensions.kt`). `bakamitai.android.application` and `bakamitai.kotlin.only` are not created yet; add them, and their catalog entries, when they're first needed.
+> **Current state:** `build-logic/` is included from `settings.gradle.kts` and has all three convention plugins: `bakamitai.android.application` (SDKs 27/37, Java 11, Compose, BuildConfig, release optimization, Compose compiler reports in `app/build/compose_compiler/`), `bakamitai.detekt` and `bakamitai.kotlin.only` (`task/VerifyNoJavaSourcesTask.kt`, wired into `check`).
+>
+> **Kotlin version:** AGP 9 has built-in Kotlin and brings KGP 2.2.10, but the Koin compiler plugin needs Kotlin 2.3.20–2.4.20. The root `build.gradle.kts` declares `alias(libs.plugins.kotlin.android) apply false` (never applied) so the catalog's `kotlin` version replaces it on the build classpath. When bumping `kotlin`, stay within the Koin compiler plugin's verified Kotlin versions.
+>
+> **Compose reports:** every variant writes to the same `app/build/compose_compiler/*.txt`, so read them right after `assembleRelease`, before another variant (e.g. unit tests) compiles.
 >
 > **Detekt specifics** (Detekt 2.x, `dev.detekt.gradle.extensions.DetektExtension`):
 > - Because `build-logic` only has the Detekt Gradle plugin as `compileOnly`, the root `build.gradle.kts` declares `alias(libs.plugins.detekt) apply false` so the plugin is on the build classpath when the convention plugin applies it.
@@ -304,7 +308,7 @@ grep -nE "= *\"[^\"]*(\+|latest\.)" gradle/libs.versions.toml
 ```
 
 ```bash
-ls -d buildSrc 2>/dev/null; find . -name "*.gradle" -not -path "./.gradle/*"
+ls -d buildSrc 2>/dev/null; find . -name "*.gradle" -type f -not -path "*/.gradle/*"
 ```
 
 ## 7. Checklist

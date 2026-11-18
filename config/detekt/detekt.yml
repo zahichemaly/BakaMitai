@@ -13,6 +13,24 @@ complexity:
     ignoreDefaultParameters: true
 
 style:
+  ForbiddenImport:
+    # Text goes through UiText; resources are named through common/ui/resource/ResourceTypes.kt (conventions §2.5).
+    active: true
+    forbiddenImports:
+      - value: 'com.zc.bakamitai.R'
+        reason: 'Use StringResource / FontResource from common/ui/resource/ResourceTypes.kt.'
+      - value: 'androidx.compose.ui.res.stringResource'
+        reason: 'Use UiText.StringResource(...).asString(); only UiText.kt resolves strings.'
+      - value: 'androidx.compose.ui.res.pluralStringResource'
+        reason: 'Use UiText.StringPlural(...).asString(); only UiText.kt resolves plurals.'
   UnusedPrivateFunction:
     # Previews are private (Compose rule PreviewPublic) and only called by tooling.
     ignoreAnnotated: ['Preview', 'AdaptivePreviews']
+
+Compose:
+  CompositionLocalAllowlist:
+    # Theme tokens Material 3 has no slot for (common/ui/theme/ExtendedColorScheme.kt).
+    allowedCompositionLocals: LocalExtendedColorScheme
+  PreviewAnnotationNaming:
+    # The rule wants a `Preview` prefix; the skills name the shared multipreview `@AdaptivePreviews`.
+    active: false

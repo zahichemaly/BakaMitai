@@ -6,7 +6,7 @@ Android app, being rewritten from scratch. The repo holds a fresh Jetpack Compos
 
 - Single Gradle module `:app`, Kotlin only, Jetpack Compose + Material 3.
 - Root package `com.zc.bakamitai` (`app/src/main/java/com/zc/bakamitai/`).
-- `minSdk` 27, `compileSdk` / `targetSdk` 37. AGP 9.5.1, Gradle 9.6.0, Kotlin 2.2.10, Compose BOM 2026.02.01.
+- `minSdk` 27, `compileSdk` / `targetSdk` 37. AGP 9.5.1 (built-in Kotlin), Gradle 9.6.0, Kotlin 2.4.20, Compose BOM 2026.09.00.
 - Every dependency and plugin is declared in `gradle/libs.versions.toml`.
 - Work happens on `develop`; `master` is the default branch for PRs.
 
@@ -30,7 +30,7 @@ android run --apks=app/build/outputs/apk/debug/app-debug.apk
 
 - `connectedDebugAndroidTest` needs a running emulator or device, and uninstalls the app when it finishes.
 - `android run` installs and launches the debug APK on the connected device.
-- `./gradlew detekt` is required by the skills but not set up yet (see `library-management`).
+- `./gradlew detekt` must pass with zero findings; `./gradlew detekt --auto-correct` fixes ktlint formatting.
 
 ## Skills
 
@@ -51,5 +51,7 @@ Rules marked **MUST** / **NEVER** are non-negotiable. When code and a skill disa
 
 ## Current state
 
-- `MainActivity.kt` and `ui/theme/` are still in their template locations. Move them to `app/` and `common/ui/theme/` when next touched (`structure` §7).
-- `build-logic/`, Detekt and the approved libraries (Koin, Ktor, Navigation 3, …) are not wired in yet.
+- Foundation in place: every approved library is in the catalog and wired into `:app`; `build-logic/` has the `bakamitai.android.application`, `bakamitai.detekt` and `bakamitai.kotlin.only` convention plugins; Koin runs through the Koin compiler plugin (`startKoin<AppKoin>`).
+- Theme: `common/ui/theme/` implements `docs/DESIGN.md` ("Obsidian Signal"), with bundled Plus Jakarta Sans / Space Grotesk fonts. DESIGN.md defines dark only; the light scheme is derived from the same tonal palettes (see `Color.kt`). Extra tokens: `BakaMitaiTheme.extendedColors`, `BakaMitaiTheme.spacing`.
+- Shared code in `common/`: `UiText`, `ResourceTypes.kt`, `ObserveAsEvents`, `@AdaptivePreviews`, `ErrorView` / `LoadingView`, `Navigator` / `NavigationState`, `DomainError`, `DispatcherProvider`, `safeApiCall`, the SubsPlease `HttpClient`, `CommonModule`.
+- No features yet: `app/AppRoute.kt` shows the wordmark until the first feature adds `app/navigation/`.

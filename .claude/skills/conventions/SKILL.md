@@ -236,7 +236,8 @@ Everything the app shows as text is a `UiText` (`common/ui/text/UiText.kt`), and
 ```kotlin
 // common/ui/resource/ResourceTypes.kt
 typealias StringResource = com.zc.bakamitai.R.string    // StringResource.app_wordmark
-typealias PluralResource = com.zc.bakamitai.R.plurals   // PluralResource.detail_votes
+typealias PluralResource = com.zc.bakamitai.R.plurals   // PluralResource.detail_votes (add it with the first <plurals>: R.plurals doesn't exist before)
+typealias FontResource = com.zc.bakamitai.R.font        // FontResource.space_grotesk (used only by theme/Type.kt)
 
 // common/ui/text/UiText.kt
 sealed interface UiText {

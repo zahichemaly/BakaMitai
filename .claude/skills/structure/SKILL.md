@@ -176,7 +176,7 @@ Rules are in `library-management`.
 | Navigation plumbing shared by all features (`Navigator`, `NavigationState`, marker interfaces, bottom-sheet scene) | `common/ui/navigation/` |
 | Presentation mapper for a `common/domain` type used by 2+ features (not tied to one component) | `common/ui/mapper/[Name]UIModelMapper.kt` |
 | `UiText` (all user-visible text in `presentation`) | `common/ui/text/UiText.kt` |
-| `StringResource` / `PluralResource` typealiases for `R.string` / `R.plurals` (the only way code names a string resource) | `common/ui/resource/ResourceTypes.kt` |
+| `StringResource` / `PluralResource` / `FontResource` typealiases for `R.string` / `R.plurals` / `R.font` (the only way code names a resource) | `common/ui/resource/ResourceTypes.kt` |
 | `ErrorUIModel`, `ErrorUIModelMapper`, `ErrorView` | `common/ui/component/error/{model,mapper}/`, `ErrorView.kt` |
 | Composable used by 2+ features | `common/ui/component/[name]/[Name]View.kt` |
 | Ktor API calls for one feature | `feature/[name]/data/remote/[Name]Service.kt` |
@@ -306,13 +306,9 @@ grep -rlE "import com\.zc\.bakamitai\.(feature|app)\." app/src/main/java/com/zc/
 grep -rlE "import com\.zc\.bakamitai\.app\." app/src/main/java/com/zc/bakamitai/feature
 ```
 
-### Current repo migration
+### Current repo state
 
-The template project still has `MainActivity.kt` at the root and `ui/theme/`. Move them when you next touch them:
-
-- `MainActivity.kt` → `app/MainActivity.kt` (update `AndroidManifest.xml`).
-- `ui/theme/*` → `common/ui/theme/`.
-- Add `app/AppApplication.kt` and register it with `android:name` in the manifest.
+The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/AppRoute.kt` shows a placeholder until the first feature adds `app/navigation/` (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`).
 
 ## 8. Checklist
 

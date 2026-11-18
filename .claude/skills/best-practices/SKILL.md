@@ -454,7 +454,7 @@ private fun NovelDetailScreenPreview(
 
 ### 5.2 Theme tokens, adaptive layout & accessibility
 
-- Colors and type come from `MaterialTheme.colorScheme` / `MaterialTheme.typography` / `MaterialTheme.shapes`. **NEVER** hardcode `Color(0xFF…)`, `fontSize = 18.sp` or `FontWeight` in Screens or Views.
+- Colors and type come from `MaterialTheme.colorScheme` / `MaterialTheme.typography` / `MaterialTheme.shapes`, and DESIGN.md tokens Material has no slot for from `BakaMitaiTheme.extendedColors` (status badges, progress gradient, glows) and `BakaMitaiTheme.spacing`. **NEVER** hardcode `Color(0xFF…)`, `fontSize = 18.sp`, `FontWeight` or spacing `Dp`s in Screens or Views.
 - Responsive layout uses Material 3 Adaptive (`tech-stack` §4). Window size is read in the composable, never stored in `State`.
 - Every interactive element has a touch target of at least **48.dp**. Material components (`IconButton`, `Button`, `Checkbox`) already do this; custom clickables add `Modifier.minimumInteractiveComponentSize()`.
 - `contentDescription` is a meaningful localized string (`UiText.StringResource(StringResource.x).asString()`) for informative images and icons, and `null` only for decorative ones. Clickable rows that merge text use `Modifier.semantics(mergeDescendants = true) {}`.

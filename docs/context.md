@@ -236,4 +236,4 @@ data class Bookmark(val show: Show, val addedAt: Instant)
 2. **Custom Tabs vs. external browser** for "Open in web", Torrent and XDCC.
    - `androidx.browser` isn't approved either.
    - **Default:** a plain `ACTION_VIEW` intent (or Compose `LocalUriHandler`) until a decision is made.
-3. **Dynamic color (Material You)** on Android 12+ versus a fixed brand palette. Not specified. The default `Theme.kt` scaffold currently enables dynamic color.
+3. ~~**Dynamic color (Material You)** on Android 12+ versus a fixed brand palette.~~ **Decided:** fixed brand palette from [DESIGN.md](DESIGN.md), no dynamic color. DESIGN.md defines the dark scheme; the light scheme is derived from the same tonal palettes, so the *Theme* setting (System / Light / Dark) still applies.

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">BakaMitai</string>
+
+    <!-- Actions -->
+    <string name="action_retry">Retry</string>
+
+    <!-- Errors (common/ui/component/error) -->
+    <string name="error_network">Can\'t reach SubsPlease. Check your connection and try again.</string>
+    <string name="error_not_found">This page isn\'t available on SubsPlease anymore.</string>
+    <string name="error_rate_limited">SubsPlease is getting too many requests. Try again in a moment.</string>
+    <string name="error_unauthorized">SubsPlease refused the request.</string>
+    <string name="error_generic">Something went wrong. Try again.</string>
 </resources>

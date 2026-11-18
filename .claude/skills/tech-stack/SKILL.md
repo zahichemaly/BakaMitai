@@ -148,7 +148,7 @@ runCatching { service.fetch() }                                  // ❌ swallows
 
 - 100% of UI is Compose. `app/MainActivity` is a thin host: `setContent { BakaMitaiTheme { AppNavigation() } }`.
 - Import components from `androidx.compose.material3.*` only. Icons from `androidx.compose.material.icons.*` are fine.
-- Theme tokens via `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `MaterialTheme.shapes` — never hard-coded `Color(0xFF…)` in screens (define them in `common/ui/theme/`).
+- Theme tokens via `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `MaterialTheme.shapes`, plus `BakaMitaiTheme.extendedColors` / `BakaMitaiTheme.spacing` for DESIGN.md tokens — never hard-coded `Color(0xFF…)` in screens (define them in `common/ui/theme/`). The palette is fixed: no dynamic color.
 
 ### Material 3 Adaptive
 
