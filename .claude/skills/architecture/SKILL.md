@@ -48,11 +48,11 @@ presentation ──▶ domain ◀── data
 Both commands must print nothing:
 
 ```bash
-grep -rnE "import (android\.|androidx\.|io\.ktor\.|kotlinx\.serialization\.|org\.koin\.(android|compose|core\.(context|module|parameter|scope))|javax\.inject\.)" app/src/main/java/com/zc/vndb/feature/*/domain app/src/main/java/com/zc/vndb/common/domain
+grep -rnE "import (android\.|androidx\.|io\.ktor\.|kotlinx\.serialization\.|org\.koin\.(android|compose|core\.(context|module|parameter|scope))|javax\.inject\.)" app/src/main/java/com/zc/bakamitai/feature/*/domain app/src/main/java/com/zc/bakamitai/common/domain
 ```
 
 ```bash
-grep -rnE "import com\.zc\.vndb\.feature\.[a-z]+\.data\." app/src/main/java/com/zc/vndb/feature/*/presentation
+grep -rnE "import com\.zc\.bakamitai\.feature\.[a-z]+\.data\." app/src/main/java/com/zc/bakamitai/feature/*/presentation
 ```
 
 ---

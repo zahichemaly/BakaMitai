@@ -84,17 +84,17 @@ ktor-client = ["ktor-client-core", "ktor-client-okhttp", "ktor-client-content-ne
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-vndb-android-application = { id = "vndb.android.application" }                       # build-logic, no version
-vndb-detekt = { id = "vndb.detekt" }
-vndb-kotlin-only = { id = "vndb.kotlin.only" }
+bakamitai-android-application = { id = "bakamitai.android.application" }   # build-logic, no version
+bakamitai-detekt = { id = "bakamitai.detekt" }
+bakamitai-kotlin-only = { id = "bakamitai.kotlin.only" }
 ```
 
 ```kotlin
 // ✅ app/build.gradle.kts — declarative only
 plugins {
-    alias(libs.plugins.vndb.android.application)
-    alias(libs.plugins.vndb.detekt)
-    alias(libs.plugins.vndb.kotlin.only)
+    alias(libs.plugins.bakamitai.android.application)
+    alias(libs.plugins.bakamitai.detekt)
+    alias(libs.plugins.bakamitai.kotlin.only)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.koin.compiler)          // Koin Annotations, no KSP
 }
@@ -122,7 +122,7 @@ tasks.register("printVersion") { doLast { println(version) } }
 - Module scripts (`app/build.gradle.kts`) and the root `build.gradle.kts` stay **declarative**: they apply plugins, set the namespace/application id, and declare dependencies, nothing else.
 - Each custom task is an `abstract class` extending `DefaultTask`, with annotated inputs/outputs and a `@TaskAction`, so it is cacheable and configuration-cache compatible. A convention plugin registers it.
 - Convention plugins read the shared catalog through `VersionCatalogsExtension`, never with hardcoded coordinates.
-- Plugin ids use the `vndb.` prefix and are registered in `build-logic/convention/build.gradle.kts`.
+- Plugin ids use the `bakamitai.` prefix and are registered in `build-logic/convention/build.gradle.kts`.
 
 ```text
 build-logic/
@@ -130,9 +130,9 @@ build-logic/
 └── convention/
     ├── build.gradle.kts                 # `kotlin-dsl`, compileOnly gradle plugins, gradlePlugin { plugins { … } }
     └── src/main/kotlin/
-        ├── AndroidApplicationConventionPlugin.kt   # vndb.android.application: SDKs, JVM target, Compose, compose compiler reports
-        ├── DetektConventionPlugin.kt               # vndb.detekt: detekt config + detektPlugins
-        ├── KotlinOnlyConventionPlugin.kt           # vndb.kotlin.only: registers verifyNoJavaSources
+        ├── AndroidApplicationConventionPlugin.kt   # bakamitai.android.application: SDKs, JVM target, Compose, compose compiler reports
+        ├── DetektConventionPlugin.kt               # bakamitai.detekt: detekt config + detektPlugins
+        ├── KotlinOnlyConventionPlugin.kt           # bakamitai.kotlin.only: registers verifyNoJavaSources
         ├── extension/                               # Project.libs helper, shared configure functions
         └── task/
             └── VerifyNoJavaSourcesTask.kt
@@ -172,15 +172,15 @@ dependencies {
 gradlePlugin {
     plugins {
         register("androidApplication") {
-            id = libs.plugins.vndb.android.application.get().pluginId
+            id = libs.plugins.bakamitai.android.application.get().pluginId
             implementationClass = "AndroidApplicationConventionPlugin"
         }
         register("detekt") {
-            id = libs.plugins.vndb.detekt.get().pluginId
+            id = libs.plugins.bakamitai.detekt.get().pluginId
             implementationClass = "DetektConventionPlugin"
         }
         register("kotlinOnly") {
-            id = libs.plugins.vndb.kotlin.only.get().pluginId
+            id = libs.plugins.bakamitai.kotlin.only.get().pluginId
             implementationClass = "KotlinOnlyConventionPlugin"
         }
     }
@@ -267,12 +267,12 @@ class KotlinOnlyConventionPlugin : Plugin<Project> {
 3. Add the `[libraries]` / `[plugins]` entry, plus a `[bundles]` entry if it always ships with others.
 4. Reference it via `libs.*` in the module's `dependencies {}`, or in a convention plugin if several modules or the build itself need it.
 5. Add its row to the artifact map (§2).
-6. Run `./gradlew assembleDevelopmentDebug testDevelopmentDebugUnitTest detekt`.
+6. Run `./gradlew assembleDebug testDebugUnitTest detekt`.
 
 ### Updating a version
 1. Change only the `[versions]` value. Every artifact on that release train moves together.
 2. Read the release notes for breaking changes and migrate call sites in the same change.
-3. Run `./gradlew assembleDevelopmentDebug testDevelopmentDebugUnitTest detekt`.
+3. Run `./gradlew assembleDebug testDebugUnitTest detekt`.
 
 ### Removing a library
 1. Remove its usages and the `libs.*` references.

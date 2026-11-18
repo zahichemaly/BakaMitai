@@ -7,7 +7,7 @@ description: Naming, immutability, mapper, MVI contract, and Compose conventions
 
 This skill defines **how files and classes are named and shaped**. Where files live is defined in `structure`, which layer may depend on which in `architecture`, and which libraries to use (Koin, Ktor, kotlinx.serialization, DataStore, Navigation 3, Coil, kotlinx-datetime, …) in `tech-stack`. Production-quality rules (performance, Detekt, error handling, testing) are in `best-practices`, and dependency declaration in `library-management`. Load all six when generating code.
 
-Rules marked **MUST** / **NEVER** are non-negotiable. Examples use the feature `feature/novel` in package `com.zc.vndb.feature.novel`.
+Rules marked **MUST** / **NEVER** are non-negotiable. Examples use the feature `feature/novel` in package `com.zc.bakamitai.feature.novel`.
 
 ## Naming cheat sheet
 
@@ -54,10 +54,10 @@ Acronyms in suffixes are **all caps**: `DTO`, `UI` — never `Dto`, `Ui`, `UiMod
 
 ```kotlin
 // ✅ domain/usecase/GetVisualNovelDetailsUseCase.kt
-package com.zc.vndb.feature.novel.domain.usecase
+package com.zc.bakamitai.feature.novel.domain.usecase
 
-import com.zc.vndb.feature.novel.domain.model.VisualNovel
-import com.zc.vndb.feature.novel.domain.repository.VisualNovelRepository
+import com.zc.bakamitai.feature.novel.domain.model.VisualNovel
+import com.zc.bakamitai.feature.novel.domain.repository.VisualNovelRepository
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -145,7 +145,7 @@ data class ImageDTO(
 
 ```kotlin
 // ✅ domain/model/VisualNovel.kt
-package com.zc.vndb.feature.novel.domain.model
+package com.zc.bakamitai.feature.novel.domain.model
 
 import kotlinx.datetime.LocalDate
 
@@ -153,7 +153,7 @@ data class VisualNovel(
     val id: String,
     val title: String,
     val releaseDate: LocalDate?,
-    val rating: Double?,           // 10..100 scale as returned by VNDB
+    val rating: Double?,           // 10..100 scale as returned by the API
     val coverUrl: String?,
     val isNsfwCover: Boolean,
 )
@@ -235,8 +235,8 @@ Everything the app shows as text is a `UiText` (`common/ui/text/UiText.kt`), and
 
 ```kotlin
 // common/ui/resource/ResourceTypes.kt
-typealias StringResource = com.zc.vndb.R.string    // StringResource.app_wordmark
-typealias PluralResource = com.zc.vndb.R.plurals   // PluralResource.detail_votes
+typealias StringResource = com.zc.bakamitai.R.string    // StringResource.app_wordmark
+typealias PluralResource = com.zc.bakamitai.R.plurals   // PluralResource.detail_votes
 
 // common/ui/text/UiText.kt
 sealed interface UiText {
@@ -267,7 +267,7 @@ snackbarHostState.showSnackbar(effect.message.asString(context))                
 
 **NEVER** (Detekt `ForbiddenImport` fails the build on the first three):
 
-- `import com.zc.vndb.R` / `R.string.*` / `R.plurals.*` — use `StringResource.*` / `PluralResource.*`.
+- `import com.zc.bakamitai.R` / `R.string.*` / `R.plurals.*` — use `StringResource.*` / `PluralResource.*`.
 - `stringResource(...)` / `pluralStringResource(...)` — use `UiText…asString()`. Only `UiText.kt` calls them, by their full names.
 - `context.getString(...)` / `resources.getQuantityString(...)` — use `UiText…asString(context)`.
 - Typealiases for resource ids (`typealias StringResourceId = Int`, …) or properties/parameters/return types that carry a raw resource id outside `UiText`.
@@ -287,7 +287,7 @@ snackbarHostState.showSnackbar(effect.message.asString(context))                
 Check (must print nothing):
 
 ```bash
-grep -rnE "R\.(string|plurals)\.|import com\.zc\.vndb\.R$|[^.]stringResource\(|pluralStringResource\(|getString\(|getQuantityString\(" app/src --include=*.kt | grep -v "common/ui/text/UiText.kt"
+grep -rnE "R\.(string|plurals)\.|import com\.zc\.bakamitai\.R$|[^.]stringResource\(|pluralStringResource\(|getString\(|getQuantityString\(" app/src --include=*.kt | grep -v "common/ui/text/UiText.kt"
 ```
 
 ---
@@ -314,12 +314,12 @@ grep -rnE "R\.(string|plurals)\.|import com\.zc\.vndb\.R$|[^.]stringResource\(|p
 
 ```kotlin
 // ✅ data/mapper/VisualNovelDTOMapper.kt
-package com.zc.vndb.feature.novel.data.mapper
+package com.zc.bakamitai.feature.novel.data.mapper
 
 fun VisualNovelDTO.toDomain(): VisualNovel = VisualNovel(
     id = id,
     title = title,
-    releaseDate = released?.let(::parseVndbDate),
+    releaseDate = released?.let(::parseReleaseDate),
     rating = rating,
     coverUrl = image?.url,
     isNsfwCover = (image?.sexual ?: 0.0) >= NSFW_THRESHOLD,
@@ -340,7 +340,7 @@ fun VoteRequest.toDTO(): VoteRequestDTO = VoteRequestDTO(
 
 ```kotlin
 // ✅ presentation/mapper/VisualNovelUIModelMapper.kt
-package com.zc.vndb.feature.novel.presentation.mapper
+package com.zc.bakamitai.feature.novel.presentation.mapper
 
 private val releaseFormat = LocalDate.Format {
     monthName(MonthNames.ENGLISH_ABBREVIATED); char(' '); year()
@@ -615,7 +615,7 @@ fun NovelDetailScreen(
 @AdaptivePreviews
 @Composable
 private fun NovelDetailScreenPreview() {
-    VndbTheme {
+    BakaMitaiTheme {
         NovelDetailScreen(
             state = NovelDetailState(
                 novel = VisualNovelUIModel(

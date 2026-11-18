@@ -96,7 +96,7 @@ grep -rnE "runBlocking|GlobalScope|KoinComponent|by inject\(\)" app/src/main
 | DataStore | — | ✅ | — | — | ✅ create instance | — |
 | Compose, Material 3, Adaptive | — | — | ✅ | ✅ | — | ✅ |
 | Compose RichText | — | — | ✅ | ✅ | — | — |
-| Coil | — | ✅ `common/data` only: disk/memory cache size and clear (`ImageCacheRepositoryImpl`) | ✅ | ✅ | ✅ `DiskCache` provider | ✅ `ImageLoader` setup |
+| Coil | — | — | ✅ | ✅ | ✅ `DiskCache` provider | ✅ `ImageLoader` setup |
 | Navigation 3 | — | — | ✅ `NavKey`s and entry functions (`presentation/navigation/`) only | ✅ `common/ui/navigation/` plumbing | — | ✅ `NavDisplay`, back stack, entry wiring |
 | Lifecycle / ViewModel | — | — | ✅ | — | — | ✅ |
 | Koin | ✅ annotations only (`@Factory`, `@Single`) | ✅ annotations only (`@Single`) | ✅ `@KoinViewModel` / `@Factory`, `koinViewModel()` in Routes only | — | ✅ `@Module`, providers | ✅ `startKoin<AppKoin>` |
@@ -146,7 +146,7 @@ runCatching { service.fetch() }                                  // ❌ swallows
 
 ### Compose + Material 3
 
-- 100% of UI is Compose. `app/MainActivity` is a thin host: `setContent { VndbTheme { AppNavigation() } }`.
+- 100% of UI is Compose. `app/MainActivity` is a thin host: `setContent { BakaMitaiTheme { AppNavigation() } }`.
 - Import components from `androidx.compose.material3.*` only. Icons from `androidx.compose.material.icons.*` are fine.
 - Theme tokens via `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `MaterialTheme.shapes` — never hard-coded `Color(0xFF…)` in screens (define them in `common/ui/theme/`).
 
@@ -200,7 +200,7 @@ fun NovelListScreen(state: NovelListState, onIntent: (NovelListIntent) -> Unit) 
 ### Rich text / Markdown
 
 - Render formatted text with Compose RichText's `Markdown` inside a shared `MarkdownView` in `common/ui/component/markdown/`.
-- Source markup conversion (e.g. VNDB's BBCode-style `[url=…]`, `[spoiler]` tags → Markdown) happens in the `[Name]UIModelMapper`, so the UI model already carries a Markdown `String`.
+- Source markup conversion (e.g. HTML or BBCode returned by an API → Markdown) happens in the `[Name]UIModelMapper`, so the UI model already carries a Markdown `String`.
 
 ```kotlin
 // ✅ common/ui/component/markdown/MarkdownView.kt
@@ -225,7 +225,7 @@ AndroidView(factory = { TextView(it).apply { text = Html.fromHtml(html, 0) } })
 - Use `AsyncImage` by default; `SubcomposeAsyncImage` only when the loading/error slots need composables; `rememberAsyncImagePainter` only where a `Painter` is required.
 - Always pass `contentDescription` (or `null` for decorative images) and a `contentScale`.
 - The singleton `ImageLoader` is configured once in `app/AppApplication.kt` (implements `SingletonImageLoader.Factory`, see `structure` §5) and uses the Ktor network fetcher, so images and API share one HTTP stack.
-- Wrap repeated image patterns (cover with NSFW blur, avatar) in a `[Name]View` (`common/ui/component/coverimage/CoverImageView.kt`).
+- Wrap repeated image patterns (cover art, avatar) in a `[Name]View` (`common/ui/component/coverimage/CoverImageView.kt`).
 
 ```kotlin
 // ✅ common/ui/component/coverimage/CoverImageView.kt
@@ -316,7 +316,7 @@ private fun AppNavDisplay(backStack: NavBackStack<NavKey>) {
 
 ### Ktor Client
 
-- **One** app-wide `HttpClient`, built in `common/data/network/HttpClientFactory.kt` and provided by a `@Single` function in `CommonModule`. Base URL, JSON, timeouts, logging and response validation are configured there (`expectSuccess = false` plus an `HttpResponseValidator` that maps status codes without reading the body, because VNDB errors use `Content-Type: text`).
+- **One** app-wide `HttpClient`, built in `common/data/network/HttpClientFactory.kt` and provided by a `@Single` function in `CommonModule`. Base URL, JSON, timeouts, logging and response validation are configured there (`expectSuccess = true`, so non-2xx responses throw `ClientRequestException` / `ServerResponseException`, which `safeApiCall` maps to `DomainError`).
 - Per-feature API classes `[Name]Service` live in `feature/[name]/data/remote/`, take `HttpClient` in the constructor, expose `suspend` functions returning **DTOs**, and contain no mapping or business logic.
 - The OkHttp artifact is used only as Ktor's **engine** — never import `okhttp3.*` directly.
 - Ktor types (`HttpClient`, `HttpResponse`, `ResponseException`) **NEVER** leave `data`. Repository implementations wrap every service call in `safeApiCall {}`, which converts failures into `Result.failure(DomainError.…)`.
@@ -335,7 +335,7 @@ fun createHttpClient(
     }
     install(Logging) { level = LogLevel.INFO }
     defaultRequest {
-        url("https://api.vndb.org/kana/")
+        url("https://api.example.com/")   // the app's API base URL
         contentType(ContentType.Application.Json)
     }
 }
@@ -374,7 +374,7 @@ HttpClient().get(url)                                  // ❌ ad-hoc client per 
 ### Jetpack DataStore
 
 - Preferences DataStore for simple key/value settings; Proto/typed DataStore (with a kotlinx.serialization `Serializer`) for structured data.
-- Exactly **one** `DataStore` instance per file, provided by a `@Single` function in a `@Module` class (e.g. the `session` store in `CommonModule`).
+- Exactly **one** `DataStore` instance per file, provided by a `@Single` function in a `@Module` class (e.g. the `settings` store in `CommonModule`).
 - Wrapped in a `[Name]LocalDataSource` in `feature/[name]/data/local/`. Reads are `Flow`s; writes are `suspend` functions using `edit {}` / `updateData {}`.
 - Handle read `IOException`s by emitting defaults; rethrow everything else.
 
@@ -408,7 +408,7 @@ runBlocking { dataStore.data.first() }                                          
 
 ## 7. Dependency injection (Koin)
 
-- Koin is wired with **Koin Annotations** through the Koin Compiler Plugin (`io.insert-koin.compiler.plugin`, no KSP). Each feature declares one `@Module @ComponentScan("com.zc.vndb.feature.[name]") class [Feature]Module` in `feature/[name]/di/[Name]Module.kt`. `CommonModule` (`common/di/`) scans `common` and holds provider functions for things that are not our classes (`Json`, `HttpClient`, `Clock`, `DataStore`). `app/di/AppModule.kt` aggregates them with `@Module(includes = [...])`, and `app/di/AppKoin.kt` (`@KoinApplication`) is the entry point for `startKoin<AppKoin>`.
+- Koin is wired with **Koin Annotations** through the Koin Compiler Plugin (`io.insert-koin.compiler.plugin`, no KSP). Each feature declares one `@Module @ComponentScan("com.zc.bakamitai.feature.[name]") class [Feature]Module` in `feature/[name]/di/[Name]Module.kt`. `CommonModule` (`common/di/`) scans `common` and holds provider functions for things that are not our classes (`Json`, `HttpClient`, `Clock`, `DataStore`). `app/di/AppModule.kt` aggregates them with `@Module(includes = [...])`, and `app/di/AppKoin.kt` (`@KoinApplication`) is the entry point for `startKoin<AppKoin>`.
 - Annotate the classes themselves; `@ComponentScan` registers them:
   - `@Single` — services, data sources, repository implementations.
   - `@Factory` — use cases, presentation mappers.
@@ -423,7 +423,7 @@ runBlocking { dataStore.data.first() }                                          
 ```kotlin
 // ✅ feature/novel/di/NovelModule.kt
 @Module
-@ComponentScan("com.zc.vndb.feature.novel")
+@ComponentScan("com.zc.bakamitai.feature.novel")
 class NovelModule
 ```
 
@@ -445,7 +445,7 @@ class NovelDetailViewModel(
 ```kotlin
 // ✅ common/di/CommonModule.kt
 @Module
-@ComponentScan("com.zc.vndb.common")
+@ComponentScan("com.zc.bakamitai.common")
 class CommonModule {
     @Single
     fun json(): Json = appJson

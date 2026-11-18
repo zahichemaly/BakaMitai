@@ -13,7 +13,7 @@ This skill defines **production-quality rules** layered on top of:
 - `tech-stack` — approved libraries.
 - `library-management` — version catalog, `build-logic/` and dependency workflows.
 
-Rules marked **MUST** / **NEVER** are non-negotiable. Examples use the `feature/novel` feature in `com.zc.vndb`.
+Rules marked **MUST** / **NEVER** are non-negotiable. Examples use the `feature/novel` feature in `com.zc.bakamitai`.
 
 ---
 
@@ -148,7 +148,7 @@ NovelListScreen(state = state, onIntent = { viewModel.onIntent(it) }, viewModel 
 
 ### 2.1 Detekt + Compose rules
 
-The codebase runs Detekt with formatting (ktlint) rules and Compose rules (`io.nlopez.compose.rules:detekt`). Setup is in `library-management` §4 (`vndb.detekt` convention plugin in `build-logic/`). `./gradlew detekt` **MUST** pass with zero findings and no baseline.
+The codebase runs Detekt with formatting (ktlint) rules and Compose rules (`io.nlopez.compose.rules:detekt`). Setup is in `library-management` §4 (`bakamitai.detekt` convention plugin in `build-logic/`). `./gradlew detekt` **MUST** pass with zero findings and no baseline.
 
 Generated code must comply out of the box:
 
@@ -185,7 +185,7 @@ fun SearchFieldView(query: MutableState<String>) { /* … */ }
 
 ```kotlin
 // ✅ rare, scoped, justified
-@Suppress("LongParameterList") // Mirrors VNDB's filter API 1:1; grouping would leak DTO shape into domain.
+@Suppress("LongParameterList") // Mirrors the API's filter parameters 1:1; grouping would leak DTO shape into domain.
 fun buildFilters(/* … */)
 
 // ❌
@@ -195,7 +195,7 @@ fun buildFilters(/* … */)
 
 ### 2.3 Compose compiler reports
 
-- Compose compiler reports are enabled by the `vndb.android.application` convention plugin (`library-management` §4). After UI changes, build and check `app/build/compose_compiler/`:
+- Compose compiler reports are enabled by the `bakamitai.android.application` convention plugin (`library-management` §4). After UI changes, build and check `app/build/compose_compiler/`:
   - `*-classes.txt`: every `State`, `UIModel` and `UIState` is listed as `stable`.
   - `*-composables.txt`: every Screen and View is `restartable skippable`, with **zero** `unstable` parameters.
 - Fix instability at the source (an immutable collection, an `@Immutable` annotation, a UI model instead of a domain model). Don't paper over it with stability configuration files.
@@ -448,14 +448,13 @@ private class NovelDetailStateProvider : PreviewParameterProvider<NovelDetailSta
 private fun NovelDetailScreenPreview(
     @PreviewParameter(NovelDetailStateProvider::class) state: NovelDetailState,
 ) {
-    VndbTheme { NovelDetailScreen(state = state, onIntent = {}) }
+    BakaMitaiTheme { NovelDetailScreen(state = state, onIntent = {}) }
 }
 ```
 
 ### 5.2 Theme tokens, adaptive layout & accessibility
 
 - Colors and type come from `MaterialTheme.colorScheme` / `MaterialTheme.typography` / `MaterialTheme.shapes`. **NEVER** hardcode `Color(0xFF…)`, `fontSize = 18.sp` or `FontWeight` in Screens or Views.
-- **Cards use `Modifier.cardBackground()`** (`common/ui/theme/Theme.kt`), never `.background(VndbTheme.colors.surfaceCard)` or `…surfaceInset`. It draws the card color at the theme's card opacity, so the wallpaper shows slightly through it, and stays solid for a theme without a wallpaper. A normal card is `.cardBackground()`; an inset-style card passes its color: `.cardBackground(VndbTheme.colors.surfaceInset)`. Only on-page cards use it. Dialogs, bottom sheets, menus, the nav bar, chips and inputs keep the plain color tokens, so they stay solid.
 - Responsive layout uses Material 3 Adaptive (`tech-stack` §4). Window size is read in the composable, never stored in `State`.
 - Every interactive element has a touch target of at least **48.dp**. Material components (`IconButton`, `Button`, `Checkbox`) already do this; custom clickables add `Modifier.minimumInteractiveComponentSize()`.
 - `contentDescription` is a meaningful localized string (`UiText.StringResource(StringResource.x).asString()`) for informative images and icons, and `null` only for decorative ones. Clickable rows that merge text use `Modifier.semantics(mergeDescendants = true) {}`.
@@ -471,17 +470,6 @@ IconButton(onClick = onFavoriteClick) {
     )
 }
 
-// ✅ a card: translucent over the wallpaper
-Column(
-    modifier = Modifier
-        .clip(MaterialTheme.shapes.large)
-        .cardBackground()
-        .padding(VndbTheme.spacing.md),
-) { /* … */ }
-
-// ❌ a card with a solid background: the wallpaper never shows through it
-Column(modifier = Modifier.clip(MaterialTheme.shapes.large).background(VndbTheme.colors.surfaceCard)) { /* … */ }
-
 // ❌ hardcoded color, 24dp touch target, no description
 Icon(Icons.Filled.Favorite, null, tint = Color(0xFFE91E63), modifier = Modifier.size(24.dp).clickable { … })
 ```
@@ -492,7 +480,7 @@ Icon(Icons.Filled.Favorite, null, tint = Color(0xFFE91E63), modifier = Modifier.
 
 ### 6.1 Layout & tooling
 
-- Unit tests live in `app/src/test/java/com/zc/vndb/` and **mirror the main package tree**. For example, `feature/novel/domain/usecase/GetVisualNovelDetailsUseCaseTest.kt`.
+- Unit tests live in `app/src/test/java/com/zc/bakamitai/` and **mirror the main package tree**. For example, `feature/novel/domain/usecase/GetVisualNovelDetailsUseCaseTest.kt`.
 - Test classes are named `[ClassUnderTest]Test`. Test names are backtick sentences: `` `returns NotFound when the API responds 404` ``.
 - Tools: JUnit 4, `kotlin.test` assertions, `kotlinx-coroutines-test` (`runTest`, `StandardTestDispatcher`), Turbine for flows, Ktor `MockEngine` for HTTP.
 - Prefer **hand-written fakes** (`Fake[Name]Repository`, `TestDispatcherProvider`) over mocking frameworks. Keep fakes in the test source set next to the tests that use them, mirroring the main tree.
@@ -562,7 +550,7 @@ class NovelServiceTest {
     fun `queryNovels posts to vn and parses the page`() = runTest {
         val engine = MockEngine { request ->
             assertEquals(HttpMethod.Post, request.method)
-            assertEquals("/kana/vn", request.url.encodedPath)
+            assertEquals("/vn", request.url.encodedPath)
             respond(
                 content = """{"results":[{"id":"v17","title":"Ever17"}],"more":false}""",
                 status = HttpStatusCode.OK,
@@ -596,7 +584,7 @@ class VisualNovelDTOMapperTest {
 
 - Test every `[Name]ViewModel` for **state transitions** (initial → loading → content/error) and **effect sequences**, using `MainDispatcherRule` and Turbine. Build ViewModels with real use cases backed by fake repositories.
 - `Navigator` and every `NavKey`'s serialization are unit tested (`NavigatorTest`, `NavKeySerializationTest`); a new `NavKey` is added to the serialization test's sample list.
-- Test every `[Name]UIModelMapper` for formatting: dates, ratings, empty/null fallbacks, BBCode → Markdown.
+- Test every `[Name]UIModelMapper` for formatting: dates, ratings, empty/null fallbacks, markup → Markdown.
 
 ```kotlin
 class NovelDetailViewModelTest {
@@ -665,7 +653,7 @@ class VisualNovelUIModelMapperTest {
 ```
 
 ```bash
-./gradlew testDevelopmentDebugUnitTest
+./gradlew testDebugUnitTest
 ```
 
 ```bash
@@ -686,5 +674,5 @@ The last `grep` must print nothing for Screens and Views.
 - [ ] No hardcoded dispatchers (only `DispatcherProvider`); `CancellationException` is never swallowed; Flows reach the ViewModel through `stateIn(WhileSubscribed(5_000))`.
 - [ ] Network failures go through `safeApiCall` → `DomainError` → `ErrorUIModel`; DataStore reads `.catch` `IOException`.
 - [ ] User-visible text in State/UIModel/UIState/Effect is `UiText`, resolved with `asString()`; strings are referenced as `StringResource.x` / `PluralResource.x` (never `R.string` / `R.plurals`), and nothing outside `UiText` calls `stringResource()` / `getString()` or carries a raw resource id.
-- [ ] Screens and Views are stateless, with `@AdaptivePreviews`; theme tokens only; cards use `Modifier.cardBackground()`; 48.dp touch targets; meaningful `contentDescription`s.
+- [ ] Screens and Views are stateless, with `@AdaptivePreviews`; theme tokens only; 48.dp touch targets; meaningful `contentDescription`s.
 - [ ] Tests exist for every new use case, service, mapper and ViewModel, and they pass; new `NavKey`s are in `NavKeySerializationTest`.

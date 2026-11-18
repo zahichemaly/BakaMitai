@@ -7,14 +7,14 @@ description: Package hierarchy and file placement rules for this Android app. Us
 
 This skill defines **where every file goes**. It is the single source of truth for the package tree. Layer dependency rules are in `architecture`, naming in `conventions`, libraries in `tech-stack`, quality and testing rules in `best-practices`.
 
-Root package: `com.zc.vndb` (source root `app/src/main/java/com/zc/vndb/`). Rules marked **MUST** / **NEVER** are non-negotiable.
+Root package: `com.zc.bakamitai` (source root `app/src/main/java/com/zc/bakamitai/`). Rules marked **MUST** / **NEVER** are non-negotiable.
 
 ---
 
 ## 1. Package tree
 
 ```text
-com.zc.vndb/
+com.zc.bakamitai/
 ├── app/                             # Application entry point, root navigation & DI assembly
 │   ├── MainActivity.kt
 │   ├── AppRoute.kt                  # App root: provides app-wide settings (composition locals) around AppNavigation
@@ -33,21 +33,20 @@ com.zc.vndb/
 │   │   ├── network/                 # Shared Ktor HttpClient factory, Json config, plugins
 │   │   ├── dto/                     # Wire-format DTOs used by 2+ features (QueryDTO, ImageDTO, TagDTO)
 │   │   ├── mapper/                  # DTO -> common/domain mappers for those DTOs
-│   │   ├── local/                   # Shared Jetpack DataStore sources (e.g. the signed-in session + token cipher)
-│   │   ├── repository/              # Implementations of common/domain repositories (e.g. SessionRepositoryImpl)
+│   │   ├── local/                   # Shared Jetpack DataStore sources (e.g. app settings)
+│   │   ├── repository/              # Implementations of common/domain repositories (e.g. SettingsRepositoryImpl)
 │   │   └── util/
 │   │       └── SafeApiCall.kt       # safeApiCall { } — Ktor/serialization exceptions -> DomainError
 │   ├── domain/
-│   │   ├── model/                   # Shared pure Kotlin domain primitives, DomainError.kt, result types, Session
-│   │   ├── repository/              # Interfaces used by 2+ features (e.g. SessionRepository, SettingsRepository)
+│   │   ├── model/                   # Shared pure Kotlin domain primitives, DomainError.kt, result types, AppSettings
+│   │   ├── repository/              # Interfaces used by 2+ features (e.g. SettingsRepository)
 │   │   ├── usecase/                 # Use cases used by 2+ features (e.g. ObserveSettingsUseCase)
 │   │   └── util/
 │   │       └── DispatcherProvider.kt  # DispatcherProvider interface + DefaultDispatcherProvider
 │   ├── di/
 │   │   └── CommonModule.kt          # @Module @ComponentScan(common) + @Single providers for Json, HttpClient, Clock, DataStore
 │   └── ui/
-│       ├── theme/                   # Material 3 Color.kt, Type.kt, Theme.kt, Themes.kt (every theme's spec)
-│       │   └── schemes/             # One file per color scheme (NocturneScheme.kt, SayaNoUtaScheme.kt, …)
+│       ├── theme/                   # Material 3 Color.kt, Type.kt, Theme.kt
 │       ├── util/                    # ObserveAsEvents.kt, AdaptivePreviews.kt (non-visual Compose helpers)
 │       ├── mapper/                  # common/domain -> UiText/UI model mappers used by 2+ features (e.g. NovelLength labels)
 │       └── component/               # Shared UI widgets & adaptive scaffolds — same recursive shape as §1.1
@@ -91,7 +90,7 @@ Rules:
 
 - **MUST** create all four feature subpackages — `data`, `domain`, `di`, `presentation` — for every feature.
 - Feature names are **lowercase**, no underscores or hyphens (`feature/userlist`, never `feature/UserList` or `feature/user_list`).
-- **NEVER** add top-level packages beyond `app`, `common`, `feature`. No layer-first packages (`com.zc.vndb.data`, `com.zc.vndb.ui`, `com.zc.vndb.viewmodels`, `com.zc.vndb.utils`).
+- **NEVER** add top-level packages beyond `app`, `common`, `feature`. No layer-first packages (`com.zc.bakamitai.data`, `com.zc.bakamitai.ui`, `com.zc.bakamitai.viewmodels`, `com.zc.bakamitai.utils`).
 - **NEVER** add folders that are not in the tree (`helper/`, `base/`, `extensions/`, `manager/`). Place the code in the folder that matches its role.
 - `common/data/dto/` and `common/data/mapper/` hold only DTOs (and their mappers) that two or more features send or receive; a DTO used by one feature stays in that feature.
 - `util/` exists **only** at `common/data/util/`, `common/domain/util/` and `common/ui/util/`, for the cross-cutting helpers listed in §2. **NEVER** create `util/` inside a feature, and never use these folders as a dumping ground for feature logic.
@@ -141,7 +140,7 @@ Rules:
 ### 1.2 Repository root (build files)
 
 ```text
-MyVNDB/
+BakaMitai/
 ├── app/build.gradle.kts             # Declarative only: plugins, namespace, dependencies (libs.*)
 ├── build-logic/                     # Included build: convention plugins + ALL custom Gradle tasks
 ├── config/detekt/detekt.yml
@@ -168,8 +167,8 @@ Rules are in `library-management`.
 | DTO used by 2+ features (query body, image, tag) | `common/data/dto/[Name]DTO.kt` |
 | Mapper from a shared DTO to a `common/domain` model | `common/data/mapper/[Name]DTOMapper.kt` |
 | Shared DataStore helpers (file factory, preference key helpers) | `common/data/local/` |
-| `DomainError` and other error/result/value types used by 2+ features' domains (incl. `AppSettings`, `Session`) | `common/domain/model/` |
-| Repository interface / use case used by 2+ features (settings, session, image cache) | `common/domain/{repository,usecase}/` |
+| `DomainError` and other error/result/value types used by 2+ features' domains (incl. `AppSettings`) | `common/domain/model/` |
+| Repository interface / use case used by 2+ features (e.g. settings) | `common/domain/{repository,usecase}/` |
 | `DispatcherProvider` / `DefaultDispatcherProvider` | `common/domain/util/DispatcherProvider.kt` |
 | Koin providers for types we don't own (`HttpClient`, `Json`, `Clock`, `DataStore`) | `common/di/CommonModule.kt` |
 | Theme, colors, typography | `common/ui/theme/` |
@@ -186,7 +185,7 @@ Rules are in `library-management`.
 | DTO → Domain / Domain → DTO | `feature/[name]/data/mapper/[Name]DTOMapper.kt` / `[Name]DomainMapper.kt` |
 | Repository implementation | `feature/[name]/data/repository/[Name]RepositoryImpl.kt` |
 | Domain model / repository interface / use case | `feature/[name]/domain/{model,repository,usecase}/` |
-| Feature Koin module (`@Module @ComponentScan("com.zc.vndb.feature.[name]")`) | `feature/[name]/di/[Name]Module.kt` |
+| Feature Koin module (`@Module @ComponentScan("com.zc.bakamitai.feature.[name]")`) | `feature/[name]/di/[Name]Module.kt` |
 | UI model / UI state read by the Screen or 2+ components | `feature/[name]/presentation/model/` |
 | Domain → UI mapper for those models | `feature/[name]/presentation/mapper/[Name]UIModelMapper.kt` |
 | Composable reused by screens of one feature | `feature/[name]/presentation/component/[component]/[Name]View.kt` |
@@ -197,7 +196,7 @@ Rules are in `library-management`.
 | MVI contract, ViewModel, Route, Screen | `feature/[name]/presentation/` |
 | Library / plugin dependency declaration | `gradle/libs.versions.toml` |
 | Custom Gradle task, convention plugin, shared build config | `build-logic/convention/src/main/kotlin/` |
-| Unit test for `X` | `app/src/test/java/com/zc/vndb/<same package as X>/XTest.kt` |
+| Unit test for `X` | `app/src/test/java/com/zc/bakamitai/<same package as X>/XTest.kt` |
 | Test fakes (`Fake[Name]Repository`, `TestDispatcherProvider`) and rules (`MainDispatcherRule`) | Test source set, mirroring the package of the thing they fake (`MainDispatcherRule` → `common/util/`) |
 
 ---
@@ -276,8 +275,8 @@ class AppApplication : Application(), SingletonImageLoader.Factory {
 
 | ❌ Don't | ✅ Do |
 |---|---|
-| `com.zc.vndb.ui.screens.NovelDetailScreen` | `com.zc.vndb.feature.novel.presentation.NovelDetailScreen` |
-| `com.zc.vndb.utils.DateUtils` / `feature/novel/util/` | Formatting in `presentation/mapper/[Name]UIModelMapper.kt` |
+| `com.zc.bakamitai.ui.screens.NovelDetailScreen` | `com.zc.bakamitai.feature.novel.presentation.NovelDetailScreen` |
+| `com.zc.bakamitai.utils.DateUtils` / `feature/novel/util/` | Formatting in `presentation/mapper/[Name]UIModelMapper.kt` |
 | `NovelDetailNavKey` declared in `app/navigation/AppNavigation.kt` | `feature/novel/presentation/navigation/NovelDetailNavKey.kt` |
 | `common/ui/LoadingView.kt` | `common/ui/component/loading/LoadingView.kt` |
 | `feature/novel/presentation/component/NovelHeaderView.kt` (flat file) | `feature/novel/presentation/component/novelheader/NovelHeaderView.kt` |
@@ -296,15 +295,15 @@ class AppApplication : Application(), SingletonImageLoader.Factory {
 Each must print nothing:
 
 ```bash
-ls app/src/main/java/com/zc/vndb | grep -vxE "app|common|feature"
+ls app/src/main/java/com/zc/bakamitai | grep -vxE "app|common|feature"
 ```
 
 ```bash
-grep -rlE "import com\.zc\.vndb\.(feature|app)\." app/src/main/java/com/zc/vndb/common
+grep -rlE "import com\.zc\.bakamitai\.(feature|app)\." app/src/main/java/com/zc/bakamitai/common
 ```
 
 ```bash
-grep -rlE "import com\.zc\.vndb\.app\." app/src/main/java/com/zc/vndb/feature
+grep -rlE "import com\.zc\.bakamitai\.app\." app/src/main/java/com/zc/bakamitai/feature
 ```
 
 ### Current repo migration
