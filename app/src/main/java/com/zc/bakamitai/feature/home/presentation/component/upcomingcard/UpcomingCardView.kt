@@ -25,11 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonBlock
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonTextLine
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
@@ -47,6 +51,7 @@ private const val TITLE_LINES = 2
 private const val SCRIM_MIDDLE_STOP = 0.5f
 private const val SCRIM_MIDDLE_ALPHA = 0.4f
 private val TimeIconSize = 14.dp
+private const val SKELETON_SECOND_LINE_FRACTION = 0.6f
 
 /**
  * A show airing later today: poster with the episode badge and the scheduled time, then the title.
@@ -105,6 +110,33 @@ private fun ColumnScope.UpcomingCardContent(model: UpcomingCardUIModel) {
         minLines = TITLE_LINES,
         style = MaterialTheme.typography.titleMedium,
     )
+}
+
+/**
+ * Loading placeholder for [UpcomingCardView]: the same card with a poster block and two title lines, so it has
+ * the real card's height. Give it the same width (`UpcomingCardWidth`). Use it inside a `SkeletonView`.
+ */
+@Composable
+fun UpcomingCardSkeletonView(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
+        SkeletonBlock(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(POSTER_ASPECT_RATIO),
+            shape = RectangleShape,
+        )
+        Column(modifier = Modifier.padding(BakaMitaiTheme.spacing.sm)) {
+            SkeletonTextLine(style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth())
+            SkeletonTextLine(
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.fillMaxWidth(SKELETON_SECOND_LINE_FRACTION),
+            )
+        }
+    }
 }
 
 @Composable
@@ -172,6 +204,18 @@ private fun UpcomingCardViewPreview(
                     onClick = if (isClickable) ({}) else null,
                     modifier = Modifier.width(UpcomingCardWidth),
                 )
+            }
+        }
+    }
+}
+
+@AdaptivePreviews
+@Composable
+private fun UpcomingCardSkeletonViewPreview() {
+    BakaMitaiTheme {
+        Surface {
+            SkeletonView(modifier = Modifier.padding(BakaMitaiTheme.spacing.md)) {
+                UpcomingCardSkeletonView(modifier = Modifier.width(UpcomingCardWidth))
             }
         }
     }

@@ -474,6 +474,55 @@ IconButton(onClick = onFavoriteClick) {
 Icon(Icons.Filled.Favorite, null, tint = Color(0xFFE91E63), modifier = Modifier.size(24.dp).clickable { … })
 ```
 
+### 5.3 Loading states: shimmering skeletons, never spinners
+
+While content loads, show a **skeleton of that content** with a shimmer sweeping across it, never a spinner. The building blocks are in `common/ui/component/skeleton/SkeletonView.kt`:
+
+| Piece | Use |
+|---|---|
+| `SkeletonView(modifier) { … }` | Wraps a whole skeleton. Sweeps **one** highlight band across everything inside, and TalkBack reads it as a single "Loading" item. |
+| `SkeletonBlock(modifier, shape)` | Stands in for an image, chip, badge or any shape. Give it the real size and shape. |
+| `SkeletonTextLine(style, modifier)` | Stands in for one line of text. It's exactly one line of `style` tall, so it follows the font scale. Set its width with `fillMaxWidth(fraction)` or `width(…)`. |
+| `textLineHeight(style)` | One line's height. Use it with the real padding for pill skeletons (chips, badges). |
+
+- **NEVER** use `CircularProgressIndicator`, `LinearProgressIndicator` or `LoadingIndicator` as the loading state of a screen, section, list, card or image. The only progress indicators allowed are:
+  - the one built into `PullToRefreshBox` while content that's already on screen refreshes;
+  - determinate progress that shows a real value (download or episode progress). That's data, not loading.
+- **Screen first load:** when `state.isLoading` (nothing to show yet), `[Name]Screen` shows a private `[Name]Skeleton(modifier)` in the same file. It:
+  - wraps everything in **one** `SkeletonView`, never one per item;
+  - mirrors the content layout: the same container, padding, spacing, columns and window-size rules (share a private helper with the content, e.g. the grid), with `userScrollEnabled = false`, so nothing moves when the content replaces it;
+  - shows a fixed number of placeholders per section (about one screen's worth), with no fake `UIModel`s or sample data;
+  - renders static chrome for real: the top app bar, section titles and any text that doesn't come from the data.
+- **Component skeletons:** every component that renders loaded data has a `[Name]SkeletonView(modifier: Modifier = Modifier)` **in the same file** as `[Name]View`. It reuses the component's private dimensions, container color and shape, with `SkeletonBlock`s and `SkeletonTextLine`s in place of the data. Size it like the real component (e.g. reserve both title lines when the title has `minLines = 2`).
+- **Partial loads:** a section that loads after the rest of the screen (e.g. the Details downloads below an already-loaded header) shows its own `SkeletonView` in that section's place.
+- Placeholders shimmer only inside a `SkeletonView`. Don't give its content a background (the band is drawn only over the placeholders' pixels), and never nest one `SkeletonView` in another.
+- **Colors:** blocks use `colorScheme.surfaceContainerHighest` and the band uses `BakaMitaiTheme.extendedColors.shimmerHighlight`, both through the shared pieces. Never hardcode them or roll your own shimmer.
+- **Performance:** `SkeletonView` reads its animation in the draw phase only, so the shimmer never recomposes the placeholders. Keep it that way.
+- **Previews:** every `[Name]SkeletonView` gets an `@AdaptivePreviews` preview wrapped in a `SkeletonView`. The Screen's `PreviewParameterProvider` keeps its `isLoading = true` state, which renders the skeleton.
+
+```kotlin
+// ✅ component/novelheader/NovelHeaderView.kt, next to NovelHeaderView (same private dimensions)
+@Composable
+fun NovelHeaderSkeletonView(modifier: Modifier = Modifier) {
+    Row(modifier = modifier.padding(BakaMitaiTheme.spacing.md), horizontalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.sm)) {
+        SkeletonBlock(Modifier.width(CoverWidth).aspectRatio(COVER_ASPECT_RATIO), shape = MaterialTheme.shapes.medium)
+        Column(Modifier.weight(1f)) {
+            SkeletonTextLine(MaterialTheme.typography.titleLarge, Modifier.fillMaxWidth())
+            SkeletonTextLine(MaterialTheme.typography.bodyMedium, Modifier.fillMaxWidth(RELEASE_LINE_FRACTION))
+        }
+    }
+}
+
+// ✅ NovelDetailScreen.kt
+when {
+    state.isLoading -> NovelDetailSkeleton(Modifier.padding(padding))   // private: SkeletonView { NovelHeaderSkeletonView() … }
+    …
+}
+
+// ❌ a spinner, or one SkeletonView per row
+state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+```
+
 ---
 
 ## 6. Testing standards
@@ -675,4 +724,5 @@ The last `grep` must print nothing for Screens and Views.
 - [ ] Network failures go through `safeApiCall` → `DomainError` → `ErrorUIModel`; DataStore reads `.catch` `IOException`.
 - [ ] User-visible text in State/UIModel/UIState/Effect is `UiText`, resolved with `asString()`; strings are referenced as `StringResource.x` / `PluralResource.x` (never `R.string` / `R.plurals`), and nothing outside `UiText` calls `stringResource()` / `getString()` or carries a raw resource id.
 - [ ] Screens and Views are stateless, with `@AdaptivePreviews`; theme tokens only; 48.dp touch targets; meaningful `contentDescription`s.
+- [ ] Loading states are shimmering skeletons (§5.3): one `SkeletonView` per screen or section, mirroring the content layout, built from each component's `[Name]SkeletonView`; no `CircularProgressIndicator` / `LinearProgressIndicator` except `PullToRefreshBox`'s and determinate progress.
 - [ ] Tests exist for every new use case, service, mapper and ViewModel, and they pass; new `NavKey`s are in `NavKeySerializationTest`.

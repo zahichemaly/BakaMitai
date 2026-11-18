@@ -36,6 +36,8 @@ Rules marked **MUST** / **NEVER** are non-negotiable. Examples use the feature `
 | Nav destination composable | `presentation` | `[Screen]Route` | `NovelDetailRoute` |
 | Stateless screen | `presentation` | `[Screen]Screen` | `NovelDetailScreen` |
 | Reusable widget | `presentation/component/[name]/` or `common/ui/component/[name]/` | `[Name]View` | `component/ratingbadge/RatingBadgeView` |
+| A component's loading placeholder | same file as its `[Name]View` | `[Name]SkeletonView` | `ReleaseRowSkeletonView` in `component/releaserow/ReleaseRowView.kt` |
+| A screen's loading layout | `private` in `[Screen]Screen.kt` | `[Screen]Skeleton` | `HomeSkeleton` |
 | Koin module | `di` | file `[Name]Module.kt`, `@Module class [Name]Module` | `NovelModule.kt` → `class NovelModule` |
 
 Acronyms in suffixes are **all caps**: `DTO`, `UI` — never `Dto`, `Ui`, `UiModel`, `UiState`. The one exception is the shared text type `UiText` (`common/ui/text/UiText.kt`, see §2.5).
@@ -597,7 +599,7 @@ fun NovelDetailScreen(
         },
     ) { padding ->
         when {
-            state.isLoading -> LoadingView(Modifier.padding(padding))
+            state.isLoading -> NovelDetailSkeleton(Modifier.padding(padding))   // private in this file, see best-practices §5.3
             state.error != null -> ErrorView(
                 model = state.error,
                 onRetry = { onIntent(NovelDetailIntent.Retry) },
@@ -640,6 +642,7 @@ private fun NovelDetailScreenPreview() {
 - Event lambdas are specific (`onFavoriteClick: () -> Unit`), not the screen's `onIntent` — keeps the component reusable outside one MVI contract.
 - Placement: its own subpackage `feature/[name]/presentation/component/[component]/` when used only inside one feature, or `common/ui/component/[component]/` when used by 2+ features (then it must not depend on any feature type). A component's own `UIModel` / `UIState` and `UIModelMapper` go in that subpackage's `model/` and `mapper/`, and sub-components nest under its `component/`. See `structure` §1.1 and §3.
 - Stateless; any internal `remember` is purely visual (animation, scroll) — never business data.
+- A component that renders loaded data also has a `[Name]SkeletonView(modifier: Modifier = Modifier)` in the same file: the same container, size and shape, with `SkeletonBlock` / `SkeletonTextLine` in place of the data. See `best-practices` §5.3.
 
 ```kotlin
 // ✅ feature/novel/presentation/component/novelheader/NovelHeaderView.kt
@@ -679,6 +682,7 @@ fun NovelHeaderView(
 | `LaunchedEffect(Unit) { viewModel.load() }` in Route | `init { onIntent(Load) }` in the ViewModel |
 | `if (state.navigateBack) { onBack(); viewModel.consumed() }` | `Effect.NavigateBack` collected in the Route |
 | `NovelScreen.kt` containing Route + Screen + ViewModel | Separate `NovelDetailRoute.kt`, `NovelDetailScreen.kt`, `NovelDetailViewModel.kt` |
+| `state.isLoading -> CircularProgressIndicator()` | `state.isLoading -> NovelDetailSkeleton()`: one `SkeletonView` mirroring the content (`best-practices` §5.3) |
 
 ---
 
@@ -698,6 +702,7 @@ File locations follow the `structure` skill. When adding a screen `[Name]`, work
 - [ ] Use cases are `[Verb][Name]UseCase` with a single `operator fun invoke`.
 - [ ] One DTO per file, no nested DTOs; domain models have no suffix and no annotations.
 - [ ] UIModel = static display data, UIState = interactive data; all `val`, `ImmutableList`, updated via `.copy`.
+- [ ] Loading states are skeletons: a private `[Screen]Skeleton` in the Screen file, and a `[Name]SkeletonView` next to each data component's `[Name]View`.
 - [ ] Separate mapper file per direction: `[Name]DTOMapper`, `[Name]DomainMapper`, `[Name]UIModelMapper`.
 - [ ] State / Intent / Effect / ViewModel each in its own file; State has defaults for every property.
 - [ ] ViewModel: private `_state` + public `StateFlow`, private `Channel` + public `Flow`, single public `onIntent`, `_state.update { it.copy() }` only.

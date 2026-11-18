@@ -3,6 +3,7 @@ package com.zc.bakamitai.feature.home.presentation.component.episodebadge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -12,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonBlock
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
+import com.zc.bakamitai.common.ui.component.skeleton.textLineHeight
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
@@ -21,6 +25,7 @@ import com.zc.bakamitai.feature.home.presentation.model.EpisodeBadgeUIModel
 private const val REGULAR_CONTAINER_ALPHA = 0.2f
 private const val SPECIAL_CONTAINER_ALPHA = 0.3f
 private val BadgeVerticalPadding = 2.dp
+private val SkeletonWidth = 52.dp
 
 /**
  * An episode pill: primary for a regular episode, tertiary for a batch, a movie or anything non-numeric.
@@ -49,6 +54,18 @@ fun EpisodeBadgeView(model: EpisodeBadgeUIModel, modifier: Modifier = Modifier) 
             maxLines = 1,
         )
     }
+}
+
+/** Loading placeholder for [EpisodeBadgeView]: a pill of the badge's height. Use it inside a `SkeletonView`. */
+@Composable
+fun EpisodeBadgeSkeletonView(modifier: Modifier = Modifier) {
+    SkeletonBlock(
+        modifier = modifier.size(
+            width = SkeletonWidth,
+            height = textLineHeight(MaterialTheme.typography.labelMedium) + BadgeVerticalPadding * 2,
+        ),
+        shape = CircleShape,
+    )
 }
 
 @AdaptivePreviews
@@ -81,6 +98,18 @@ private fun EpisodeBadgeViewPreview() {
                         isSpecial = true,
                     ),
                 )
+            }
+        }
+    }
+}
+
+@AdaptivePreviews
+@Composable
+private fun EpisodeBadgeSkeletonViewPreview() {
+    BakaMitaiTheme {
+        Surface {
+            SkeletonView(modifier = Modifier.padding(BakaMitaiTheme.spacing.md)) {
+                EpisodeBadgeSkeletonView()
             }
         }
     }

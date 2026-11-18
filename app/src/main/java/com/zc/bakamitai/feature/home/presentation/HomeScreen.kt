@@ -5,11 +5,9 @@ import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,7 +19,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Movie
@@ -34,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,32 +39,30 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import com.zc.bakamitai.common.ui.component.error.ErrorView
 import com.zc.bakamitai.common.ui.component.error.model.ErrorUIModel
-import com.zc.bakamitai.common.ui.component.loading.LoadingView
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
 import com.zc.bakamitai.common.ui.resource.PluralResource
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
 import com.zc.bakamitai.common.ui.util.AdaptivePreviews
+import com.zc.bakamitai.feature.home.presentation.component.releaserow.ReleaseRowSkeletonView
 import com.zc.bakamitai.feature.home.presentation.component.releaserow.ReleaseRowView
 import com.zc.bakamitai.feature.home.presentation.component.releaserow.model.ReleaseRowUIModel
+import com.zc.bakamitai.feature.home.presentation.component.sectionheader.SectionHeaderView
+import com.zc.bakamitai.feature.home.presentation.component.todaysummary.TodaySummarySkeletonView
 import com.zc.bakamitai.feature.home.presentation.component.todaysummary.TodaySummaryView
 import com.zc.bakamitai.feature.home.presentation.component.todaysummary.model.TodaySummaryUIModel
+import com.zc.bakamitai.feature.home.presentation.component.upcomingcard.UpcomingCardSkeletonView
 import com.zc.bakamitai.feature.home.presentation.component.upcomingcard.UpcomingCardView
 import com.zc.bakamitai.feature.home.presentation.component.upcomingcard.UpcomingCardWidth
 import com.zc.bakamitai.feature.home.presentation.component.upcomingcard.model.UpcomingCardUIModel
@@ -84,9 +78,8 @@ private const val CONTENT_TYPE_HEADER = "header"
 private const val CONTENT_TYPE_CAROUSEL = "carousel"
 private const val CONTENT_TYPE_EMPTY = "empty"
 private const val CONTENT_TYPE_RELEASE = "release"
-private val SectionIconSize = 20.dp
-private val SectionPillHorizontalPadding = 8.dp
-private val SectionPillVerticalPadding = 2.dp
+private const val UPCOMING_SKELETON_COUNT = 3
+private const val LATEST_SKELETON_ROWS = 3
 
 private val fullLineSpan: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemSpan(maxLineSpan) }
 
@@ -142,7 +135,7 @@ fun HomeScreen(
                 modifier = contentModifier,
             )
 
-            else -> LoadingView(modifier = contentModifier)
+            else -> HomeSkeleton(modifier = contentModifier)
         }
     }
 }
@@ -196,19 +189,15 @@ private fun HomeTopAppBar(
  * @property margin the content's side margin: wider from medium widths up.
  * @property latestColumns Latest Releases columns: 1 / 2 / 3 for compact / medium / expanded.
  */
-private class HomeLayout(val margin: Dp, val latestColumns: Int)
-
-private fun homeLayout(windowSizeClass: WindowSizeClass): HomeLayout {
-    val isMedium = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
-    val isExpanded = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
-    return HomeLayout(
-        margin = if (isMedium) BakaMitaiTheme.spacing.marginTablet else BakaMitaiTheme.spacing.margin,
-        latestColumns = when {
-            isExpanded -> EXPANDED_COLUMNS
-            isMedium -> MEDIUM_COLUMNS
-            else -> COMPACT_COLUMNS
-        },
-    )
+private class HomeLayout(windowSizeClass: WindowSizeClass) {
+    private val isMedium = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+    private val isExpanded = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)
+    val margin: Dp = if (isMedium) BakaMitaiTheme.spacing.marginTablet else BakaMitaiTheme.spacing.margin
+    val latestColumns: Int = when {
+        isExpanded -> EXPANDED_COLUMNS
+        isMedium -> MEDIUM_COLUMNS
+        else -> COMPACT_COLUMNS
+    }
 }
 
 @Composable
@@ -218,17 +207,11 @@ private fun HomeContent(
     onIntent: (HomeIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val layout = homeLayout(currentWindowAdaptiveInfo().windowSizeClass)
+    val layout = HomeLayout(currentWindowAdaptiveInfo().windowSizeClass)
     val spacing = BakaMitaiTheme.spacing
     val onShowClick = remember(onIntent) { { slug: String -> onIntent(HomeIntent.ShowClicked(slug)) } }
     val openShow = if (canOpenShow) onShowClick else null
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(layout.latestColumns),
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = layout.margin, vertical = spacing.sm),
-        verticalArrangement = Arrangement.spacedBy(spacing.md),
-        horizontalArrangement = Arrangement.spacedBy(spacing.gutter),
-    ) {
+    HomeGrid(layout = layout, modifier = modifier) {
         state.summary?.let { summary ->
             item(key = "summary", span = fullLineSpan, contentType = CONTENT_TYPE_SUMMARY) {
                 TodaySummaryView(model = summary)
@@ -236,7 +219,7 @@ private fun HomeContent(
         }
         upcomingSection(state = state, horizontalMargin = layout.margin, onShowClick = openShow)
         item(key = "latest-header", span = fullLineSpan, contentType = CONTENT_TYPE_HEADER) {
-            SectionHeader(
+            SectionHeaderView(
                 icon = Icons.Outlined.Movie,
                 accentColor = MaterialTheme.colorScheme.secondary,
                 title = UiText.StringResource(StringResource.home_section_latest),
@@ -255,10 +238,80 @@ private fun HomeContent(
     }
 }
 
+/** The grid behind both the content and its skeleton, so the two line up exactly. */
+@Composable
+private fun HomeGrid(
+    layout: HomeLayout,
+    modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
+    content: LazyGridScope.() -> Unit,
+) {
+    val spacing = BakaMitaiTheme.spacing
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(layout.latestColumns),
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = layout.margin, vertical = spacing.sm),
+        verticalArrangement = Arrangement.spacedBy(spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(spacing.gutter),
+        userScrollEnabled = userScrollEnabled,
+        content = content,
+    )
+}
+
+/**
+ * First load: the content's layout with skeleton placeholders, so nothing moves when the data arrives. Section
+ * titles are real text; everything that depends on the data is a skeleton.
+ */
+@Composable
+private fun HomeSkeleton(modifier: Modifier = Modifier) {
+    val layout = HomeLayout(currentWindowAdaptiveInfo().windowSizeClass)
+    val spacing = BakaMitaiTheme.spacing
+    val upcomingAccent = MaterialTheme.colorScheme.primary
+    val latestAccent = MaterialTheme.colorScheme.secondary
+    SkeletonView(modifier = modifier) {
+        HomeGrid(layout = layout, userScrollEnabled = false) {
+            item(span = fullLineSpan, contentType = CONTENT_TYPE_SUMMARY) { TodaySummarySkeletonView() }
+            item(span = fullLineSpan, contentType = CONTENT_TYPE_HEADER) {
+                SectionHeaderView(
+                    icon = Icons.Outlined.Schedule,
+                    accentColor = upcomingAccent,
+                    title = UiText.StringResource(StringResource.home_section_upcoming),
+                    pill = null,
+                    modifier = Modifier.padding(top = spacing.md),
+                )
+            }
+            item(span = fullLineSpan, contentType = CONTENT_TYPE_CAROUSEL) {
+                LazyRow(
+                    modifier = Modifier.breakOutOfHorizontalPadding(layout.margin),
+                    contentPadding = PaddingValues(horizontal = layout.margin),
+                    horizontalArrangement = Arrangement.spacedBy(spacing.md),
+                    userScrollEnabled = false,
+                ) {
+                    items(count = UPCOMING_SKELETON_COUNT) {
+                        UpcomingCardSkeletonView(modifier = Modifier.width(UpcomingCardWidth))
+                    }
+                }
+            }
+            item(span = fullLineSpan, contentType = CONTENT_TYPE_HEADER) {
+                SectionHeaderView(
+                    icon = Icons.Outlined.Movie,
+                    accentColor = latestAccent,
+                    title = UiText.StringResource(StringResource.home_section_latest),
+                    pill = UiText.StringResource(StringResource.home_section_latest_badge),
+                    modifier = Modifier.padding(top = spacing.md),
+                )
+            }
+            items(count = layout.latestColumns * LATEST_SKELETON_ROWS, contentType = { CONTENT_TYPE_RELEASE }) {
+                ReleaseRowSkeletonView()
+            }
+        }
+    }
+}
+
 /** The Upcoming header, then the carousel or its empty text. */
 private fun LazyGridScope.upcomingSection(state: HomeState, horizontalMargin: Dp, onShowClick: ((String) -> Unit)?) {
     item(key = "upcoming-header", span = fullLineSpan, contentType = CONTENT_TYPE_HEADER) {
-        SectionHeader(
+        SectionHeaderView(
             icon = Icons.Outlined.Schedule,
             accentColor = MaterialTheme.colorScheme.primary,
             title = UiText.StringResource(StringResource.home_section_upcoming),
@@ -273,50 +326,6 @@ private fun LazyGridScope.upcomingSection(state: HomeState, horizontalMargin: Dp
     } else {
         item(key = "upcoming-row", span = fullLineSpan, contentType = CONTENT_TYPE_CAROUSEL) {
             UpcomingCarousel(items = state.upcoming, horizontalMargin = horizontalMargin, onShowClick = onShowClick)
-        }
-    }
-}
-
-@Composable
-private fun SectionHeader(
-    icon: ImageVector,
-    accentColor: Color,
-    title: UiText,
-    pill: UiText?,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(SectionIconSize),
-            tint = accentColor,
-        )
-        Text(
-            text = title.asString(),
-            modifier = Modifier.semantics { heading() },
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        pill?.let {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                contentColor = accentColor,
-            ) {
-                Text(
-                    text = it.asString(),
-                    modifier = Modifier.padding(
-                        horizontal = SectionPillHorizontalPadding,
-                        vertical = SectionPillVerticalPadding,
-                    ),
-                    style = MaterialTheme.typography.labelSmall,
-                )
-            }
         }
     }
 }
@@ -370,7 +379,7 @@ private fun InlineEmptyText(text: UiText, modifier: Modifier = Modifier) {
 /** Both sections are empty: the banner, then one message. Scrollable, so pull-to-refresh still works. */
 @Composable
 private fun HomeEmptyView(summary: TodaySummaryUIModel, modifier: Modifier = Modifier) {
-    val margin = homeLayout(currentWindowAdaptiveInfo().windowSizeClass).margin
+    val margin = HomeLayout(currentWindowAdaptiveInfo().windowSizeClass).margin
     Column(
         modifier = modifier
             .fillMaxSize()

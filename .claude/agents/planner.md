@@ -111,7 +111,7 @@ One subsection per screen or state, each with its node ID or frame name:
 - **Layout:** structure top to bottom; adaptive behaviour on compact, medium and expanded windows
 - **Components:** each design element → its Material 3 component (`TopAppBar`, `LazyVerticalGrid`, `Card`, `FilterChip`, …), or a shared `common/ui/component/` view
 - **Content:** which field shows where, text truncation, image aspect ratio and placeholder
-- **States:** loading / content / empty / error / refreshing (mark the ones the design doesn't cover)
+- **States:** loading / content / empty / error / refreshing (mark the ones the design doesn't cover). Loading is always a shimmering skeleton of the content, never a spinner (`best-practices` §5.3): say which parts are skeleton placeholders, which static text stays real, and which components need a `[Name]SkeletonView`
 - **Interactions:** taps, long-presses, pull-to-refresh, navigation targets, animations
 - **Theming:** color roles, type roles, shapes, spacing and icons (`Icons.*` names), in light and dark
 - **Accessibility:** content descriptions, touch targets, semantics headings

@@ -180,6 +180,7 @@ Rules are in `library-management`.
 | `UiText` (all user-visible text in `presentation`) | `common/ui/text/UiText.kt` |
 | `StringResource` / `PluralResource` / `FontResource` typealiases for `R.string` / `R.plurals` / `R.font` (the only way code names a resource) | `common/ui/resource/ResourceTypes.kt` |
 | `ErrorUIModel`, `ErrorUIModelMapper`, `ErrorView` | `common/ui/component/error/{model,mapper}/`, `ErrorView.kt` |
+| Loading placeholders: `SkeletonView`, `SkeletonBlock`, `SkeletonTextLine`, `textLineHeight` (`best-practices` §5.3) | `common/ui/component/skeleton/SkeletonView.kt` |
 | Composable used by 2+ features | `common/ui/component/[name]/[Name]View.kt` |
 | Ktor API calls for one feature | `feature/[name]/data/remote/[Name]Service.kt` |
 | DataStore source for one feature | `feature/[name]/data/local/[Name]LocalDataSource.kt` |
@@ -194,6 +195,8 @@ Rules are in `library-management`.
 | UI model / UI state rendered only by one component | `…/component/[component]/model/` |
 | Mapper for a component's own models | `…/component/[component]/mapper/[Name]UIModelMapper.kt` |
 | Sub-component used only inside one component | `…/component/[component]/component/[sub]/[Name]View.kt` |
+| A component's loading placeholder `[Name]SkeletonView` | the same file as the component: `…/component/[component]/[Name]View.kt` |
+| A screen's loading layout `[Name]Skeleton` | `private` in that `[Name]Screen.kt` |
 | Composable used by one screen only | `private` in that `[Name]Screen.kt` |
 | MVI contract, ViewModel, Route, Screen | `feature/[name]/presentation/` |
 | Library / plugin dependency declaration | `gradle/libs.versions.toml` |
@@ -280,7 +283,8 @@ class AppApplication : Application(), SingletonImageLoader.Factory {
 | `com.zc.bakamitai.ui.screens.NovelDetailScreen` | `com.zc.bakamitai.feature.novel.presentation.NovelDetailScreen` |
 | `com.zc.bakamitai.utils.DateUtils` / `feature/novel/util/` | Formatting in `presentation/mapper/[Name]UIModelMapper.kt` |
 | `NovelDetailNavKey` declared in `app/navigation/AppNavigation.kt` | `feature/novel/presentation/navigation/NovelDetailNavKey.kt` |
-| `common/ui/LoadingView.kt` | `common/ui/component/loading/LoadingView.kt` |
+| `common/ui/SkeletonView.kt` | `common/ui/component/skeleton/SkeletonView.kt` |
+| `component/releaserow/skeleton/ReleaseRowSkeletonView.kt` (separate package) | `ReleaseRowSkeletonView` in `component/releaserow/ReleaseRowView.kt`, sharing its private dimensions |
 | `feature/novel/presentation/component/NovelHeaderView.kt` (flat file) | `feature/novel/presentation/component/novelheader/NovelHeaderView.kt` |
 | `NovelHeaderUIModel` in `presentation/model/` when only `NovelHeaderView` renders it | `component/novelheader/model/NovelHeaderUIModel.kt` |
 | `component/novelheader/NovelHeaderViewModel.kt` / `NovelHeaderState.kt` | Components are stateless; state lives in the screen `[Name]State` |

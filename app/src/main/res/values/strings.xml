@@ -4,6 +4,7 @@
     <!-- Actions -->
     <string name="action_retry">Retry</string>
     <string name="cd_settings">Settings</string>
+    <string name="cd_loading">Loading</string>
 
     <!-- Navigation (app/navigation) -->
     <string name="nav_home">Home</string>

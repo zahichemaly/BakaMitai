@@ -249,7 +249,7 @@ These have no data or no spec ([§3](#3-design-vs-spec) gives the reasons):
 
 | State | Proposal |
 |---|---|
-| **First load** | `LoadingView()` (`common/ui/component/loading/`) fills the content area, under the top bar. |
+| **First load** | A shimmering skeleton of the content fills the content area, under the top bar (`best-practices` §5.3): the same grid, margins and columns, with the banner title and both section titles as real text, and `TodaySummarySkeletonView`, 3 `UpcomingCardSkeletonView`s and `columns × 3` `ReleaseRowSkeletonView`s in one `SkeletonView`. |
 | **Error, no content** | `ErrorView(model = state.error, onRetry = { onIntent(HomeIntent.Retry) })`. Pull-to-refresh is not active here. |
 | **Refreshing** | `PullToRefreshBox` indicator over the existing content. Content stays interactive. |
 | **Refresh failed, content present** | Keep the content and show a snackbar with the error message (`HomeEffect.ShowError`). |
@@ -482,7 +482,7 @@ The episode badge and the cover image are shared sub-components used by two sibl
 | `presentation/HomeRoute.kt` | new | `HomeRoute(onOpenDetails: ((slug: String) -> Unit)?, onOpenSettings: (() -> Unit)?, modifier, viewModel = koinViewModel())`. Collects state with `collectAsStateWithLifecycle()` and effects with `ObserveAsEvents`. Runs `LifecycleStartEffect(viewModel) { viewModel.onIntent(HomeIntent.ScreenStarted); onStopOrDispose {} }`. Owns the `SnackbarHostState`. Effects: `OpenDetails` → `onOpenDetails?.invoke(slug)`; `OpenSettings` → `onOpenSettings?.invoke()`; `ShowError` → `snackbarHostState.showSnackbar(effect.error.message.asString(context))`. Passes `canOpenShow = onOpenDetails != null` and `showSettingsAction = onOpenSettings != null` to the Screen. |
 | `presentation/HomeScreen.kt` | new | `HomeScreen(state, onIntent, modifier, canOpenShow: Boolean = true, showSettingsAction: Boolean = true, snackbarHostState = remember { SnackbarHostState() })`. Private: `HomeTopAppBar`, `HomeContent`, `SectionHeader`, `UpcomingCarousel`, `HomeEmptyView`. Has `@AdaptivePreviews` with a `PreviewParameterProvider<HomeState>`. |
 
-`HomeScreen` layout: the content is **one `LazyVerticalGrid`** inside `PullToRefreshBox(isRefreshing = state.isRefreshing, onRefresh = { onIntent(HomeIntent.Refresh) })`, which is inside a `Scaffold` that has `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)` and `snackbarHost = { SnackbarHost(snackbarHostState) }`. `LoadingView` and `ErrorView` replace the box entirely.
+`HomeScreen` layout: the content is **one `LazyVerticalGrid`** inside `PullToRefreshBox(isRefreshing = state.isRefreshing, onRefresh = { onIntent(HomeIntent.Refresh) })`, which is inside a `Scaffold` that has `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)` and `snackbarHost = { SnackbarHost(snackbarHostState) }`. The skeleton (`HomeSkeleton`) and `ErrorView` replace the box entirely.
 
 - `columns = GridCells.Fixed(latestColumns)`. `latestColumns` is 1 / 2 / 3, read from `currentWindowAdaptiveInfo().windowSizeClass` with `isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND / WIDTH_DP_EXPANDED_LOWER_BOUND)`.
 - `contentPadding`: horizontal `margin` (or `marginTablet`), vertical `spacing.sm`.
@@ -596,7 +596,7 @@ Everything is already in `libs.versions.toml` and wired into `:app`, **except ic
 
 ### Earlier plans and shared code
 
-- **Needs:** nothing beyond what already exists in `common/`: `HttpClient`, `safeApiCall`, `DomainError`, `ErrorView`, `LoadingView`, `UiText`, `ObserveAsEvents`, `@AdaptivePreviews`, `Navigator` and `NavigationState`.
+- **Needs:** nothing beyond what already exists in `common/`: `HttpClient`, `safeApiCall`, `DomainError`, `ErrorView`, `SkeletonView`, `UiText`, `ObserveAsEvents`, `@AdaptivePreviews`, `Navigator` and `NavigationState`.
 - **Creates for everyone:** the `Clock` provider, `TimeZoneProvider`, `PluralResource`, and the app navigation shell (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`).
 
 ### What it unblocks, and what later plans must move
@@ -829,7 +829,7 @@ Each preview uses `@AdaptivePreviews` (light/dark × compact/expanded) inside `B
 **On launch:**
 - [x] The app opens on **Home**. The navigation bar shows Home (selected), Schedule, All Shows and Bookmarks. The last three are visibly disabled and do nothing when tapped.
 - [x] The top bar shows "BakaMitai" with "HOME" under it. There's no settings icon.
-- [x] A first-load spinner appears, then the content.
+- [x] A first-load skeleton (shimmering, in the content's layout) appears, then the content.
 
 **Banner:**
 - [x] It shows "Today's Broadcasts" and the device's UTC offset (for example "UTC-5" on an America/New_York emulator).
@@ -905,10 +905,16 @@ Each preview uses `@AdaptivePreviews` (light/dark × compact/expanded) inside `B
 - **Insets:** the Home `Scaffold` uses `contentWindowInsets = …only(Top + Horizontal)` as §5 suggests. On the emulator, the list ends right above the navigation bar, with no doubled padding.
 - **Compose report:** every Home Screen and View is `restartable skippable`, and `HomeState` and every UI model are `stable`. The one `unstable` line is the existing `ObserveAsEvents(vararg keys)` in `common/ui/util/`, which is neither a Screen nor a View.
 - **Step 15 / 16 previews:** `ReleaseRowView`, `EpisodeBadgeView` and `CoverImageView` were rendered with `android studio render-compose-preview`. The open Studio project hasn't synced Gradle since the icons library was added, so `HomeScreen`, `TodaySummaryView` and `UpcomingCardView` (which use `Icons`) don't compile in the IDE yet. Gradle builds pass. Re-render after a Gradle sync, then tick 15 and 16. One preview bug was fixed: `Surface` passes its minimum size on, so preview content is wrapped in a `Column`.
-- **Step 18 (docs) not done:** the implementor edits only the plan file. Still to do: `docs/api.md` (G1–G8, including the G3 correction to §3.5), `docs/context.md` §4.1 (the §4.3 derivation, `kotlin.time.Clock`, `CommonModule` provides it), `CLAUDE.md` "Current state" and `structure` §7 "Current repo state" (`app/navigation/` exists; Home is the first feature).
+- **Step 18 (docs), done afterwards in the same session:** the implementor edits only the plan file, so these were done separately: `docs/api.md` (G1–G8, including the G3 correction to §3.5), `docs/context.md` §4.1 (the §4.3 derivation, `kotlin.time.Clock`, `CommonModule` provides it), `CLAUDE.md` "Current state" and `structure` §7 "Current repo state" (`app/navigation/` exists; Home is the first feature).
 - **Step 19:** all gates and greps pass. The `conventions` §2.5 grep matches only the existing prose comment in `ResourceTypes.kt`. Not ticked, because the §9 acceptance criteria are for the tester. A launch check on `emulator-5554` (Asia/Beirut) passed: the app opens on Home with 4 navigation items (3 disabled), no gear, a "UTC+2" banner, an empty Upcoming (every show had aired) and 9 Latest rows in ascending order.
 
 ---
+
+- **Loading is a skeleton, not a spinner (2026-11-18, after QA).** By the user's request, every loading state in the app is now a shimmering skeleton, a rule recorded in `best-practices` §5.3 and the other skills.
+  - `common/ui/component/loading/LoadingView.kt` is gone. `common/ui/component/skeleton/SkeletonView.kt` has `SkeletonView` (one band swept over everything inside it, drawn with `BlendMode.SrcAtop` in an offscreen layer and read in the draw phase only; TalkBack reads it as one "Loading" item), plus `SkeletonBlock`, `SkeletonTextLine` and `textLineHeight`. A new theme token, `extendedColors.shimmerHighlight`, colors the band; blocks use `surfaceContainerHighest`.
+  - `TodaySummarySkeletonView`, `UpcomingCardSkeletonView`, `ReleaseRowSkeletonView` and `EpisodeBadgeSkeletonView` sit next to their components and reuse their private dimensions.
+  - `HomeScreen` shows a private `HomeSkeleton` that shares the grid helper (`HomeGrid`) with the content. To stay within Detekt's 11-functions-per-file limit, the section header moved to `component/sectionheader/SectionHeaderView.kt` and `homeLayout()` became the `HomeLayout(windowSizeClass)` constructor.
+  - Checked on emulator-5554 in dark and light themes with rapid `screencap` captures during a cold start: the skeleton matches the content layout and the band enters from the left as soon as it appears.
 
 ## 12. QA
 

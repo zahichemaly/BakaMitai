@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
@@ -33,6 +34,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonBlock
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonTextLine
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
+import com.zc.bakamitai.common.ui.component.skeleton.textLineHeight
 import com.zc.bakamitai.common.ui.resource.PluralResource
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
@@ -51,6 +56,9 @@ private val ChipHorizontalPadding = 10.dp
 private val ChipVerticalPadding = 4.dp
 private val SecondaryGlowRadius = 112.dp
 private val PrimaryGlowRadius = 96.dp
+private val SkeletonOffsetWidth = 64.dp
+private val SkeletonAiringChipWidth = 84.dp
+private val SkeletonAvailableChipWidth = 100.dp
 
 /**
  * The "Today's Broadcasts" banner: the device's UTC offset and how many shows are airing later today and
@@ -111,6 +119,52 @@ fun TodaySummaryView(model: TodaySummaryUIModel, modifier: Modifier = Modifier) 
                         alpha = AVAILABLE_CONTAINER_ALPHA,
                     ),
                     isPulsing = false,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Loading placeholder for [TodaySummaryView]: the same banner with its real title, and blocks for the UTC offset
+ * and the two counts. Use it inside a `SkeletonView`.
+ */
+@Composable
+fun TodaySummarySkeletonView(modifier: Modifier = Modifier) {
+    val chipHeight = textLineHeight(MaterialTheme.typography.labelSmall) + ChipVerticalPadding * 2
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(BakaMitaiTheme.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.sm),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = UiText.StringResource(StringResource.home_summary_title).asString(),
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                SkeletonTextLine(
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.width(SkeletonOffsetWidth),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.sm)) {
+                SkeletonBlock(
+                    modifier = Modifier.size(width = SkeletonAiringChipWidth, height = chipHeight),
+                    shape = CircleShape,
+                )
+                SkeletonBlock(
+                    modifier = Modifier.size(width = SkeletonAvailableChipWidth, height = chipHeight),
+                    shape = CircleShape,
                 )
             }
         }
@@ -216,6 +270,18 @@ private fun TodaySummaryViewPreview(@PreviewParameter(TodaySummaryUIModelProvide
             // Surface passes its minimum size on: the Column lets the banner wrap its content.
             Column(modifier = Modifier.padding(BakaMitaiTheme.spacing.md)) {
                 TodaySummaryView(model = model)
+            }
+        }
+    }
+}
+
+@AdaptivePreviews
+@Composable
+private fun TodaySummarySkeletonViewPreview() {
+    BakaMitaiTheme {
+        Surface {
+            SkeletonView(modifier = Modifier.padding(BakaMitaiTheme.spacing.md)) {
+                TodaySummarySkeletonView()
             }
         }
     }

@@ -60,6 +60,7 @@ Coordinates, catalog accessors and build setup (Detekt, Compose reports) are in 
 | `java.util.Date`, `Calendar`, `SimpleDateFormat`, `java.time` | kotlinx-datetime |
 | `collectAsState()` in Routes, `LaunchedEffect { flow.collect }` for effects | `collectAsStateWithLifecycle()`, `ObserveAsEvents` |
 | Mockito / mocking frameworks for our own classes | Hand-written fakes (`Fake[Name]Repository`) |
+| Shimmer / placeholder libraries (accompanist-placeholder, compose-shimmer, …); `CircularProgressIndicator` / `LinearProgressIndicator` as a loading state | `common/ui/component/skeleton/` (`SkeletonView`, `SkeletonBlock`, `SkeletonTextLine`), see `best-practices` §5.3 |
 
 ### Verification commands
 
@@ -151,6 +152,7 @@ runCatching { service.fetch() }                                  // ❌ swallows
 - 100% of UI is Compose. `app/MainActivity` is a thin host: `setContent { BakaMitaiTheme { AppNavigation() } }`.
 - Import components from `androidx.compose.material3.*` only. Icons from `androidx.compose.material.icons.*` are fine.
 - Theme tokens via `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `MaterialTheme.shapes`, plus `BakaMitaiTheme.extendedColors` / `BakaMitaiTheme.spacing` for DESIGN.md tokens — never hard-coded `Color(0xFF…)` in screens (define them in `common/ui/theme/`). The palette is fixed: no dynamic color.
+- Loading states are shimmering skeletons built from `common/ui/component/skeleton/` with plain Compose animation, never spinners and never a placeholder library (`best-practices` §5.3).
 
 ### Material 3 Adaptive
 
@@ -495,7 +497,7 @@ val novelModule = module { singleOf(::VisualNovelRepositoryImpl) { bind<VisualNo
 
 - [ ] No `.java` files and no XML layouts; all four verification commands print nothing.
 - [ ] Async code is `suspend` / `Flow` / `StateFlow` / `Channel` — no LiveData, RxJava, callbacks, `runBlocking`, `GlobalScope`.
-- [ ] UI is Compose + Material 3; responsive layout via Material 3 Adaptive and window size classes.
+- [ ] UI is Compose + Material 3; responsive layout via Material 3 Adaptive and window size classes; loading states are `SkeletonView` skeletons, not progress indicators.
 - [ ] Images via Coil `AsyncImage`; Markdown via `MarkdownView` (Compose RichText).
 - [ ] Destinations are `@Serializable` `[Name]NavKey`s; keys and `[name]Entry` functions in the feature's `presentation/navigation/`, wiring in `app/navigation/AppEntryProvider.kt`, back stack and `NavDisplay` only in `app/navigation/`; Routes navigate via callbacks in response to Effects.
 - [ ] Networking via the shared Ktor `HttpClient` in `data`; DTOs use kotlinx.serialization; Ktor types never leave `data`.

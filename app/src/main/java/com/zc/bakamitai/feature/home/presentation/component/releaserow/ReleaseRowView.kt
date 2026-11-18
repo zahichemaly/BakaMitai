@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -22,18 +23,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonBlock
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonTextLine
+import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
 import com.zc.bakamitai.common.ui.util.AdaptivePreviews
 import com.zc.bakamitai.feature.home.presentation.component.coverimage.CoverImageView
 import com.zc.bakamitai.feature.home.presentation.component.coverimage.POSTER_ASPECT_RATIO
+import com.zc.bakamitai.feature.home.presentation.component.episodebadge.EpisodeBadgeSkeletonView
 import com.zc.bakamitai.feature.home.presentation.component.episodebadge.EpisodeBadgeView
 import com.zc.bakamitai.feature.home.presentation.component.releaserow.model.ReleaseRowUIModel
 import com.zc.bakamitai.feature.home.presentation.model.EpisodeBadgeUIModel
 
 private const val TITLE_LINES = 2
 private const val TIME_CHIP_CONTAINER_ALPHA = 0.8f
+private const val SKELETON_SECOND_LINE_FRACTION = 0.55f
 private val ThumbnailWidth = 96.dp
 private val TimeChipInset = 6.dp
 private val TimeChipHorizontalPadding = 6.dp
@@ -108,6 +114,45 @@ private fun ReleaseRowContent(model: ReleaseRowUIModel, modifier: Modifier = Mod
     }
 }
 
+/**
+ * Loading placeholder for [ReleaseRowView]: the same card, padding and thumbnail size, with blocks for the
+ * thumbnail, two title lines and the episode badge. Use it inside a `SkeletonView`.
+ */
+@Composable
+fun ReleaseRowSkeletonView(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
+        Row(
+            modifier = Modifier.padding(BakaMitaiTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.md),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SkeletonBlock(
+                modifier = Modifier
+                    .width(ThumbnailWidth)
+                    .aspectRatio(POSTER_ASPECT_RATIO),
+                shape = MaterialTheme.shapes.medium,
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.xs),
+            ) {
+                Column {
+                    SkeletonTextLine(style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth())
+                    SkeletonTextLine(
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.fillMaxWidth(SKELETON_SECOND_LINE_FRACTION),
+                    )
+                }
+                EpisodeBadgeSkeletonView()
+            }
+        }
+    }
+}
+
 private class ReleaseRowUIModelProvider : PreviewParameterProvider<ReleaseRowUIModel> {
     override val values = sequenceOf(
         ReleaseRowUIModel(
@@ -157,6 +202,18 @@ private fun ReleaseRowViewPreview(@PreviewParameter(ReleaseRowUIModelProvider::c
             // Surface passes its minimum size on: the Column lets the row wrap its content.
             Column(modifier = Modifier.padding(BakaMitaiTheme.spacing.md)) {
                 ReleaseRowView(model = model, onClick = {})
+            }
+        }
+    }
+}
+
+@AdaptivePreviews
+@Composable
+private fun ReleaseRowSkeletonViewPreview() {
+    BakaMitaiTheme {
+        Surface {
+            SkeletonView(modifier = Modifier.padding(BakaMitaiTheme.spacing.md)) {
+                ReleaseRowSkeletonView()
             }
         }
     }
