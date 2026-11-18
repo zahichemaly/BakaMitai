@@ -1,10 +1,11 @@
 package com.zc.bakamitai.feature.home.data.mapper
 
+import com.zc.bakamitai.common.data.mapper.toCoverUrl
+import com.zc.bakamitai.common.domain.model.Show
+import com.zc.bakamitai.common.domain.model.ShowSlug
 import com.zc.bakamitai.feature.home.data.dto.ReleaseDTO
 import com.zc.bakamitai.feature.home.data.dto.ReleaseListDTO
 import com.zc.bakamitai.feature.home.domain.model.Release
-import com.zc.bakamitai.feature.home.domain.model.Show
-import com.zc.bakamitai.feature.home.domain.model.ShowSlug
 import kotlinx.datetime.format.DateTimeComponents
 import kotlin.time.Instant
 

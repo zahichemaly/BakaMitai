@@ -14,6 +14,7 @@ import androidx.navigation3.runtime.NavKey
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.feature.home.presentation.navigation.HomeNavKey
+import com.zc.bakamitai.feature.schedule.presentation.navigation.ScheduleNavKey
 
 /**
  * The navigation suite's tabs, in order (context.md §2).
@@ -33,7 +34,7 @@ enum class TopLevelDestination(
         label = UiText.StringResource(StringResource.nav_home),
     ),
     SCHEDULE(
-        key = null,
+        key = ScheduleNavKey,
         selectedIcon = Icons.Filled.CalendarMonth,
         unselectedIcon = Icons.Outlined.CalendarMonth,
         label = UiText.StringResource(StringResource.nav_schedule),

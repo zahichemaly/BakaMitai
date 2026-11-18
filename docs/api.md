@@ -12,7 +12,7 @@ What the app does with this data (which screen uses which call, and how) is in [
 
 - **Base URL:** `https://subsplease.org`
 - **JSON API:** `GET https://subsplease.org/api/?f=<function>&tz=<IANA zone>&…`
-- **`tz` is required on every API call.** Pass the device's IANA zone (`TimeZone.currentSystemDefault().id`, e.g. `Asia/Beirut`). It decides which day counts as "today", which weekday each show falls on, and the `time` values returned. Without it, `f=show` and `f=latest` return `200` with an **empty body**.
+- **`tz` is required on every API call.** Pass the device's IANA zone (`TimeZone.currentSystemDefault().id`, e.g. `Asia/Beirut`). It decides which day counts as "today", which weekday each show falls on, and the `time` values returned. Without it, `f=show`, `f=latest` and the weekly `f=schedule` return `200` with an **empty body**. An **unknown** zone (`tz=Not/AZone`) doesn't fail: the server falls back to GMT and echoes `"tz":"Etc/GMT"` in the schedule responses. Android reports IANA ids, which the server accepts (half-hour offsets such as `Asia/Kolkata` work).
 - **Content-Type is wrong.** API responses are served as `text/html; charset=UTF-8`, not `application/json`. Register Ktor's JSON content negotiation for `ContentType.Any` (or read the body as text and decode with `Json`). Otherwise deserialization fails.
 - **No auth, no API key.** A plain app User-Agent (e.g. `BakaMitai/<version> (Android)`) is accepted. No Cloudflare challenge was observed for the API, the HTML pages or images.
 - **No caching headers** (`cf-cache-status: DYNAMIC`). Cache in-app (see [§7](#7-client-guidelines)).
@@ -25,7 +25,7 @@ What the app does with this data (which screen uses which call, and how) is in [
 
 | Purpose | Request | Format | Used by |
 |---|---|---|---|
-| Today's schedule | `/api/?f=schedule&h=true&tz=<tz>` | JSON | Home |
+| Today's schedule | `/api/?f=schedule&h=true&tz=<tz>` | JSON | Home, Schedule (today's `aired`) |
 | Weekly schedule | `/api/?f=schedule&tz=<tz>` | JSON | Schedule |
 | Latest releases | `/api/?f=latest&tz=<tz>&p=<1\|2>` | JSON | Home |
 | Search releases | `/api/?f=search&tz=<tz>&s=<query>` | JSON | Home (newest releases with an empty `s`, episode-number fallback) |
@@ -81,8 +81,12 @@ What the app does with this data (which screen uses which call, and how) is in [
 ```
 
 - `schedule` is an **object keyed by English weekday name** (`"Monday"` … `"Sunday"`). Don't depend on key order. Map each name to `kotlinx.datetime.DayOfWeek`.
-- Items have **no `aired` field**.
-- Weekday buckets are computed in the requested `tz`, so a show can move to a different day depending on the user's zone.
+- **Shape and volume** (checked 2026-11-18): all seven keys were present, with 3–14 items per day and **57 shows per week**, the same set in every zone. Each show appears **once** per week. Items have exactly `title`, `page`, `image_url` and `time`, with no HTML entities. The placeholder cover ([§1](#1-basics)) appears here too.
+- Items have **no `aired` field**. The weekly schedule is a template: it can't tell a delayed, skipped or finished episode from one that aired.
+- **Today's bucket equals [today's schedule](#31-todays-schedule)**: the same slugs and times (checked for New York and Tokyo). So today's `aired` can be joined onto the weekly bucket by slug, which is what Schedule does.
+- Weekday buckets are computed in the requested `tz`, so a show can move to a different day depending on the user's zone (*Doumo, Suki na Hito ni…* is Monday 07:30 in New York and Monday 21:30 in Tokyo).
+- Items are sorted by `time` within a day, but **ties come in no defined order**. Sort by time, then title.
+- **Decode defensively:** PHP encodes an empty associative array as `[]`, so an empty `schedule` would arrive as `[]` rather than `{}` (not seen live). Treat `schedule` = `[]`, `null` or missing as "no shows", and a day value that isn't an array as an empty day.
 
 ### 3.3 Latest releases
 

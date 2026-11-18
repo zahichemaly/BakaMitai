@@ -314,7 +314,7 @@ grep -rlE "import com\.zc\.bakamitai\.app\." app/src/main/java/com/zc/bakamitai/
 
 ### Current repo state
 
-The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`) is the first feature; Schedule, All Shows and Bookmarks show as disabled destinations until their features land. Shared-looking Home code (`Show`, `ScheduledShow`, the schedule DTO, image-URL mapping, the time formatter, `CoverImageView`) stays in `feature/home/` until a second feature needs it ([docs/1-home.md §6](../../../docs/1-home.md#6-dependencies)).
+The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`) and Schedule (`feature/schedule/`) are built and enabled; All Shows and Bookmarks show as disabled destinations until their features land. Schedule, as the second user, moved Home's shared pieces to `common/` ([docs/2-schedule.md §5.1](../../../docs/2-schedule.md#51-shared-code-moved-from-featurehome)): `Show`, `ShowSlug`, `ScheduledShow` and `GetTodayDateUseCase` in `common/domain/`, `ScheduleItemDTO`, `TodayScheduleDTO`, their mapper and image-URL mapping in `common/data/`, `TimeUIModelMapper` and `UtcOffsetUIModelMapper` in `common/ui/mapper/`, and `CoverImageView` and `TopLevelAppBarView` in `common/ui/component/`.
 
 ## 8. Checklist
 

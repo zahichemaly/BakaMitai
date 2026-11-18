@@ -165,7 +165,7 @@ Nodes: HTML `<!-- Section 1: Upcoming Broadcasts -->` and the `<article>` cards 
   - `coverUrl`: absolute, or `null` for the placeholder.
   - `timeLabel`: the schedule `time` in 12-hour format, for example "6:30 PM".
   - `episodeBadge`: "EP 08". Hidden when the next episode is unknown.
-  - The image uses `ContentScale.Crop`. When the URL is null or loading fails, the poster is a `ColorPainter(surfaceContainerHighest)`.
+  - The image uses `ContentScale.Crop`. While it loads, the poster is a plain `surfaceContainerHighest` fill. When the URL is null or loading fails, it shows a placeholder poster: the same fill with a centered `Icons.Outlined.Image` (changed at the user's request, 2026-11-19).
 - **States:**
   - The section header is always shown.
   - When there are no upcoming items, the carousel is replaced by the inline text `home_upcoming_empty`. **Not in design (proposed).**
@@ -474,7 +474,7 @@ The episode badge and the cover image are shared sub-components used by two sibl
 | `presentation/component/releaserow/mapper/ReleaseRowUIModelMapper.kt` | new | `fun Release.toUIModel(timeZone: TimeZone): ReleaseRowUIModel` |
 | `presentation/component/releaserow/ReleaseRowView.kt` | new | `ReleaseRowView(model, onClick: (() -> Unit)?, modifier)`, with `@AdaptivePreviews` |
 | `presentation/component/episodebadge/EpisodeBadgeView.kt` | new | `EpisodeBadgeView(model: EpisodeBadgeUIModel, modifier)` (§2.5), with `@AdaptivePreviews` |
-| `presentation/component/coverimage/CoverImageView.kt` | new | `CoverImageView(url: String?, modifier)`. `AsyncImage` with `ContentScale.Crop`, `contentDescription = null`, and a `ColorPainter(surfaceContainerHighest)` for `placeholder`, `error` and `fallback`. The caller sets the size and shape. With `@AdaptivePreviews`. It moves to `common/ui/component/coverimage/` with the Schedule plan (`best-practices` §1.6). |
+| `presentation/component/coverimage/CoverImageView.kt` | new | `CoverImageView(url: String?, modifier)`. `AsyncImage` with `ContentScale.Crop`, `contentDescription = null`, a `ColorPainter(surfaceContainerHighest)` for `placeholder`, and a placeholder poster (the fill plus a centered image icon, added 2026-11-19) for `error` and `fallback`. The caller sets the size and shape. With `@AdaptivePreviews`. It moves to `common/ui/component/coverimage/` with the Schedule plan (`best-practices` §1.6). |
 | `presentation/HomeState.kt` | new | MVI state (below) |
 | `presentation/HomeIntent.kt` | new | Intents (below) |
 | `presentation/HomeEffect.kt` | new | Effects (below) |

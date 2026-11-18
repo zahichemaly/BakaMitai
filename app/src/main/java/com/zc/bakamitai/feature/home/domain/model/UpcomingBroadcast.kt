@@ -1,5 +1,6 @@
 package com.zc.bakamitai.feature.home.domain.model
 
+import com.zc.bakamitai.common.domain.model.Show
 import kotlinx.datetime.LocalTime
 
 /**

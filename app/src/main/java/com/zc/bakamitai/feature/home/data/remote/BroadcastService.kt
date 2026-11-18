@@ -1,7 +1,7 @@
 package com.zc.bakamitai.feature.home.data.remote
 
+import com.zc.bakamitai.common.data.dto.TodayScheduleDTO
 import com.zc.bakamitai.feature.home.data.dto.ReleaseListDTO
-import com.zc.bakamitai.feature.home.data.dto.TodayScheduleDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

@@ -1,6 +1,7 @@
 package com.zc.bakamitai.app.di
 
 import android.content.Context
+import com.zc.bakamitai.common.domain.usecase.GetTodayDateUseCase
 import com.zc.bakamitai.common.domain.util.DefaultDispatcherProvider
 import com.zc.bakamitai.common.domain.util.DispatcherProvider
 import com.zc.bakamitai.common.domain.util.SystemTimeZoneProvider
@@ -8,7 +9,9 @@ import com.zc.bakamitai.common.domain.util.TimeZoneProvider
 import com.zc.bakamitai.feature.home.data.repository.BroadcastRepositoryImpl
 import com.zc.bakamitai.feature.home.domain.repository.BroadcastRepository
 import com.zc.bakamitai.feature.home.domain.usecase.GetTodayBroadcastsUseCase
-import com.zc.bakamitai.feature.home.domain.usecase.GetTodayDateUseCase
+import com.zc.bakamitai.feature.schedule.data.repository.ScheduleRepositoryImpl
+import com.zc.bakamitai.feature.schedule.domain.repository.ScheduleRepository
+import com.zc.bakamitai.feature.schedule.domain.usecase.GetWeeklyScheduleUseCase
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
@@ -47,6 +50,8 @@ class KoinModulesTest {
             assertIs<BroadcastRepositoryImpl>(koin.get<BroadcastRepository>())
             koin.get<GetTodayBroadcastsUseCase>()
             koin.get<GetTodayDateUseCase>()
+            assertIs<ScheduleRepositoryImpl>(koin.get<ScheduleRepository>())
+            koin.get<GetWeeklyScheduleUseCase>()
             koin.get<Json>()
             koin.get<HttpClient>().close()
         } finally {

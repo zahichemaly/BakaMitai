@@ -1,8 +1,8 @@
 package com.zc.bakamitai.feature.home.presentation.mapper
 
+import com.zc.bakamitai.common.domain.model.ShowTestData.show
 import com.zc.bakamitai.common.ui.resource.PluralResource
 import com.zc.bakamitai.common.ui.text.UiText
-import com.zc.bakamitai.feature.home.domain.HomeTestData.show
 import com.zc.bakamitai.feature.home.domain.model.TodayBroadcasts
 import com.zc.bakamitai.feature.home.domain.model.UpcomingBroadcast
 import kotlinx.datetime.LocalDate

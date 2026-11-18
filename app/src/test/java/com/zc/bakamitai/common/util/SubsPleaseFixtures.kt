@@ -4,6 +4,7 @@ package com.zc.bakamitai.common.util
 object SubsPleaseFixtures {
 
     const val SCHEDULE_TODAY = "schedule_today.json"
+    const val SCHEDULE_WEEK = "schedule_week.json"
     const val LATEST_PAGE_1 = "latest_page1.json"
     const val LATEST_LIMIT_REACHED = "latest_limit_reached.json"
     const val SEARCH_NEWEST = "search_newest.json"

@@ -1,12 +1,12 @@
 package com.zc.bakamitai.feature.home.data.mapper
 
 import com.zc.bakamitai.common.data.network.appJson
+import com.zc.bakamitai.common.domain.model.Show
+import com.zc.bakamitai.common.domain.model.ShowSlug
 import com.zc.bakamitai.common.util.SubsPleaseFixtures
 import com.zc.bakamitai.feature.home.data.dto.ReleaseDTO
 import com.zc.bakamitai.feature.home.data.dto.ReleaseListDTO
 import com.zc.bakamitai.feature.home.domain.model.Release
-import com.zc.bakamitai.feature.home.domain.model.Show
-import com.zc.bakamitai.feature.home.domain.model.ShowSlug
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

@@ -250,12 +250,12 @@ private fun PulsingStatusDot(color: Color, modifier: Modifier = Modifier) {
 private class TodaySummaryUIModelProvider : PreviewParameterProvider<TodaySummaryUIModel> {
     override val values = sequenceOf(
         TodaySummaryUIModel(
-            utcOffsetLabel = UiText.StringResource(StringResource.home_utc_offset, listOf("-5")),
+            utcOffsetLabel = UiText.StringResource(StringResource.utc_offset, listOf("-5")),
             upcomingCount = UiText.StringPlural(PluralResource.home_summary_airing, 4, listOf(4)),
             releasedCount = UiText.StringPlural(PluralResource.home_summary_available, 5, listOf(5)),
         ),
         TodaySummaryUIModel(
-            utcOffsetLabel = UiText.StringResource(StringResource.home_utc_offset, listOf("")),
+            utcOffsetLabel = UiText.StringResource(StringResource.utc_offset, listOf("")),
             upcomingCount = UiText.StringPlural(PluralResource.home_summary_airing, 0, listOf(0)),
             releasedCount = UiText.StringPlural(PluralResource.home_summary_available, 0, listOf(0)),
         ),

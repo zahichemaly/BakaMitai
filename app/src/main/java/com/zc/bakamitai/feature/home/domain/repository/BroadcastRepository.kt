@@ -1,7 +1,7 @@
 package com.zc.bakamitai.feature.home.domain.repository
 
+import com.zc.bakamitai.common.domain.model.ScheduledShow
 import com.zc.bakamitai.feature.home.domain.model.Release
-import com.zc.bakamitai.feature.home.domain.model.ScheduledShow
 import kotlinx.datetime.TimeZone
 
 /** SubsPlease's schedule and release feeds. Every call is made for [TimeZone] and fails with a `DomainError`. */

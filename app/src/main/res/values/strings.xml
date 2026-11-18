@@ -19,11 +19,30 @@
     <string name="error_unauthorized">SubsPlease refused the request.</string>
     <string name="error_generic">Something went wrong. Try again.</string>
 
+    <!-- Shared labels (common/ui/mapper) -->
+    <!-- %1$s: the offset after "UTC": "+9", "-5", "+5:30", or empty at zero. -->
+    <string name="utc_offset">UTC%1$s</string>
+
+    <!-- Days of the week (Schedule's day tabs; neutral names so Settings can reuse them) -->
+    <string name="day_monday">Monday</string>
+    <string name="day_tuesday">Tuesday</string>
+    <string name="day_wednesday">Wednesday</string>
+    <string name="day_thursday">Thursday</string>
+    <string name="day_friday">Friday</string>
+    <string name="day_saturday">Saturday</string>
+    <string name="day_sunday">Sunday</string>
+    <!-- Short day names are stored uppercase (DESIGN.md labels). -->
+    <string name="day_short_monday">MON</string>
+    <string name="day_short_tuesday">TUE</string>
+    <string name="day_short_wednesday">WED</string>
+    <string name="day_short_thursday">THU</string>
+    <string name="day_short_friday">FRI</string>
+    <string name="day_short_saturday">SAT</string>
+    <string name="day_short_sunday">SUN</string>
+
     <!-- Home (feature/home) -->
     <string name="home_app_bar_subtitle">HOME</string>
     <string name="home_summary_title">Today\'s Broadcasts</string>
-    <!-- %1$s: the offset after "UTC": "+9", "-5", "+5:30", or empty at zero. -->
-    <string name="home_utc_offset">UTC%1$s</string>
     <string name="home_section_upcoming">Upcoming Today</string>
     <string name="home_section_latest">Latest Releases</string>
     <string name="home_section_latest_badge">Aired Today</string>
@@ -38,6 +57,27 @@
     <string name="home_latest_empty">Nothing has been released yet today.</string>
     <string name="home_empty">Nothing is on the schedule for today.</string>
 
+    <!-- Schedule (feature/schedule) -->
+    <string name="schedule_app_bar_subtitle">SCHEDULE</string>
+    <!-- %1$s: the full day name, "Thursday". -->
+    <!-- %1$s: the device's offset, "UTC+2" (utc_offset). -->
+    <string name="schedule_time_zone">Times in %1$s</string>
+    <!-- %1$d: the number of shows with that status on the day, before filtering. -->
+    <string name="schedule_filter_all">All (%1$d)</string>
+    <string name="schedule_filter_aired">Aired (%1$d)</string>
+    <string name="schedule_filter_upcoming">Upcoming (%1$d)</string>
+    <string name="schedule_status_aired">Aired</string>
+    <string name="schedule_status_upcoming">Upcoming</string>
+    <string name="schedule_filter_empty_title">No simulcasts found</string>
+    <string name="schedule_filter_empty_message">There are no shows matching this filter for the selected broadcast day.</string>
+    <string name="schedule_filter_reset">Reset Filters</string>
+    <string name="schedule_day_empty_title">Nothing scheduled</string>
+    <!-- %1$s: the full day name, "Thursday". -->
+    <string name="schedule_day_empty_message">No shows are scheduled for %1$s.</string>
+    <!-- Day tabs for TalkBack. %1$s: the full day name; %2$s: the day of the month, "19". -->
+    <string name="cd_schedule_day">%1$s %2$s</string>
+    <string name="cd_schedule_day_today">%1$s %2$s, today</string>
+
     <plurals name="home_summary_airing">
         <item quantity="one">%d Airing</item>
         <item quantity="other">%d Airing</item>
@@ -49,5 +89,9 @@
     <plurals name="home_section_upcoming_count">
         <item quantity="one">%d show</item>
         <item quantity="other">%d shows</item>
+    </plurals>
+    <plurals name="schedule_show_count">
+        <item quantity="one">%d Show Airing</item>
+        <item quantity="other">%d Shows Airing</item>
     </plurals>
 </resources>

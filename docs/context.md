@@ -61,10 +61,12 @@ Two sections, both about **today** (in the device's time zone):
 
 ### 3.2 Schedule
 
-- **Tabs for each day of the week**: Monday → Sunday by default, or Sunday → Saturday when *First day of week* = Sunday (see Settings).
-- The tab for **today** is selected when the screen opens.
-- Each tab shows a **grid** of the shows airing that day. Each item shows the **cover, title and release time**.
-- Data: [§4.2](#42-schedule).
+- **Tabs for each day of the week**: Monday → Sunday by default, or Sunday → Saturday when *First day of week* = Sunday (see Settings). Each tab shows the weekday and **this week's date** ("MON 16").
+- The tab for **today** is selected when the screen opens, and keeps a dot while another day is selected.
+- Each tab shows a **grid** of the shows airing that day, under a header with the day name, the device's UTC offset and the number of shows. Each item shows the **cover, title and release time**.
+- **Today only:** each item has an **Aired** / **Upcoming** badge, and filter chips (All / Aired / Upcoming, with counts) narrow the grid. Other days have no status, because the weekly schedule has none.
+- Pull-to-refresh. Also reload when the app comes back to the foreground on a new day, and select the new today.
+- Data: [§4.2](#42-schedule). Plan: [2-schedule.md](2-schedule.md).
 
 ### 3.3 All Shows
 
@@ -149,10 +151,13 @@ The full derivation is in [1-home.md §4.3](1-home.md#43-derivation-domain); thi
 
 ### 4.2 Schedule
 
-- One call: weekly schedule ([api.md §3.2](api.md#32-weekly-schedule)). Map weekday names to `DayOfWeek`.
-- **Tab order** comes from the *First day of week* setting.
+- Two calls **in parallel**: the weekly schedule ([api.md §3.2](api.md#32-weekly-schedule)), required, and today's schedule ([api.md §3.1](api.md#31-todays-schedule)), best effort. Map weekday names to `DayOfWeek`.
+- **Today's `aired`** is joined onto today's tab by slug (today's bucket and today's schedule list the same shows). If today's call fails, today's cards simply have no status.
+- **Week dates:** the 7 dates of the current week, starting on the first day of the week, computed from the injected `Clock` and `TimeZoneProvider`.
+- **Tab order** comes from the *First day of week* setting. Until Settings exists, the week starts on **Monday** and times are **12-hour**.
 - **Selected tab on open** = today's `DayOfWeek` in the device zone.
-- Grid items: cover, title, `time` formatted per the *Time format* setting.
+- Grid items: cover, title, `time` formatted per the *Time format* setting, sorted by time and then title.
+- **Caching:** the weekly schedule is kept in memory for about 1 h per zone ([api.md §7](api.md#7-client-guidelines)); pull-to-refresh bypasses it. Today's schedule is never cached, since `aired` changes during the day.
 
 ### 4.3 All Shows
 
@@ -211,7 +216,7 @@ Follow the `structure` skill's `feature/[name]/{data,domain,di,presentation}` la
 | `bookmarks` | Bookmarks (+ the bookmark toggle used by Details, exposed through its `domain` use cases) | Bookmarks DataStore |
 | `settings` | Settings | Settings DataStore (repository in `common/`) |
 
-Shared across features (`common/`): the SubsPlease `HttpClient` ([api.md §7](api.md#7-client-guidelines)), any DTO used by two or more features (e.g. the schedule item and the release entry), image-URL resolution (relative path → absolute, placeholder → `null`), and the time formatter driven by the *Time format* setting.
+Shared across features (`common/`): the SubsPlease `HttpClient` ([api.md §7](api.md#7-client-guidelines)), any DTO used by two or more features (e.g. the schedule item and today's schedule, moved there by the Schedule plan), image-URL resolution (relative path → absolute, placeholder → `null`), the time formatter driven by the *Time format* setting, the UTC-offset label, `CoverImageView` and the top-level app bar. [2-schedule.md §5.1](2-schedule.md#51-shared-code-moved-from-featurehome) lists the moves.
 
 A sketch of the domain models. Names follow the `conventions` skill: domain models take no suffix.
 

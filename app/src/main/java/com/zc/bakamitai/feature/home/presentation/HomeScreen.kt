@@ -23,18 +23,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -50,6 +45,7 @@ import androidx.window.core.layout.WindowSizeClass
 import com.zc.bakamitai.common.ui.component.error.ErrorView
 import com.zc.bakamitai.common.ui.component.error.model.ErrorUIModel
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
+import com.zc.bakamitai.common.ui.component.toplevelappbar.TopLevelAppBarView
 import com.zc.bakamitai.common.ui.resource.PluralResource
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
@@ -103,7 +99,8 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            HomeTopAppBar(
+            TopLevelAppBarView(
+                subtitle = UiText.StringResource(StringResource.home_app_bar_subtitle),
                 showSettingsAction = showSettingsAction,
                 onSettingsClick = { onIntent(HomeIntent.SettingsClicked) },
                 scrollBehavior = scrollBehavior,
@@ -138,49 +135,6 @@ fun HomeScreen(
             else -> HomeSkeleton(modifier = contentModifier)
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun HomeTopAppBar(
-    showSettingsAction: Boolean,
-    onSettingsClick: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior,
-    modifier: Modifier = Modifier,
-) {
-    TopAppBar(
-        title = {
-            Column {
-                Text(
-                    text = UiText.StringResource(StringResource.app_name).asString(),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                Text(
-                    text = UiText.StringResource(StringResource.home_app_bar_subtitle).asString(),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelSmall,
-                )
-            }
-        },
-        modifier = modifier,
-        actions = {
-            if (showSettingsAction) {
-                IconButton(onClick = onSettingsClick) {
-                    Icon(
-                        imageVector = Icons.Outlined.Settings,
-                        contentDescription = UiText.StringResource(StringResource.cd_settings).asString(),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        scrollBehavior = scrollBehavior,
-    )
 }
 
 /**
@@ -399,7 +353,7 @@ private fun HomeEmptyView(summary: TodaySummaryUIModel, modifier: Modifier = Mod
 }
 
 private val previewSummary = TodaySummaryUIModel(
-    utcOffsetLabel = UiText.StringResource(StringResource.home_utc_offset, listOf("-5")),
+    utcOffsetLabel = UiText.StringResource(StringResource.utc_offset, listOf("-5")),
     upcomingCount = UiText.StringPlural(PluralResource.home_summary_airing, 4, listOf(4)),
     releasedCount = UiText.StringPlural(PluralResource.home_summary_available, 3, listOf(3)),
 )

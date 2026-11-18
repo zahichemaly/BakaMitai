@@ -3,6 +3,8 @@ package com.zc.bakamitai.feature.home.presentation
 import app.cash.turbine.test
 import app.cash.turbine.turbineScope
 import com.zc.bakamitai.common.domain.model.DomainError
+import com.zc.bakamitai.common.domain.model.ShowTestData.scheduled
+import com.zc.bakamitai.common.domain.usecase.GetTodayDateUseCase
 import com.zc.bakamitai.common.domain.util.FixedTimeZoneProvider
 import com.zc.bakamitai.common.ui.component.error.model.ErrorUIModel
 import com.zc.bakamitai.common.ui.resource.PluralResource
@@ -11,12 +13,10 @@ import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.util.FixedClock
 import com.zc.bakamitai.common.util.MainDispatcherRule
 import com.zc.bakamitai.feature.home.domain.HomeTestData.release
-import com.zc.bakamitai.feature.home.domain.HomeTestData.scheduled
 import com.zc.bakamitai.feature.home.domain.repository.FakeBroadcastRepository
 import com.zc.bakamitai.feature.home.domain.repository.FakeBroadcastRepository.Call
 import com.zc.bakamitai.feature.home.domain.usecase.FindLatestEpisodeNumberUseCase
 import com.zc.bakamitai.feature.home.domain.usecase.GetTodayBroadcastsUseCase
-import com.zc.bakamitai.feature.home.domain.usecase.GetTodayDateUseCase
 import com.zc.bakamitai.feature.home.presentation.component.todaysummary.model.TodaySummaryUIModel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -76,7 +76,7 @@ class HomeViewModelTest {
             assertNull(loaded.error)
             assertEquals(
                 TodaySummaryUIModel(
-                    utcOffsetLabel = UiText.StringResource(StringResource.home_utc_offset, listOf("-5")),
+                    utcOffsetLabel = UiText.StringResource(StringResource.utc_offset, listOf("-5")),
                     upcomingCount = UiText.StringPlural(PluralResource.home_summary_airing, 1, listOf(1)),
                     releasedCount = UiText.StringPlural(PluralResource.home_summary_available, 1, listOf(1)),
                 ),

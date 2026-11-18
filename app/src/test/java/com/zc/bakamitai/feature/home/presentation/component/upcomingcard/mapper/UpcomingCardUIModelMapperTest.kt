@@ -1,8 +1,8 @@
 package com.zc.bakamitai.feature.home.presentation.component.upcomingcard.mapper
 
+import com.zc.bakamitai.common.domain.model.ShowTestData.show
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
-import com.zc.bakamitai.feature.home.domain.HomeTestData.show
 import com.zc.bakamitai.feature.home.domain.model.UpcomingBroadcast
 import com.zc.bakamitai.feature.home.presentation.component.upcomingcard.model.UpcomingCardUIModel
 import com.zc.bakamitai.feature.home.presentation.model.EpisodeBadgeUIModel

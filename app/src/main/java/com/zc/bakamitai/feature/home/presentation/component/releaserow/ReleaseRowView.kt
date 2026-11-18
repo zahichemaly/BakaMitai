@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.zc.bakamitai.common.ui.component.coverimage.CoverImageView
+import com.zc.bakamitai.common.ui.component.coverimage.POSTER_ASPECT_RATIO
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonBlock
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonTextLine
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
@@ -30,8 +32,6 @@ import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
 import com.zc.bakamitai.common.ui.util.AdaptivePreviews
-import com.zc.bakamitai.feature.home.presentation.component.coverimage.CoverImageView
-import com.zc.bakamitai.feature.home.presentation.component.coverimage.POSTER_ASPECT_RATIO
 import com.zc.bakamitai.feature.home.presentation.component.episodebadge.EpisodeBadgeSkeletonView
 import com.zc.bakamitai.feature.home.presentation.component.episodebadge.EpisodeBadgeView
 import com.zc.bakamitai.feature.home.presentation.component.releaserow.model.ReleaseRowUIModel
