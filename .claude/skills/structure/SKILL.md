@@ -1,0 +1,325 @@
+---
+name: structure
+description: Package hierarchy and file placement rules for this Android app. Use when creating, moving, or locating files.
+---
+
+# Structure
+
+This skill defines **where every file goes**. It is the single source of truth for the package tree. Layer dependency rules are in `architecture`, naming in `conventions`, libraries in `tech-stack`, quality and testing rules in `best-practices`.
+
+Root package: `com.zc.vndb` (source root `app/src/main/java/com/zc/vndb/`). Rules marked **MUST** / **NEVER** are non-negotiable.
+
+---
+
+## 1. Package tree
+
+```text
+com.zc.vndb/
+├── app/                             # Application entry point, root navigation & DI assembly
+│   ├── MainActivity.kt
+│   ├── AppRoute.kt                  # App root: provides app-wide settings (composition locals) around AppNavigation
+│   ├── AppViewModel.kt              # Reads those settings (scanned by AppModule)
+│   ├── AppApplication.kt            # Initializes Koin (+ Coil ImageLoader factory)
+│   ├── di/
+│   │   ├── AppModule.kt             # @Module(includes = [...]): CommonModule and every feature module
+│   │   └── AppKoin.kt               # @KoinApplication entry point for startKoin<AppKoin>
+│   └── navigation/
+│       ├── AppNavigation.kt         # NavigationSuiteScaffold + NavDisplay (the shell)
+│       ├── TopLevelDestination.kt   # The tabs: root key, icon, label
+│       └── AppEntryProvider.kt      # entryProvider: calls every feature's entry function, wiring features together
+│
+├── common/                          # Shared code used across two or more features
+│   ├── data/
+│   │   ├── network/                 # Shared Ktor HttpClient factory, Json config, plugins
+│   │   ├── dto/                     # Wire-format DTOs used by 2+ features (QueryDTO, ImageDTO, TagDTO)
+│   │   ├── mapper/                  # DTO -> common/domain mappers for those DTOs
+│   │   ├── local/                   # Shared Jetpack DataStore sources (e.g. the signed-in session + token cipher)
+│   │   ├── repository/              # Implementations of common/domain repositories (e.g. SessionRepositoryImpl)
+│   │   └── util/
+│   │       └── SafeApiCall.kt       # safeApiCall { } — Ktor/serialization exceptions -> DomainError
+│   ├── domain/
+│   │   ├── model/                   # Shared pure Kotlin domain primitives, DomainError.kt, result types, Session
+│   │   ├── repository/              # Interfaces used by 2+ features (e.g. SessionRepository, SettingsRepository)
+│   │   ├── usecase/                 # Use cases used by 2+ features (e.g. ObserveSettingsUseCase)
+│   │   └── util/
+│   │       └── DispatcherProvider.kt  # DispatcherProvider interface + DefaultDispatcherProvider
+│   ├── di/
+│   │   └── CommonModule.kt          # @Module @ComponentScan(common) + @Single providers for Json, HttpClient, Clock, DataStore
+│   └── ui/
+│       ├── theme/                   # Material 3 Color.kt, Type.kt, Theme.kt, Themes.kt (every theme's spec)
+│       │   └── schemes/             # One file per color scheme (NocturneScheme.kt, SayaNoUtaScheme.kt, …)
+│       ├── util/                    # ObserveAsEvents.kt, AdaptivePreviews.kt (non-visual Compose helpers)
+│       ├── mapper/                  # common/domain -> UiText/UI model mappers used by 2+ features (e.g. NovelLength labels)
+│       └── component/               # Shared UI widgets & adaptive scaffolds — same recursive shape as §1.1
+│           └── [name]/              # e.g. coverimage/, markdown/, error/
+│               ├── model/           # e.g. error/model/ErrorUIModel.kt
+│               ├── mapper/          # e.g. error/mapper/ErrorUIModelMapper.kt (DomainError -> ErrorUIModel)
+│               └── [Name]View.kt
+│
+└── feature/
+    └── [name]/                      # Lowercase feature package (e.g. novel, search, settings)
+        ├── data/
+        │   ├── remote/              # Ktor [Name]Service classes for this feature
+        │   ├── local/               # Feature-specific DataStore sources (if needed)
+        │   ├── dto/                 # [Name]DTO.kt — strictly one @Serializable DTO per file
+        │   ├── mapper/              # [Name]DTOMapper.kt & [Name]DomainMapper.kt — separate files
+        │   └── repository/          # [Name]RepositoryImpl.kt implementing the domain interface
+        ├── domain/
+        │   ├── model/               # [Name].kt — pure Kotlin domain models, NO suffix
+        │   ├── repository/          # [Name]Repository.kt — interface
+        │   └── usecase/             # [Name]UseCase.kt — single responsibility, operator fun invoke
+        ├── di/
+        │   └── [Name]Module.kt      # @Module @ComponentScan class; classes carry @Single/@Factory/@KoinViewModel
+        └── presentation/
+            ├── model/               # Immutable [Name]UIModel.kt (static) & [Name]UIState.kt (dynamic)
+            ├── mapper/              # [Name]UIModelMapper.kt (Domain -> UIModel / UIState)
+            ├── component/           # Components reused ONLY within this feature — recursive, see §1.1
+            │   └── [name]/          # One lowercase subpackage per component (e.g. novelheader/)
+            │       ├── model/       # [Name]UIModel.kt / [Name]UIState.kt owned by this component
+            │       ├── mapper/      # [Name]UIModelMapper.kt for this component's models
+            │       ├── component/   # Sub-components of this component (same shape, recursively)
+            │       └── [Name]View.kt
+            ├── [Name]State.kt       # Screen-level immutable MVI state
+            ├── [Name]Intent.kt      # Sealed interface of user actions & screen triggers
+            ├── [Name]Effect.kt      # Sealed interface of one-off side effects
+            ├── [Name]ViewModel.kt   # StateFlow<[Name]State>, Flow<[Name]Effect>, fun onIntent(...)
+            ├── [Name]Route.kt       # Collects state/effects, passes state + callbacks to Screen
+            └── [Name]Screen.kt      # Stateless Compose UI: (State, (Intent) -> Unit)
+```
+
+Rules:
+
+- **MUST** create all four feature subpackages — `data`, `domain`, `di`, `presentation` — for every feature.
+- Feature names are **lowercase**, no underscores or hyphens (`feature/userlist`, never `feature/UserList` or `feature/user_list`).
+- **NEVER** add top-level packages beyond `app`, `common`, `feature`. No layer-first packages (`com.zc.vndb.data`, `com.zc.vndb.ui`, `com.zc.vndb.viewmodels`, `com.zc.vndb.utils`).
+- **NEVER** add folders that are not in the tree (`helper/`, `base/`, `extensions/`, `manager/`). Place the code in the folder that matches its role.
+- `common/data/dto/` and `common/data/mapper/` hold only DTOs (and their mappers) that two or more features send or receive; a DTO used by one feature stays in that feature.
+- `util/` exists **only** at `common/data/util/`, `common/domain/util/` and `common/ui/util/`, for the cross-cutting helpers listed in §2. **NEVER** create `util/` inside a feature, and never use these folders as a dumping ground for feature logic.
+- Feature `presentation/` is flat: a feature with several screens holds several `[Name]State/Intent/Effect/ViewModel/Route/Screen` sets side by side.
+
+### 1.1 Components mirror `presentation` (recursively)
+
+Each component under `component/` is a **mini `presentation` package**. It gets its own lowercase subpackage, which holds its `model/`, `mapper/` and nested `component/` folders next to its `[Name]View.kt`.
+
+```text
+presentation/
+├── model/                           # Models used by the screen State or by 2+ components
+├── mapper/
+├── component/
+│   ├── novelheader/
+│   │   ├── model/NovelHeaderUIModel.kt
+│   │   ├── mapper/NovelHeaderUIModelMapper.kt
+│   │   ├── component/
+│   │   │   └── ratingbadge/
+│   │   │       ├── model/RatingBadgeUIModel.kt
+│   │   │       ├── mapper/RatingBadgeUIModelMapper.kt
+│   │   │       └── RatingBadgeView.kt
+│   │   └── NovelHeaderView.kt
+│   └── screenshotgallery/
+│       ├── model/ScreenshotUIState.kt
+│       ├── mapper/ScreenshotUIModelMapper.kt
+│       └── ScreenshotGalleryView.kt
+├── NovelDetailState.kt              # composes NovelHeaderUIModel, ImmutableList<ScreenshotUIState>
+└── …
+```
+
+Rules:
+
+- **MUST** give every component its own subpackage named after the component in lowercase (`component/novelheader/NovelHeaderView.kt`, never `component/NovelHeaderView.kt`).
+- The component subpackage uses the **same folder names and meanings** as `presentation/`: `model/` for its `[Name]UIModel` / `[Name]UIState`, `mapper/` for its `[Name]UIModelMapper`, and `component/` for its sub-components, nested to any depth.
+- Create `model/`, `mapper/` and `component/` only when the component has something to put in them. A component that takes only primitives and lambdas is just `component/[name]/[Name]View.kt`.
+- Components are stateless views. They **NEVER** have their own `ViewModel`, `Route`, `Screen`, `State`, `Intent` or `Effect`. Those exist only at the screen level of `presentation/`.
+- **A model lives with its narrowest owner:**
+  - rendered only by one component → that component's `model/` (and its mapper in that component's `mapper/`)
+  - rendered by 2+ components of the feature, or read directly by the Screen → `presentation/model/` and `presentation/mapper/`
+- The screen `State` and the ViewModel may import a component's models and mappers. That is how the ViewModel maps domain → component model. A component **NEVER** imports from its parent component, from a sibling component, or from screen-level files (`[Name]State`, `[Name]Intent`).
+- A sub-component used by two sibling components moves **up** to the nearest shared `component/` level. When two features use it, it moves to `common/ui/component/[name]/`.
+- `common/ui/component/[name]/` follows the same shape. Its models are feature-agnostic, and its mappers (if any) map only from `common/domain` types.
+
+---
+
+### 1.2 Repository root (build files)
+
+```text
+MyVNDB/
+├── app/build.gradle.kts             # Declarative only: plugins, namespace, dependencies (libs.*)
+├── build-logic/                     # Included build: convention plugins + ALL custom Gradle tasks
+├── config/detekt/detekt.yml
+├── gradle/libs.versions.toml        # Version catalog: every library, BOM and plugin
+├── build.gradle.kts                 # Declarative only: plugins … apply false
+└── settings.gradle.kts              # includeBuild("build-logic"), include(":app")
+```
+
+Rules are in `library-management`.
+
+## 2. Placement lookup
+
+| I am writing… | It goes in |
+|---|---|
+| Activity, `Application`, `startKoin<AppKoin>` | `app/` |
+| Aggregated Koin module (`@Module(includes = [...])`) and the `@KoinApplication` entry point | `app/di/AppModule.kt`, `app/di/AppKoin.kt` |
+| `NavigationSuiteScaffold`, `NavDisplay`, tab definitions | `app/navigation/AppNavigation.kt`, `app/navigation/TopLevelDestination.kt` |
+| Wiring features' entries and cross-feature navigation lambdas | `app/navigation/AppEntryProvider.kt` |
+| `Navigator`, `NavigationState`, `BottomSheetSceneStrategy`, `FullScreenNavKey` / `OverlayNavKey` | `common/ui/navigation/` |
+| A feature's `@Serializable` `NavKey`s | `feature/[name]/presentation/navigation/[Name]NavKey.kt` |
+| A feature's `Navigator.navigateTo[Name](...)` helpers and `EntryProviderScope<NavKey>.[name]Entry(...)` (and `[Name]NavActions` when a Route has more than ~4 navigation callbacks) | `feature/[name]/presentation/navigation/[Name]Navigation.kt` (`[Name]NavActions.kt`) |
+| Shared `HttpClient` factory, `Json` instance | `common/data/network/` |
+| `safeApiCall { }` (exception → `DomainError` mapping) | `common/data/util/SafeApiCall.kt` |
+| DTO used by 2+ features (query body, image, tag) | `common/data/dto/[Name]DTO.kt` |
+| Mapper from a shared DTO to a `common/domain` model | `common/data/mapper/[Name]DTOMapper.kt` |
+| Shared DataStore helpers (file factory, preference key helpers) | `common/data/local/` |
+| `DomainError` and other error/result/value types used by 2+ features' domains (incl. `AppSettings`, `Session`) | `common/domain/model/` |
+| Repository interface / use case used by 2+ features (settings, session, image cache) | `common/domain/{repository,usecase}/` |
+| `DispatcherProvider` / `DefaultDispatcherProvider` | `common/domain/util/DispatcherProvider.kt` |
+| Koin providers for types we don't own (`HttpClient`, `Json`, `Clock`, `DataStore`) | `common/di/CommonModule.kt` |
+| Theme, colors, typography | `common/ui/theme/` |
+| `ObserveAsEvents`, `@AdaptivePreviews` and other non-visual Compose helpers | `common/ui/util/` |
+| Navigation plumbing shared by all features (`Navigator`, `NavigationState`, marker interfaces, bottom-sheet scene) | `common/ui/navigation/` |
+| Presentation mapper for a `common/domain` type used by 2+ features (not tied to one component) | `common/ui/mapper/[Name]UIModelMapper.kt` |
+| `UiText` (all user-visible text in `presentation`) | `common/ui/text/UiText.kt` |
+| `StringResource` / `PluralResource` typealiases for `R.string` / `R.plurals` (the only way code names a string resource) | `common/ui/resource/ResourceTypes.kt` |
+| `ErrorUIModel`, `ErrorUIModelMapper`, `ErrorView` | `common/ui/component/error/{model,mapper}/`, `ErrorView.kt` |
+| Composable used by 2+ features | `common/ui/component/[name]/[Name]View.kt` |
+| Ktor API calls for one feature | `feature/[name]/data/remote/[Name]Service.kt` |
+| DataStore source for one feature | `feature/[name]/data/local/[Name]LocalDataSource.kt` |
+| Wire-format class | `feature/[name]/data/dto/[Name]DTO.kt` |
+| DTO → Domain / Domain → DTO | `feature/[name]/data/mapper/[Name]DTOMapper.kt` / `[Name]DomainMapper.kt` |
+| Repository implementation | `feature/[name]/data/repository/[Name]RepositoryImpl.kt` |
+| Domain model / repository interface / use case | `feature/[name]/domain/{model,repository,usecase}/` |
+| Feature Koin module (`@Module @ComponentScan("com.zc.vndb.feature.[name]")`) | `feature/[name]/di/[Name]Module.kt` |
+| UI model / UI state read by the Screen or 2+ components | `feature/[name]/presentation/model/` |
+| Domain → UI mapper for those models | `feature/[name]/presentation/mapper/[Name]UIModelMapper.kt` |
+| Composable reused by screens of one feature | `feature/[name]/presentation/component/[component]/[Name]View.kt` |
+| UI model / UI state rendered only by one component | `…/component/[component]/model/` |
+| Mapper for a component's own models | `…/component/[component]/mapper/[Name]UIModelMapper.kt` |
+| Sub-component used only inside one component | `…/component/[component]/component/[sub]/[Name]View.kt` |
+| Composable used by one screen only | `private` in that `[Name]Screen.kt` |
+| MVI contract, ViewModel, Route, Screen | `feature/[name]/presentation/` |
+| Library / plugin dependency declaration | `gradle/libs.versions.toml` |
+| Custom Gradle task, convention plugin, shared build config | `build-logic/convention/src/main/kotlin/` |
+| Unit test for `X` | `app/src/test/java/com/zc/vndb/<same package as X>/XTest.kt` |
+| Test fakes (`Fake[Name]Repository`, `TestDispatcherProvider`) and rules (`MainDispatcherRule`) | Test source set, mirroring the package of the thing they fake (`MainDispatcherRule` → `common/util/`) |
+
+---
+
+## 3. Shared code (`common/`)
+
+- Code moves to `common/` **only** when two or more features use it. Until then it stays in its feature.
+- When a second feature needs something from `feature/a`, **move** it to the matching `common/` folder — never import `feature.a.*` from `feature.b`.
+- `common/` is feature-agnostic: it **NEVER** imports `feature.*` or `app.*`.
+- `common/ui/component/` widgets accept primitives, `common` types, and lambdas — never a feature's `UIModel`, `State`, or `Intent`.
+
+### Component placement
+
+```text
+Is the composable used by more than one screen?
+├── No  → private in that [Name]Screen.kt
+└── Yes → Are all users inside the SAME feature?
+          ├── Yes → Are all users inside the SAME parent component?
+          │         ├── Yes → …/component/[parent]/component/[name]/[Name]View.kt
+          │         └── No  → feature/[name]/presentation/component/[name]/[Name]View.kt
+          └── No  → common/ui/component/[name]/[Name]View.kt
+```
+
+Each component folder follows §1.1 (`model/`, `mapper/`, nested `component/`).
+
+---
+
+## 4. Allowed package imports
+
+| From ↓ may import → | `app` | `common` | own `feature/[name]` | other `feature/*` |
+|---|---|---|---|---|
+| `app` | ✅ | ✅ | ✅ (Routes, modules) | ✅ (Routes, modules) |
+| `common` | — | ✅ | — | — |
+| `feature/[name]` | — | ✅ | ✅ (per layer rules in `architecture`) | `domain` only (models, use cases) |
+
+- A feature owns its `NavKey`s and its entry extension function in `presentation/navigation/`. Everything that leaves the feature (open another feature's screen, go back) is a lambda parameter of that function. A feature never imports another feature's navigation package.
+- Only `app/navigation/AppEntryProvider.kt` knows every feature: it passes each entry function the lambdas that navigate to the other features' keys. The back stack and `NavDisplay` live in `app/navigation/` and `common/ui/navigation/`.
+- Only `app/di/AppModule.kt` lists all modules; feature modules never include each other.
+
+---
+
+## 5. Reference: `app/` wiring
+
+```kotlin
+// app/di/AppModule.kt
+@Module(includes = [CommonModule::class, NovelModule::class, SearchModule::class, SettingsModule::class])
+class AppModule
+
+// app/di/AppKoin.kt
+@KoinApplication(modules = [AppModule::class])
+object AppKoin
+```
+
+```kotlin
+// app/AppApplication.kt
+class AppApplication : Application(), SingletonImageLoader.Factory {
+    override fun onCreate() {
+        super.onCreate()
+        startKoin<AppKoin> {
+            androidLogger()
+            androidContext(this@AppApplication)
+        }
+    }
+
+    override fun newImageLoader(context: PlatformContext): ImageLoader =
+        ImageLoader.Builder(context)
+            .components { add(KtorNetworkFetcherFactory()) }
+            .crossfade(true)
+            .build()
+}
+```
+
+---
+
+## 6. Do / Don't
+
+| ❌ Don't | ✅ Do |
+|---|---|
+| `com.zc.vndb.ui.screens.NovelDetailScreen` | `com.zc.vndb.feature.novel.presentation.NovelDetailScreen` |
+| `com.zc.vndb.utils.DateUtils` / `feature/novel/util/` | Formatting in `presentation/mapper/[Name]UIModelMapper.kt` |
+| `NovelDetailNavKey` declared in `app/navigation/AppNavigation.kt` | `feature/novel/presentation/navigation/NovelDetailNavKey.kt` |
+| `common/ui/LoadingView.kt` | `common/ui/component/loading/LoadingView.kt` |
+| `feature/novel/presentation/component/NovelHeaderView.kt` (flat file) | `feature/novel/presentation/component/novelheader/NovelHeaderView.kt` |
+| `NovelHeaderUIModel` in `presentation/model/` when only `NovelHeaderView` renders it | `component/novelheader/model/NovelHeaderUIModel.kt` |
+| `component/novelheader/NovelHeaderViewModel.kt` / `NovelHeaderState.kt` | Components are stateless; state lives in the screen `[Name]State` |
+| `component/ratingbadge/` importing `component.novelheader.model.*` (sibling) | Move the shared model up to `presentation/model/` |
+| `feature/search` importing `feature.novel.presentation.component.cover.CoverView` | Move it to `common/ui/component/cover/CoverView.kt` |
+| `common/ui/component/novelcard/NovelCardView(model: VisualNovelUIModel)` | Keep it in `feature/novel/presentation/component/novelcard/` |
+| `feature/novel/data/NovelRepositoryImpl.kt` (no subfolder) | `feature/novel/data/repository/VisualNovelRepositoryImpl.kt` |
+| `feature/novel/di/` binding another feature's repository | Each feature binds its own; `AppModule` aggregates |
+
+---
+
+## 7. Checks
+
+Each must print nothing:
+
+```bash
+ls app/src/main/java/com/zc/vndb | grep -vxE "app|common|feature"
+```
+
+```bash
+grep -rlE "import com\.zc\.vndb\.(feature|app)\." app/src/main/java/com/zc/vndb/common
+```
+
+```bash
+grep -rlE "import com\.zc\.vndb\.app\." app/src/main/java/com/zc/vndb/feature
+```
+
+### Current repo migration
+
+The template project still has `MainActivity.kt` at the root and `ui/theme/`. Move them when you next touch them:
+
+- `MainActivity.kt` → `app/MainActivity.kt` (update `AndroidManifest.xml`).
+- `ui/theme/*` → `common/ui/theme/`.
+- Add `app/AppApplication.kt` and register it with `android:name` in the manifest.
+
+## 8. Checklist
+
+- [ ] Every new file's package matches a row in §2.
+- [ ] No top-level packages or folders outside the tree.
+- [ ] `common/` code is used by 2+ features and imports no `feature`/`app` code.
+- [ ] Every component has its own `component/[name]/` subpackage. Its own models and mappers sit inside it, its sub-components nest under its `component/`, and it has no ViewModel, Route or State.
+- [ ] NavKeys and entry extension functions live in the owning feature's `presentation/navigation/`; no feature imports another feature's navigation package; `AppEntryProvider.kt` does the wiring.
+- [ ] `app/di/AppModule.kt` includes every feature module.
