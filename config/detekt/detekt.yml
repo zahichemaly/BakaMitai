@@ -1,0 +1,18 @@
+# Detekt config for BakaMitai.
+# Applied on top of Detekt's default config (buildUponDefaultConfig = true), plus the defaults shipped by the
+# ktlint wrapper and Compose rules plugins. Only list overrides here. Rules: best-practices skill, section 2.
+
+naming:
+  FunctionNaming:
+    # Composables are PascalCase by convention.
+    ignoreAnnotated: ['Composable']
+
+complexity:
+  LongParameterList:
+    # Composables expose optional styling parameters (modifier, colors, ...) with defaults.
+    ignoreDefaultParameters: true
+
+style:
+  UnusedPrivateFunction:
+    # Previews are private (Compose rule PreviewPublic) and only called by tooling.
+    ignoreAnnotated: ['Preview', 'AdaptivePreviews']

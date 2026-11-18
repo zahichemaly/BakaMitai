@@ -43,9 +43,9 @@ Each approved library from `tech-stack` §1, with its catalog accessor and coord
 | kotlinx.serialization | `libs.kotlinx.serialization.json` | `org.jetbrains.kotlinx:kotlinx-serialization-json` |
 | DataStore | `libs.androidx.datastore.preferences` (or `libs.androidx.datastore`) | `androidx.datastore:datastore-preferences` / `androidx.datastore:datastore` |
 | Koin | `libs.koin.bom`, `libs.koin.android` *BOM*, `libs.koin.androidx.compose` *BOM*, `libs.koin.annotations` *BOM*, `libs.plugins.koin.compiler` | `io.insert-koin:koin-bom`, `koin-android`, `koin-androidx-compose`, `koin-annotations`, plugin `io.insert-koin.compiler.plugin` |
-| Detekt | `libs.plugins.detekt`, `libs.detekt.formatting`, `libs.compose.rules.detekt` | `io.gitlab.arturbosch.detekt` (or `dev.detekt` on 2.x), `detekt-formatting` (`detekt-rules-ktlint-wrapper` on 2.x), `io.nlopez.compose.rules:detekt` |
+| Detekt (2.x) | `libs.plugins.detekt`, `libs.detekt.formatting`, `libs.compose.rules.detekt` | plugin `dev.detekt`, `dev.detekt:detekt-rules-ktlint-wrapper`, `io.nlopez.compose.rules:detekt` (Compose rules 0.6.x require Detekt 2.x) |
 | Testing | `libs.bundles.test.unit` | `junit:junit`, `org.jetbrains.kotlin:kotlin-test`, `org.jetbrains.kotlinx:kotlinx-coroutines-test`, `app.cash.turbine:turbine`, `io.ktor:ktor-client-mock`, `io.insert-koin:koin-test` |
-| build-logic compile-only | `libs.android.gradle.plugin`, `libs.kotlin.gradle.plugin`, `libs.compose.gradle.plugin`, `libs.detekt.gradle.plugin` | `com.android.tools.build:gradle`, `org.jetbrains.kotlin:kotlin-gradle-plugin`, `org.jetbrains.kotlin:compose-compiler-gradle-plugin`, Detekt Gradle plugin artifact |
+| build-logic compile-only | `libs.android.gradle.plugin`, `libs.kotlin.gradle.plugin`, `libs.compose.gradle.plugin`, `libs.detekt.gradle.plugin` | `com.android.tools.build:gradle`, `org.jetbrains.kotlin:kotlin-gradle-plugin`, `org.jetbrains.kotlin:compose-compiler-gradle-plugin`, `dev.detekt:detekt-gradle-plugin` |
 
 ---
 
@@ -255,7 +255,13 @@ class KotlinOnlyConventionPlugin : Plugin<Project> {
 }
 ```
 
-> The template project has no `build-logic/` yet. Create it, with `includeBuild("build-logic")` in `settings.gradle.kts`, before adding the first convention plugin or custom task.
+> **Current state:** `build-logic/` exists and is included from `settings.gradle.kts`. It has only `bakamitai.detekt` so far (`DetektConventionPlugin.kt` + `extension/ProjectExtensions.kt`). `bakamitai.android.application` and `bakamitai.kotlin.only` are not created yet; add them, and their catalog entries, when they're first needed.
+>
+> **Detekt specifics** (Detekt 2.x, `dev.detekt.gradle.extensions.DetektExtension`):
+> - Because `build-logic` only has the Detekt Gradle plugin as `compileOnly`, the root `build.gradle.kts` declares `alias(libs.plugins.detekt) apply false` so the plugin is on the build classpath when the convention plugin applies it.
+> - The convention plugin sets `source` to the whole `src/` directory, so every source set (`main`, `test`, `androidTest`, …) is analyzed.
+> - Rule overrides live in `config/detekt/detekt.yml`, layered on Detekt's defaults (`buildUponDefaultConfig`) and the defaults shipped by the ktlint wrapper and Compose rules. Config validation is on, so unknown rule or property names fail the build.
+> - Run `./gradlew detekt`. For ktlint formatting findings, `./gradlew detekt --auto-correct` rewrites the files; review the diff and re-run `./gradlew detekt`.
 
 ---
 
