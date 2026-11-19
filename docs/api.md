@@ -184,7 +184,7 @@ The site is WordPress. These pages are server-rendered, but the markup isn't str
 
 ### 4.1 All shows list
 
-`GET /shows/`, about 1,260 entries.
+`GET /shows/`, about 1,260 entries. No `tz` needed: the page doesn't depend on the zone.
 
 ```html
 <div class="all-shows">
@@ -198,7 +198,16 @@ The site is WordPress. These pages are server-rendered, but the markup isn't str
   - **slug** = `href` without `/shows/` and without a trailing `/`
   - **title** = the `title` attribute (or the link text), **HTML-entity decoded** (`&amp;`, `&#8217;`, …)
 - The page has its own headers (`1`, `2`, …, `A` … `Z`). **Ignore them.** The app computes its own sections (see [context.md §3.3](context.md#33-all-shows)).
-- The page is about 200 KB. Fetch it once and cache it (see [§7](#7-client-guidelines)).
+- The page is about 200 KB (about 41 KB gzipped on the wire). Fetch it once and cache it (see [§7](#7-client-guidelines)).
+
+Checked live on 2026-11-18 (two requests):
+- **1,263 entries but only 1,249 distinct slugs.** 12 slugs are listed under 2–3 titles that share one show page (seasons, specials, alternate names: `fruits-basket-2019` has "Fruits Basket (2019)", "… S2" and "… S3"). No title appears twice. So the slug alone can't key a row; `slug` + `title` can. All Shows keeps one row per title.
+- **Scope the selector to `div.all-shows`.** The links sit flat in that one container (no per-letter wrapper), so the 32 mismatched headers don't get in the way. The site menu also links to `/shows/` outside it.
+- `href` is always `/shows/<slug>` with no trailing slash, and the `title` attribute always equals the link text.
+- **Entities:** no title uses an entity reference today, but two contain a **raw `&`** ("A3! Season Autumn & Winter"). Decoding must still handle `&amp;`, `&#8217;` and `&quot;` and leave a bare `&` alone (Ksoup does both). Every title is ASCII.
+- **First characters:** 9 titles start with a digit (they go under "#"); none with a symbol. "mono" starts lowercase and belongs under M. Every letter A–Z has at least one show.
+- **Slugs are opaque:** `d_cide-traumerei-the-animation` contains `_`.
+- **The page's order isn't case-insensitive alphabetical**, so the app sorts the list itself.
 
 ### 4.2 Show page
 
@@ -270,7 +279,7 @@ The JSON API covers every screen. RSS is listed only so nobody rediscovers it as
   - weekly schedule: about 1 h
   - show page plus episodes, per slug: about 10 min
 - **Errors** go through `safeApiCall` → `DomainError` → UI error model (`best-practices` skill). A scrape that can't find a required element (for example, no `sid`) is a **parsing error**, not a crash.
-- **HTML parsing** needs a library that isn't approved yet. See [context.md §7](context.md#7-open-decisions).
+- **HTML parsing** uses **Ksoup** (`com.fleeksoft.ksoup:ksoup`), approved 2026-11-19 for the `data` layer only, behind one `[Name]HtmlParser` class per page. Parse off the main thread. A page that parses to nothing is a parsing error (`DomainError.InvalidData`), not an empty list.
 - **Tests:** keep trimmed real responses as fixtures (`app/src/test/resources/subsplease/…`) and test DTO decoding and HTML parsing with Ktor `MockEngine`. Cover every quirk in this file:
   - empty `[]` roots
   - `limit_reached`

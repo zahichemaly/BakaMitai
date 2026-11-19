@@ -15,6 +15,7 @@ import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.feature.home.presentation.navigation.HomeNavKey
 import com.zc.bakamitai.feature.schedule.presentation.navigation.ScheduleNavKey
+import com.zc.bakamitai.feature.shows.presentation.navigation.AllShowsNavKey
 
 /**
  * The navigation suite's tabs, in order (context.md §2).
@@ -40,7 +41,7 @@ enum class TopLevelDestination(
         label = UiText.StringResource(StringResource.nav_schedule),
     ),
     ALL_SHOWS(
-        key = null,
+        key = AllShowsNavKey,
         selectedIcon = Icons.AutoMirrored.Filled.ViewList,
         unselectedIcon = Icons.AutoMirrored.Outlined.ViewList,
         label = UiText.StringResource(StringResource.nav_all_shows),

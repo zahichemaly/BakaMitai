@@ -42,6 +42,7 @@ Each approved library from `tech-stack` §1, with its catalog accessor and coord
 | Navigation 3 | `libs.androidx.navigation3.runtime`, `libs.androidx.navigation3.ui` | `androidx.navigation3:navigation3-runtime`, `navigation3-ui` |
 | Ktor Client | `libs.bundles.ktor.client`, `libs.ktor.client.logging` | `io.ktor:ktor-client-core`, `ktor-client-okhttp` (engine only), `ktor-client-content-negotiation`, `ktor-serialization-kotlinx-json`, `ktor-client-logging` |
 | kotlinx.serialization | `libs.kotlinx.serialization.json` | `org.jetbrains.kotlinx:kotlinx-serialization-json` |
+| HTML parsing (Ksoup) | `libs.ksoup` | `com.fleeksoft.ksoup:ksoup` (KMP; resolves to `ksoup-android`) |
 | DataStore | `libs.androidx.datastore.preferences` (or `libs.androidx.datastore`) | `androidx.datastore:datastore-preferences` / `androidx.datastore:datastore` |
 | Koin | `libs.koin.bom`, `libs.koin.android` *BOM*, `libs.koin.androidx.compose` *BOM*, `libs.koin.annotations` *BOM*, `libs.plugins.koin.compiler` | `io.insert-koin:koin-bom`, `koin-android`, `koin-androidx-compose`, `koin-annotations`, plugin `io.insert-koin.compiler.plugin` |
 | Detekt (2.x) | `libs.plugins.detekt`, `libs.detekt.formatting`, `libs.compose.rules.detekt` | plugin `dev.detekt`, `dev.detekt:detekt-rules-ktlint-wrapper`, `io.nlopez.compose.rules:detekt` (Compose rules 0.6.x require Detekt 2.x) |

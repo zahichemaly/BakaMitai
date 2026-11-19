@@ -78,6 +78,17 @@
     <string name="cd_schedule_day">%1$s %2$s</string>
     <string name="cd_schedule_day_today">%1$s %2$s, today</string>
 
+    <!-- All Shows (feature/shows) -->
+    <string name="all_shows_app_bar_subtitle">ALL SHOWS</string>
+    <string name="all_shows_search_placeholder">Search anime title…</string>
+    <string name="cd_all_shows_clear_search">Clear search</string>
+    <!-- How TalkBack reads the "#" section: titles that start with a digit or a symbol. -->
+    <string name="cd_all_shows_other_section">Numbers and symbols</string>
+    <!-- A letter chip's click action for TalkBack. %1$s: the section's name, "A" or "Numbers and symbols". -->
+    <string name="cd_all_shows_jump_to">Jump to %1$s</string>
+    <string name="all_shows_no_results_title">No anime found</string>
+    <string name="all_shows_no_results_message">Try adjusting your spelling or searching by an alternate English or Romaji title.</string>
+
     <plurals name="home_summary_airing">
         <item quantity="one">%d Airing</item>
         <item quantity="other">%d Airing</item>
@@ -93,5 +104,15 @@
     <plurals name="schedule_show_count">
         <item quantity="one">%d Show Airing</item>
         <item quantity="other">%d Shows Airing</item>
+    </plurals>
+    <!-- All Shows' section count, stored uppercase (DESIGN.md labels). -->
+    <plurals name="all_shows_section_count">
+        <item quantity="one">%d SHOW</item>
+        <item quantity="other">%d SHOWS</item>
+    </plurals>
+    <!-- All Shows' footer: the number of titles listed (the matches while searching). -->
+    <plurals name="all_shows_footer_count">
+        <item quantity="one">Showing %d show</item>
+        <item quantity="other">Showing %d shows</item>
     </plurals>
 </resources>

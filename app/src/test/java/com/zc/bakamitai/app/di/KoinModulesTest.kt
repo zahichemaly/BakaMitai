@@ -12,6 +12,10 @@ import com.zc.bakamitai.feature.home.domain.usecase.GetTodayBroadcastsUseCase
 import com.zc.bakamitai.feature.schedule.data.repository.ScheduleRepositoryImpl
 import com.zc.bakamitai.feature.schedule.domain.repository.ScheduleRepository
 import com.zc.bakamitai.feature.schedule.domain.usecase.GetWeeklyScheduleUseCase
+import com.zc.bakamitai.feature.shows.data.repository.ShowCatalogRepositoryImpl
+import com.zc.bakamitai.feature.shows.domain.repository.ShowCatalogRepository
+import com.zc.bakamitai.feature.shows.domain.usecase.FilterShowIndexUseCase
+import com.zc.bakamitai.feature.shows.domain.usecase.GetShowIndexUseCase
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
@@ -52,6 +56,9 @@ class KoinModulesTest {
             koin.get<GetTodayDateUseCase>()
             assertIs<ScheduleRepositoryImpl>(koin.get<ScheduleRepository>())
             koin.get<GetWeeklyScheduleUseCase>()
+            assertIs<ShowCatalogRepositoryImpl>(koin.get<ShowCatalogRepository>())
+            koin.get<GetShowIndexUseCase>()
+            koin.get<FilterShowIndexUseCase>()
             koin.get<Json>()
             koin.get<HttpClient>().close()
         } finally {

@@ -32,6 +32,7 @@ Quality rules for using these libraries (performance, Detekt, error handling, te
 | Navigation | Navigation 3 |
 | Networking | Ktor Client (OkHttp engine, content negotiation, kotlinx-json, logging) |
 | Serialization | kotlinx.serialization (JSON) |
+| HTML parsing | Ksoup (`com.fleeksoft.ksoup:ksoup`), scraped SubsPlease pages only, inside a `data/remote/[Name]HtmlParser` |
 | Persistence | Jetpack DataStore (Preferences or Proto/typed) |
 | DI | Koin (Android, Compose) |
 | Static analysis | Detekt + ktlint formatting + Compose rules |
@@ -55,6 +56,7 @@ Coordinates, catalog accessors and build setup (Detekt, Compose reports) are in 
 | Navigation 2 string routes (`"detail/{id}"`), `NavController`, `Bundle` args, `SavedStateHandle["id"]` for nav args | Navigation 3 `@Serializable` `NavKey`s |
 | Retrofit, raw OkHttp (`okhttp3.*` imports), Volley, `HttpURLConnection` | Ktor `HttpClient` |
 | Gson, Moshi, Jackson, `org.json` | kotlinx.serialization |
+| jsoup (Java), regex / `indexOf` HTML scraping, `Html.fromHtml` for parsing | Ksoup in a `[Name]HtmlParser` |
 | `SharedPreferences`, `EncryptedSharedPreferences`, file I/O on the main thread | DataStore |
 | Dagger, Hilt, `javax.inject`, hand-rolled service locators, `KoinComponent` / `by inject()` in classes | Koin Annotations + constructor injection |
 | `java.util.Date`, `Calendar`, `SimpleDateFormat`, `java.time` | kotlinx-datetime |
@@ -82,6 +84,12 @@ grep -rnE "import (retrofit2|okhttp3|com\.google\.gson|com\.squareup\.moshi|dagg
 grep -rnE "runBlocking|GlobalScope|KoinComponent|by inject\(\)" app/src/main
 ```
 
+Ksoup is imported only by `data/remote/[Name]HtmlParser.kt` files:
+
+```bash
+grep -rln "import com.fleeksoft.ksoup" app/src/main | grep -v "/data/remote/[A-Za-z]*HtmlParser.kt$"
+```
+
 ---
 
 ## 2. Layer-mapping table
@@ -95,6 +103,7 @@ grep -rnE "runBlocking|GlobalScope|KoinComponent|by inject\(\)" app/src/main
 | kotlinx-collections-immutable | — (use `List`) | — | ✅ | ✅ | — | — |
 | kotlinx.serialization | — | ✅ DTOs only | ✅ `NavKey`s only (`presentation/navigation/`) | — | ✅ `Json` config | ✅ `NavKey`s only |
 | Ktor Client | — | ✅ | — | — | ✅ create `HttpClient` | — |
+| Ksoup | — | ✅ `[Name]HtmlParser` only (`data/remote/`) | — | — | — | — |
 | DataStore | — | ✅ | — | — | ✅ create instance | — |
 | Compose, Material 3, Adaptive | — | — | ✅ | ✅ | — | ✅ |
 | Material Icons Extended | — | — | ✅ | ✅ | — | ✅ |

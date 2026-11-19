@@ -1,15 +1,11 @@
 package com.zc.bakamitai.feature.schedule.presentation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -24,13 +20,10 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarViewDay
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -43,17 +36,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
+import com.zc.bakamitai.common.ui.component.emptystate.EmptyStateView
 import com.zc.bakamitai.common.ui.component.error.ErrorView
 import com.zc.bakamitai.common.ui.component.error.model.ErrorUIModel
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
@@ -94,9 +83,6 @@ private const val CONTENT_TYPE_EMPTY = "empty"
 private const val CONTENT_TYPE_CARD = "card"
 private const val CONTENT_TYPE_DAY = "day"
 private const val PREVIEW_FIRST_DATE = 16
-private val EmptyIconContainerSize = 64.dp
-private val EmptyIconSize = 32.dp
-private val EmptyMessageMaxWidth = 320.dp
 
 private val fullLineSpan: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemSpan(maxLineSpan) }
 
@@ -309,46 +295,21 @@ private fun ScheduleSkeleton(modifier: Modifier = Modifier) {
 /** No card to show: the day has no shows, or the filter hides them all (then "Reset Filters"). */
 @Composable
 private fun ScheduleEmptyView(model: ScheduleEmptyUIModel, onResetClick: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = BakaMitaiTheme.spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.md),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(EmptyIconContainerSize)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.CalendarViewDay,
-                contentDescription = null,
-                modifier = Modifier.size(EmptyIconSize),
-                tint = MaterialTheme.colorScheme.secondary,
-            )
-        }
-        Text(
-            text = model.title.asString(),
-            modifier = Modifier.semantics { heading() },
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        Text(
-            text = model.message.asString(),
-            modifier = Modifier.widthIn(max = EmptyMessageMaxWidth),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        if (model.showResetAction) {
-            Button(onClick = onResetClick) {
-                Text(text = UiText.StringResource(StringResource.schedule_filter_reset).asString())
+    EmptyStateView(
+        icon = Icons.Outlined.CalendarViewDay,
+        title = model.title,
+        message = model.message,
+        modifier = modifier,
+        action = if (model.showResetAction) {
+            {
+                Button(onClick = onResetClick) {
+                    Text(text = UiText.StringResource(StringResource.schedule_filter_reset).asString())
+                }
             }
-        }
-    }
+        } else {
+            null
+        },
+    )
 }
 
 @AdaptivePreviews

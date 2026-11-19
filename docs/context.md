@@ -70,11 +70,14 @@ Two sections, both about **today** (in the device's time zone):
 
 ### 3.3 All Shows
 
-- A list of **every show title**, sorted alphabetically, **grouped under sticky letter headers** ("A", "B", …).
-- Items show **only the name**. There's no cover on this screen.
-- A **search bar** at the top filters by title as the user types. Filter locally (case-insensitive substring match), since the whole list is already on the device.
+- A list of **every show title**, sorted alphabetically, **grouped under sticky letter headers** ("A", "B", …), each with the number of shows under it.
+- Items show **only the name**, on up to 2 lines. There's no cover on this screen.
+- A **search bar** at the top filters by title as the user types. Filter locally (case-insensitive substring match), since the whole list is already on the device. When nothing matches, show a "No anime found" message.
+- A row of **letter chips** under the search bar jumps to a section; the highlighted chip follows the scroll position. Only letters that are in the (filtered) list get a chip.
 - Titles starting with a digit or symbol go under a single **"#"** header, placed before "A".
-- Data: [§4.3](#43-all-shows).
+- A footer shows how many shows are listed ("Showing N shows").
+- Pull-to-refresh fetches the list again; otherwise it's fetched once per app process.
+- Data: [§4.3](#43-all-shows). Plan: [3-shows.md](3-shows.md).
 
 ### 3.4 Bookmarks
 
@@ -161,7 +164,8 @@ The full derivation is in [1-home.md §4.3](1-home.md#43-derivation-domain); thi
 
 ### 4.3 All Shows
 
-- Scrape the all shows list ([api.md §4.1](api.md#41-all-shows-list)) into `List<Show(slug, title)>`.
+- Scrape the all shows list ([api.md §4.1](api.md#41-all-shows-list)) into `List<Show(slug, title)>`, off the main thread. A page that yields no shows is a parsing error (`DomainError.InvalidData`), not an empty list.
+- Remove exact duplicates only (same slug **and** title): several titles can share one slug, and each keeps its own row.
 - Sort with a **case-insensitive** comparator.
 - Group by first character: `A`–`Z` → that letter, anything else → `#`. `#` comes first.
 - Search is **local** filtering. **Don't** call the search endpoint for it: that endpoint searches releases, not the show catalogue, and it's capped.
@@ -216,7 +220,7 @@ Follow the `structure` skill's `feature/[name]/{data,domain,di,presentation}` la
 | `bookmarks` | Bookmarks (+ the bookmark toggle used by Details, exposed through its `domain` use cases) | Bookmarks DataStore |
 | `settings` | Settings | Settings DataStore (repository in `common/`) |
 
-Shared across features (`common/`): the SubsPlease `HttpClient` ([api.md §7](api.md#7-client-guidelines)), any DTO used by two or more features (e.g. the schedule item and today's schedule, moved there by the Schedule plan), image-URL resolution (relative path → absolute, placeholder → `null`), the time formatter driven by the *Time format* setting, the UTC-offset label, `CoverImageView` and the top-level app bar. [2-schedule.md §5.1](2-schedule.md#51-shared-code-moved-from-featurehome) lists the moves.
+Shared across features (`common/`): the SubsPlease `HttpClient` ([api.md §7](api.md#7-client-guidelines)), any DTO used by two or more features (e.g. the schedule item and today's schedule, moved there by the Schedule plan), image-URL resolution (relative path → absolute, placeholder → `null`), the time formatter driven by the *Time format* setting, the UTC-offset label, `CoverImageView`, the top-level app bar and `EmptyStateView` (added by the All Shows plan, shared with Schedule). [2-schedule.md §5.1](2-schedule.md#51-shared-code-moved-from-featurehome) lists the moves.
 
 A sketch of the domain models. Names follow the `conventions` skill: domain models take no suffix.
 
@@ -244,9 +248,7 @@ data class Bookmark(val show: Show, val addedAt: Instant)
 
 ## 7. Open decisions
 
-1. **HTML parser.** All Shows and Details need HTML scraping, but no HTML parser is in the approved `tech-stack` list. The `tech-stack` skill says adding a library requires updating that skill first.
-   - **Recommended:** add **Ksoup** (`com.fleeksoft.ksoup:ksoup`, a Kotlin port of jsoup), used only in `data`.
-   - **Alternative:** narrowly scoped regex extraction in `data`. This is more fragile against markup changes.
+1. ~~**HTML parser.**~~ **Decided (2026-11-19):** **Ksoup** (`com.fleeksoft.ksoup:ksoup`, a Kotlin port of jsoup), `data` layer only, behind a `[Name]HtmlParser` class per page. Added by the All Shows plan; Details reuses it.
 2. **Custom Tabs vs. external browser** for "Open in web", Torrent and XDCC.
    - `androidx.browser` isn't approved either.
    - **Default:** a plain `ACTION_VIEW` intent (or Compose `LocalUriHandler`) until a decision is made.

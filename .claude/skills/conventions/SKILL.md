@@ -17,6 +17,7 @@ Rules marked **MUST** / **NEVER** are non-negotiable. Examples use the feature `
 | Repository interface | `domain/repository` | `[Name]Repository` | `VisualNovelRepository` |
 | Repository impl | `data/repository` | `[Name]RepositoryImpl` | `VisualNovelRepositoryImpl` |
 | Remote service (Ktor) | `data/remote` | `[Name]Service` | `NovelService` |
+| HTML parser (Ksoup) | `data/remote` | `[Name]HtmlParser` | `AllShowsHtmlParser` |
 | Data source | `data/remote`, `data/local` | `[Name]RemoteDataSource` / `[Name]LocalDataSource` | `NovelRemoteDataSource` |
 | DTO | `data/dto` | `[Name]DTO` | `VisualNovelDTO` |
 | DTO → Domain mapper | `data/mapper` | `[Name]DTOMapper.kt` | `VisualNovelDTOMapper.kt` |
@@ -97,6 +98,7 @@ class ObserveFavoriteNovelsUseCase(
 - Name: `[Name]DTO.kt`, class `[Name]DTO`.
 - **One DTO per file.** Every nested JSON object gets its **own** `[Name]DTO.kt`. **NEVER** nest DTO classes or declare several DTOs in one file — including response wrappers.
 - DTOs mirror the wire format: nullable fields where the API may omit them, `@SerialName` for snake_case keys. No logic, no defaults that hide missing data.
+- A DTO built by an HTML parser (`data/remote/[Name]HtmlParser`) mirrors the elements it reads, as a plain `data class` without `@Serializable`; blank values are `null`.
 - DTOs are `internal`-ish by convention: referenced only from `data`.
 
 ```kotlin

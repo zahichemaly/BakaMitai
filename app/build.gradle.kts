@@ -49,8 +49,9 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.serialization.json)
 
-    // Networking, images, rich text, persistence
+    // Networking, HTML parsing, images, rich text, persistence
     implementation(libs.bundles.ktor.client)
+    implementation(libs.ksoup)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.ktor3)
     implementation(libs.richtext.ui.material3)

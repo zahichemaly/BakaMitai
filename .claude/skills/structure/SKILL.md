@@ -59,9 +59,9 @@ com.zc.bakamitai/
 └── feature/
     └── [name]/                      # Lowercase feature package (e.g. novel, search, settings)
         ├── data/
-        │   ├── remote/              # Ktor [Name]Service classes for this feature
+        │   ├── remote/              # Ktor [Name]Service classes and [Name]HtmlParser (Ksoup) for this feature
         │   ├── local/               # Feature-specific DataStore sources (if needed)
-        │   ├── dto/                 # [Name]DTO.kt — strictly one @Serializable DTO per file
+        │   ├── dto/                 # [Name]DTO.kt — strictly one DTO per file (@Serializable, unless a parser builds it)
         │   ├── mapper/              # [Name]DTOMapper.kt & [Name]DomainMapper.kt — separate files
         │   └── repository/          # [Name]RepositoryImpl.kt implementing the domain interface
         ├── domain/
@@ -183,8 +183,9 @@ Rules are in `library-management`.
 | Loading placeholders: `SkeletonView`, `SkeletonBlock`, `SkeletonTextLine`, `textLineHeight` (`best-practices` §5.3) | `common/ui/component/skeleton/SkeletonView.kt` |
 | Composable used by 2+ features | `common/ui/component/[name]/[Name]View.kt` |
 | Ktor API calls for one feature | `feature/[name]/data/remote/[Name]Service.kt` |
+| HTML parser for a scraped page (the only Ksoup user) | `feature/[name]/data/remote/[Name]HtmlParser.kt` |
 | DataStore source for one feature | `feature/[name]/data/local/[Name]LocalDataSource.kt` |
-| Wire-format class | `feature/[name]/data/dto/[Name]DTO.kt` |
+| Wire-format class (a DTO built by an HTML parser is a plain `data class`, not `@Serializable`) | `feature/[name]/data/dto/[Name]DTO.kt` |
 | DTO → Domain / Domain → DTO | `feature/[name]/data/mapper/[Name]DTOMapper.kt` / `[Name]DomainMapper.kt` |
 | Repository implementation | `feature/[name]/data/repository/[Name]RepositoryImpl.kt` |
 | Domain model / repository interface / use case | `feature/[name]/domain/{model,repository,usecase}/` |
@@ -314,7 +315,7 @@ grep -rlE "import com\.zc\.bakamitai\.app\." app/src/main/java/com/zc/bakamitai/
 
 ### Current repo state
 
-The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`) and Schedule (`feature/schedule/`) are built and enabled; All Shows and Bookmarks show as disabled destinations until their features land. Schedule, as the second user, moved Home's shared pieces to `common/` ([docs/2-schedule.md §5.1](../../../docs/2-schedule.md#51-shared-code-moved-from-featurehome)): `Show`, `ShowSlug`, `ScheduledShow` and `GetTodayDateUseCase` in `common/domain/`, `ScheduleItemDTO`, `TodayScheduleDTO`, their mapper and image-URL mapping in `common/data/`, `TimeUIModelMapper` and `UtcOffsetUIModelMapper` in `common/ui/mapper/`, and `CoverImageView` and `TopLevelAppBarView` in `common/ui/component/`.
+The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`), Schedule (`feature/schedule/`) and All Shows (`feature/shows/`) are built and enabled; Bookmarks shows as a disabled destination until its feature lands. All Shows added the first HTML parser (`feature/shows/data/remote/AllShowsHtmlParser.kt`, the only Ksoup import) and the shared `common/ui/component/emptystate/EmptyStateView.kt`. Schedule, as the second user, moved Home's shared pieces to `common/` ([docs/2-schedule.md §5.1](../../../docs/2-schedule.md#51-shared-code-moved-from-featurehome)): `Show`, `ShowSlug`, `ScheduledShow` and `GetTodayDateUseCase` in `common/domain/`, `ScheduleItemDTO`, `TodayScheduleDTO`, their mapper and image-URL mapping in `common/data/`, `TimeUIModelMapper` and `UtcOffsetUIModelMapper` in `common/ui/mapper/`, and `CoverImageView` and `TopLevelAppBarView` in `common/ui/component/`.
 
 ## 8. Checklist
 

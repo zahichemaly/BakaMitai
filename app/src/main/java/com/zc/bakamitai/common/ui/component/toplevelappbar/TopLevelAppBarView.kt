@@ -2,9 +2,13 @@ package com.zc.bakamitai.common.ui.component.toplevelappbar
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +41,8 @@ private const val SCROLLED_FRACTION = 0.01f
 /**
  * The top app bar of a top-level tab: "BakaMitai" with the tab's [subtitle] under it, and the settings action.
  * [bottomContent] (e.g. Schedule's day strip) is pinned under the bar and shares its background, which turns
- * `surfaceContainer` once content scrolls under it.
+ * `surfaceContainer` once content scrolls under it. It's inset from side system bars like the screen's content, so
+ * both measure the same width.
  *
  * @param showSettingsAction whether the settings action is shown; `false` until Settings exists.
  * @param scrollBehavior the screen's pinned scroll behavior, connected to the scrolling content.
@@ -81,7 +86,17 @@ fun TopLevelAppBarView(
             ),
             scrollBehavior = scrollBehavior,
         )
-        bottomContent?.invoke()
+        bottomContent?.let { content ->
+            // Clear of side system bars (landscape 3-button navigation), like the bar's title and like the content
+            // Scaffold pads below, so what is laid out under the bar lines up with the screen's content.
+            Box(
+                modifier = Modifier.windowInsetsPadding(
+                    TopAppBarDefaults.windowInsets.only(WindowInsetsSides.Horizontal),
+                ),
+            ) {
+                content()
+            }
+        }
     }
 }
 
