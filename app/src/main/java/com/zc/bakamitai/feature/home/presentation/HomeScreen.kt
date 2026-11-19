@@ -81,8 +81,6 @@ private val fullLineSpan: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemS
 
 /**
  * Home: today's "Upcoming" carousel and "Latest Releases" list, under the "Today's Broadcasts" banner.
- *
- * @param showSettingsAction whether the top bar shows the settings action; `false` until Settings exists.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +88,6 @@ fun HomeScreen(
     state: HomeState,
     onIntent: (HomeIntent) -> Unit,
     modifier: Modifier = Modifier,
-    showSettingsAction: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -99,7 +96,6 @@ fun HomeScreen(
         topBar = {
             TopLevelAppBarView(
                 subtitle = UiText.StringResource(StringResource.home_app_bar_subtitle),
-                showSettingsAction = showSettingsAction,
                 onSettingsClick = { onIntent(HomeIntent.SettingsClicked) },
                 scrollBehavior = scrollBehavior,
             )
@@ -456,6 +452,6 @@ private class HomeStateProvider : PreviewParameterProvider<HomeState> {
 @Composable
 private fun HomeScreenPreview(@PreviewParameter(HomeStateProvider::class) state: HomeState) {
     BakaMitaiTheme {
-        HomeScreen(state = state, onIntent = {}, showSettingsAction = false)
+        HomeScreen(state = state, onIntent = {})
     }
 }

@@ -1,6 +1,5 @@
 package com.zc.bakamitai.feature.details.presentation
 
-import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
@@ -17,12 +16,12 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.util.ObserveAsEvents
 import com.zc.bakamitai.common.ui.util.canAskNotificationPermission
+import com.zc.bakamitai.common.ui.util.openLink
 import com.zc.bakamitai.common.ui.util.rememberNotificationPermissionRequester
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -100,14 +99,6 @@ fun DetailsRoute(
         modifier = modifier,
         snackbarHostState = snackbarHostState,
     )
-}
-
-/** Opens [url] in whatever app handles it (the system asks when several do); `false` when none can. */
-private fun Context.openLink(url: String): Boolean = try {
-    startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
-    true
-} catch (ignored: ActivityNotFoundException) {
-    false
 }
 
 /** The system share sheet with [text], titled [title]. */

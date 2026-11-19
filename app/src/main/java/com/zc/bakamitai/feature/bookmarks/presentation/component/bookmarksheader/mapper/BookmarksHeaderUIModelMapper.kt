@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.SortByAlpha
 import com.zc.bakamitai.common.ui.resource.PluralResource
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
+import com.zc.bakamitai.feature.bookmarks.domain.model.ReleaseAlertsStatus
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.model.AlertsChipUIModel
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.model.SortChipUIModel
 import com.zc.bakamitai.feature.bookmarks.presentation.model.BookmarkSortOption
@@ -41,16 +42,26 @@ fun sortChipUIModels(): ImmutableList<SortChipUIModel> = BookmarkSortOption.entr
     }
 }.toImmutableList()
 
-/** The alerts chip for whether alerts can be posted. */
-fun Boolean.toAlertsChipUIModel(): AlertsChipUIModel = if (this) {
-    AlertsChipUIModel(
+/**
+ * The alerts chip for the alerts status: "ALERTS ON" (opens Settings), or "ALERTS OFF" when switched off in Settings
+ * (opens Settings) or blocked by Android (turns them on).
+ */
+fun ReleaseAlertsStatus.toAlertsChipUIModel(): AlertsChipUIModel = when (this) {
+    ReleaseAlertsStatus.ON -> AlertsChipUIModel(
         isEnabled = true,
         label = UiText.StringResource(StringResource.bookmarks_alerts_on),
         icon = Icons.Outlined.NotificationsActive,
         contentDescription = UiText.StringResource(StringResource.cd_bookmarks_alerts_on),
     )
-} else {
-    AlertsChipUIModel(
+
+    ReleaseAlertsStatus.OFF -> AlertsChipUIModel(
+        isEnabled = false,
+        label = UiText.StringResource(StringResource.bookmarks_alerts_off),
+        icon = Icons.Outlined.NotificationsOff,
+        contentDescription = UiText.StringResource(StringResource.cd_bookmarks_alerts_switched_off),
+    )
+
+    ReleaseAlertsStatus.BLOCKED -> AlertsChipUIModel(
         isEnabled = false,
         label = UiText.StringResource(StringResource.bookmarks_alerts_off),
         icon = Icons.Outlined.NotificationsOff,

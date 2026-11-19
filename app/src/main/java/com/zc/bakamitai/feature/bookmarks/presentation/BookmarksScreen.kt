@@ -47,6 +47,7 @@ import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
 import com.zc.bakamitai.common.ui.util.AdaptivePreviews
+import com.zc.bakamitai.feature.bookmarks.domain.model.ReleaseAlertsStatus
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarkcard.BookmarkCardSkeletonView
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarkcard.BookmarkCardView
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarkcard.model.BookmarkCardUIModel
@@ -72,8 +73,6 @@ private val fullLineSpan: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemS
 /**
  * Bookmarks: the sort chips and the counter row, then the saved shows' poster grid, or the empty state. Pull to
  * refresh updates the airing chips.
- *
- * @param showSettingsAction whether the top bar shows the settings action; `false` until Settings exists.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +80,6 @@ fun BookmarksScreen(
     state: BookmarksState,
     onIntent: (BookmarksIntent) -> Unit,
     modifier: Modifier = Modifier,
-    showSettingsAction: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -90,7 +88,6 @@ fun BookmarksScreen(
         topBar = {
             TopLevelAppBarView(
                 subtitle = UiText.StringResource(StringResource.bookmarks_app_bar_subtitle),
-                showSettingsAction = showSettingsAction,
                 onSettingsClick = { onIntent(BookmarksIntent.SettingsClicked) },
                 scrollBehavior = scrollBehavior,
             )
@@ -243,7 +240,7 @@ private fun BookmarksEmptyView(onDiscoverClick: () -> Unit, modifier: Modifier =
 @Composable
 private fun BookmarksScreenPreview(@PreviewParameter(BookmarksStatePreviewProvider::class) state: BookmarksState) {
     BakaMitaiTheme {
-        BookmarksScreen(state = state, onIntent = {}, showSettingsAction = false)
+        BookmarksScreen(state = state, onIntent = {})
     }
 }
 
@@ -264,21 +261,21 @@ private val previewCards = persistentListOf(
     previewCard("kaiju", "Kaijuu 8-gou Season 2: The Defense Force Squad Third", "SUN 11:00 PM", TimeChipTone.DEFAULT),
 )
 
-private fun previewHeader(alertsEnabled: Boolean) = BookmarksHeaderUIModel(
+private fun previewHeader(alertsStatus: ReleaseAlertsStatus) = BookmarksHeaderUIModel(
     sortChips = sortChipUIModels(),
     countLabel = previewCards.size.toBookmarkCountLabel(),
-    alertsChip = alertsEnabled.toAlertsChipUIModel(),
+    alertsChip = alertsStatus.toAlertsChipUIModel(),
 )
 
 /** Loading, content (two sorts, alerts on and off), empty, error. */
 private class BookmarksStatePreviewProvider : PreviewParameterProvider<BookmarksState> {
     override val values = sequenceOf(
         BookmarksState(isLoading = true),
-        BookmarksState(isLoading = false, header = previewHeader(alertsEnabled = true), cards = previewCards),
+        BookmarksState(isLoading = false, header = previewHeader(ReleaseAlertsStatus.ON), cards = previewCards),
         BookmarksState(
             isLoading = false,
             selectedSort = BookmarkSortOption.RELEASE_TIME,
-            header = previewHeader(alertsEnabled = false),
+            header = previewHeader(ReleaseAlertsStatus.OFF),
             cards = previewCards,
         ),
         BookmarksState(isLoading = false, header = BookmarksHeaderUIModel(sortChips = sortChipUIModels())),

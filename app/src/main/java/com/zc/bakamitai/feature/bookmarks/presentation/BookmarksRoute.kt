@@ -28,13 +28,13 @@ import org.koin.compose.viewmodel.koinViewModel
  *
  * @param onOpenDetails opens a show's Details by slug.
  * @param onDiscoverShows opens the Schedule tab (the empty state's action).
- * @param onOpenSettings opens Settings; `null` while Settings doesn't exist (the action is hidden).
+ * @param onOpenSettings opens Settings: the top bar's gear, and the alerts chip while alerts are on or switched off.
  */
 @Composable
 fun BookmarksRoute(
     onOpenDetails: (slug: String) -> Unit,
     onDiscoverShows: () -> Unit,
-    onOpenSettings: (() -> Unit)?,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BookmarksViewModel = koinViewModel(),
 ) {
@@ -57,7 +57,7 @@ fun BookmarksRoute(
 
             BookmarksEffect.OpenSchedule -> onDiscoverShows()
 
-            BookmarksEffect.OpenSettings -> onOpenSettings?.invoke()
+            BookmarksEffect.OpenSettings -> onOpenSettings()
 
             is BookmarksEffect.ShowRemoved -> scope.launch {
                 val undone = snackbarHostState.showReplacing(
@@ -73,8 +73,6 @@ fun BookmarksRoute(
                 context.openAppNotificationSettings()
             }
 
-            BookmarksEffect.OpenNotificationSettings -> context.openAppNotificationSettings()
-
             BookmarksEffect.ShowAlertsDenied -> scope.launch { snackbarHostState.offerSettings(context) }
 
             is BookmarksEffect.ShowError -> scope.launch {
@@ -87,7 +85,6 @@ fun BookmarksRoute(
         state = state,
         onIntent = viewModel::onIntent,
         modifier = modifier,
-        showSettingsAction = onOpenSettings != null,
         snackbarHostState = snackbarHostState,
     )
 }

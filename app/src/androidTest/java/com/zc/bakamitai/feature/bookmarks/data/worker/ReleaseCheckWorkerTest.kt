@@ -7,9 +7,14 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
+import com.zc.bakamitai.common.domain.model.AppSettings
 import com.zc.bakamitai.common.domain.model.ScheduledShow
 import com.zc.bakamitai.common.domain.model.Show
 import com.zc.bakamitai.common.domain.model.ShowSlug
+import com.zc.bakamitai.common.domain.model.ThemeMode
+import com.zc.bakamitai.common.domain.model.TimeFormat
+import com.zc.bakamitai.common.domain.model.WeekStart
+import com.zc.bakamitai.common.domain.repository.SettingsRepository
 import com.zc.bakamitai.common.domain.util.TimeZoneProvider
 import com.zc.bakamitai.feature.bookmarks.domain.model.AiringSlot
 import com.zc.bakamitai.feature.bookmarks.domain.model.Bookmark
@@ -23,6 +28,7 @@ import com.zc.bakamitai.feature.bookmarks.domain.repository.ReleaseCheckSchedule
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ApplyReleaseCheckUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.CheckBookmarkedReleasesUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.GetReleaseAlertsEnabledUseCase
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.GetReleaseAlertsStatusUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ScheduleNextReleaseCheckUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.UpdateAiringSlotsUseCase
 import com.zc.bakamitai.feature.home.domain.model.Release
@@ -32,7 +38,9 @@ import com.zc.bakamitai.feature.home.domain.usecase.SearchShowReleasesUseCase
 import com.zc.bakamitai.feature.schedule.domain.repository.ScheduleRepository
 import com.zc.bakamitai.feature.schedule.domain.usecase.GetWeeklyTemplateUseCase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalTime
@@ -58,6 +66,7 @@ class ReleaseCheckWorkerTest {
     private val broadcasts = OneFeedBroadcastRepository()
     private val notifier = RecordingNotifier(events)
     private val scheduler = RecordingScheduler(events)
+    private val settings = InMemorySettingsRepository()
 
     private fun buildWorker(): ReleaseCheckWorker {
         val clock = object : Clock {
@@ -74,7 +83,7 @@ class ReleaseCheckWorkerTest {
             ): ListenableWorker = ReleaseCheckWorker(
                 context = appContext,
                 params = workerParameters,
-                getAlertsEnabled = GetReleaseAlertsEnabledUseCase(notifier),
+                getAlertsEnabled = GetReleaseAlertsEnabledUseCase(GetReleaseAlertsStatusUseCase(settings, notifier)),
                 checkReleases = CheckBookmarkedReleasesUseCase(
                     repository = repository,
                     updateAiringSlots = UpdateAiringSlotsUseCase(
@@ -121,6 +130,19 @@ class ReleaseCheckWorkerTest {
     fun withAlertsOffNothingIsRequestedOrPosted() = runTest {
         repository.watches = listOf(awaitedWatch())
         notifier.enabled = false
+
+        val result = buildWorker().doWork()
+
+        assertEquals(ListenableWorker.Result.success(), result)
+        assertEquals(0, broadcasts.requests)
+        assertEquals(listOf("save", "notify none", "next 2026-11-23T12:10:00Z"), events)
+    }
+
+    @Test
+    fun withAlertsSwitchedOffInSettingsNothingIsRequestedOrPostedAndTheNextCheckIsScheduled() = runTest {
+        repository.watches = listOf(awaitedWatch())
+        broadcasts.newest = listOf(Release(frieren, "08", Instant.parse("2026-11-16T11:03:00Z")))
+        settings.setNewEpisodeAlerts(false)
 
         val result = buildWorker().doWork()
 
@@ -190,6 +212,26 @@ class ReleaseCheckWorkerTest {
 
         override fun notify(alerts: List<EpisodeAlert>) {
             events += if (alerts.isEmpty()) "notify none" else "notify " + alerts.joinToString { it.episode }
+        }
+    }
+
+    private class InMemorySettingsRepository : SettingsRepository {
+        private val settings = MutableStateFlow(AppSettings())
+
+        override fun observeSettings(): Flow<AppSettings> = settings
+
+        override suspend fun setWeekStart(value: WeekStart): Result<Unit> = update { it.copy(weekStart = value) }
+
+        override suspend fun setTimeFormat(value: TimeFormat): Result<Unit> = update { it.copy(timeFormat = value) }
+
+        override suspend fun setThemeMode(value: ThemeMode): Result<Unit> = update { it.copy(themeMode = value) }
+
+        override suspend fun setNewEpisodeAlerts(enabled: Boolean): Result<Unit> =
+            update { it.copy(newEpisodeAlerts = enabled) }
+
+        private fun update(transform: (AppSettings) -> AppSettings): Result<Unit> {
+            settings.update(transform)
+            return Result.success(Unit)
         }
     }
 

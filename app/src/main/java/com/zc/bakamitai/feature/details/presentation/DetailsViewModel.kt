@@ -6,6 +6,8 @@ import com.zc.bakamitai.common.domain.model.ShowSlug
 import com.zc.bakamitai.common.ui.component.error.mapper.toErrorUIModel
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
+import com.zc.bakamitai.feature.bookmarks.domain.model.ReleaseAlertsStatus
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.GetReleaseAlertsStatusUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ObserveIsBookmarkedUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ToggleBookmarkUseCase
 import com.zc.bakamitai.feature.details.domain.model.ShowOverview
@@ -42,6 +44,7 @@ class DetailsViewModel(
     private val getShowEpisodes: GetShowEpisodesUseCase,
     observeIsBookmarked: ObserveIsBookmarkedUseCase,
     private val toggleBookmark: ToggleBookmarkUseCase,
+    private val getAlertsStatus: GetReleaseAlertsStatusUseCase,
 ) : ViewModel() {
 
     private val showSlug = ShowSlug(slug)
@@ -166,13 +169,17 @@ class DetailsViewModel(
 
     /**
      * Saves or removes the page's show; [state] follows the store, so there's nothing to roll back. The very first
-     * bookmark asks for the notification permission (new-episode alerts).
+     * bookmark asks for the notification permission (new-episode alerts), unless alerts are switched off in Settings.
      */
     private fun onBookmarkClicked() {
         val show = overview?.show ?: return
         viewModelScope.launch {
             toggleBookmark(show)
-                .onSuccess { toggle -> if (toggle.isFirstBookmark) _effect.send(DetailsEffect.AskForReleaseAlerts) }
+                .onSuccess { toggle ->
+                    if (toggle.isFirstBookmark && getAlertsStatus() != ReleaseAlertsStatus.OFF) {
+                        _effect.send(DetailsEffect.AskForReleaseAlerts)
+                    }
+                }
                 .onFailure { error -> _effect.send(DetailsEffect.ShowError(error.toErrorUIModel())) }
         }
     }

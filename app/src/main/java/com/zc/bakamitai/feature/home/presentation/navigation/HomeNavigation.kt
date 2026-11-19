@@ -9,9 +9,9 @@ import com.zc.bakamitai.feature.home.presentation.HomeRoute
  * `navigateToHome()`.
  *
  * @param onOpenDetails opens a show's Details by slug.
- * @param onOpenSettings opens Settings; `null` until Settings exists.
+ * @param onOpenSettings opens Settings (the top bar's gear).
  */
-fun EntryProviderScope<NavKey>.homeEntry(onOpenDetails: (slug: String) -> Unit, onOpenSettings: (() -> Unit)?) {
+fun EntryProviderScope<NavKey>.homeEntry(onOpenDetails: (slug: String) -> Unit, onOpenSettings: () -> Unit) {
     entry<HomeNavKey> {
         HomeRoute(onOpenDetails = onOpenDetails, onOpenSettings = onOpenSettings)
     }

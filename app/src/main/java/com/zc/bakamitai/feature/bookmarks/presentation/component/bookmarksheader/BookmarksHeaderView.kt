@@ -37,6 +37,7 @@ import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
 import com.zc.bakamitai.common.ui.util.AdaptivePreviews
+import com.zc.bakamitai.feature.bookmarks.domain.model.ReleaseAlertsStatus
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.mapper.sortChipUIModels
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.mapper.toAlertsChipUIModel
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.mapper.toBookmarkCountLabel
@@ -220,11 +221,11 @@ fun BookmarksHeaderSkeletonView(modifier: Modifier = Modifier) {
 
 /** Alerts on, off, and not checked yet. */
 private class BookmarksHeaderPreviewProvider : PreviewParameterProvider<BookmarksHeaderUIModel> {
-    override val values = sequenceOf(true, false, null).map { alertsEnabled ->
+    override val values = sequenceOf(ReleaseAlertsStatus.ON, ReleaseAlertsStatus.OFF, null).map { alertsStatus ->
         BookmarksHeaderUIModel(
             sortChips = sortChipUIModels(),
             countLabel = 8.toBookmarkCountLabel(),
-            alertsChip = alertsEnabled?.toAlertsChipUIModel(),
+            alertsChip = alertsStatus?.toAlertsChipUIModel(),
         )
     }
 }

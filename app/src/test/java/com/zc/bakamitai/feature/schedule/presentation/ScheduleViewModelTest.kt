@@ -2,8 +2,12 @@ package com.zc.bakamitai.feature.schedule.presentation
 
 import app.cash.turbine.test
 import app.cash.turbine.turbineScope
+import com.zc.bakamitai.common.domain.model.AppSettings
 import com.zc.bakamitai.common.domain.model.DomainError
 import com.zc.bakamitai.common.domain.model.ShowTestData.scheduled
+import com.zc.bakamitai.common.domain.model.WeekStart
+import com.zc.bakamitai.common.domain.repository.FakeSettingsRepository
+import com.zc.bakamitai.common.domain.usecase.GetSettingsUseCase
 import com.zc.bakamitai.common.domain.usecase.GetTodayDateUseCase
 import com.zc.bakamitai.common.domain.util.FixedTimeZoneProvider
 import com.zc.bakamitai.common.ui.component.error.model.ErrorUIModel
@@ -38,6 +42,7 @@ class ScheduleViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository = FakeScheduleRepository()
+    private val settings = FakeSettingsRepository()
     private val newYork = TimeZone.of("America/New_York")
 
     /** 12:00 in New York on Thu 19 Nov 2026. */
@@ -49,6 +54,7 @@ class ScheduleViewModelTest {
     private fun createViewModel() = ScheduleViewModel(
         getWeeklySchedule = GetWeeklyScheduleUseCase(repository, clock, timeZoneProvider),
         getTodayDate = GetTodayDateUseCase(clock, timeZoneProvider),
+        getSettings = GetSettingsUseCase(settings),
     )
 
     private fun weeklyCalls() = repository.calls.filterIsInstance<Call.Weekly>()
@@ -245,6 +251,41 @@ class ScheduleViewModelTest {
         assertEquals(DayOfWeek.FRIDAY, reloaded.selectedDay)
         assertEquals(listOf(DayOfWeek.FRIDAY), reloaded.days.filter { it.isToday }.map { it.dayOfWeek })
         assertNotNull(reloaded.day)
+
+        viewModel.onIntent(ScheduleIntent.ScreenStarted)
+        advanceUntilIdle()
+        assertEquals(2, weeklyCalls().size)
+    }
+
+    @Test
+    fun `a Sunday week start puts Sunday first`() = runTest {
+        settings.settings.value = AppSettings(weekStart = WeekStart.SUNDAY)
+        givenAWeek()
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        val loaded = viewModel.state.value
+        assertEquals(DayOfWeek.SUNDAY, loaded.days.first().dayOfWeek)
+        assertEquals(DayOfWeek.SATURDAY, loaded.days.last().dayOfWeek)
+        assertEquals(DayOfWeek.THURSDAY, loaded.selectedDay)
+    }
+
+    @Test
+    fun `screen start after a week start change reloads in the new order and keeps the weekday`() = runTest {
+        givenAWeek()
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+        viewModel.onIntent(ScheduleIntent.DaySelected(DayOfWeek.FRIDAY))
+
+        settings.settings.value = AppSettings(weekStart = WeekStart.SUNDAY)
+        viewModel.onIntent(ScheduleIntent.ScreenStarted)
+        advanceUntilIdle()
+
+        assertEquals(2, weeklyCalls().size)
+        val reloaded = viewModel.state.value
+        assertEquals(DayOfWeek.SUNDAY, reloaded.days.first().dayOfWeek)
+        assertEquals(DayOfWeek.FRIDAY, reloaded.selectedDay)
+        assertEquals(listOf("d", "e"), reloaded.slugs())
 
         viewModel.onIntent(ScheduleIntent.ScreenStarted)
         advanceUntilIdle()

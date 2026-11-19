@@ -28,7 +28,7 @@ class UpcomingCardUIModelMapperTest {
                 slug = "dandadan",
                 title = UiText.StringValue("Dandadan"),
                 coverUrl = "https://subsplease.org/wp-content/uploads/cover.jpg",
-                timeLabel = UiText.StringValue("6:30 PM"),
+                timeLabel = UiText.TimeValue(LocalTime(18, 30)),
                 episodeBadge = EpisodeBadgeUIModel(
                     label = UiText.StringResource(StringResource.home_episode, listOf("08")),
                     contentDescription = UiText.StringResource(StringResource.cd_episode, listOf("08")),

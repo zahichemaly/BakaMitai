@@ -26,7 +26,7 @@ class ScheduleCardUIModelMapperTest {
                 slug = "bleach",
                 title = UiText.StringValue("Bleach"),
                 coverUrl = "https://subsplease.org/cover.jpg",
-                time = TimeChipUIModel(UiText.StringValue("5:00 PM"), TimeChipTone.DEFAULT),
+                time = TimeChipUIModel(UiText.TimeValue(LocalTime(17, 0)), TimeChipTone.DEFAULT),
                 status = StatusBadgeUIModel(
                     UiText.StringResource(StringResource.schedule_status_aired),
                     isUpcoming = false,
@@ -43,7 +43,7 @@ class ScheduleCardUIModelMapperTest {
         assertNull(card.coverUrl)
         assertNull(card.status)
         assertEquals("x@08:05", card.key)
-        assertEquals(TimeChipUIModel(UiText.StringValue("8:05 AM"), TimeChipTone.DEFAULT), card.time)
+        assertEquals(TimeChipUIModel(UiText.TimeValue(LocalTime(8, 5)), TimeChipTone.DEFAULT), card.time)
     }
 
     @Test

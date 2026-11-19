@@ -10,12 +10,12 @@ import com.zc.bakamitai.feature.bookmarks.presentation.BookmarksRoute
  *
  * @param onOpenDetails opens a show's Details by slug.
  * @param onDiscoverShows opens the Schedule tab.
- * @param onOpenSettings opens Settings; `null` until Settings exists.
+ * @param onOpenSettings opens Settings: the top bar's gear, and the alerts chip while alerts are on or switched off.
  */
 fun EntryProviderScope<NavKey>.bookmarksEntry(
     onOpenDetails: (slug: String) -> Unit,
     onDiscoverShows: () -> Unit,
-    onOpenSettings: (() -> Unit)?,
+    onOpenSettings: () -> Unit,
 ) {
     entry<BookmarksNavKey> {
         BookmarksRoute(

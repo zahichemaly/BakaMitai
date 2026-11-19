@@ -83,9 +83,9 @@ Two sections, both about **today** (in the device's time zone):
 
 - A **grid** of the shows the user bookmarked (2 / 3 / 4 columns by width), newest first by default.
 - Each item shows the **cover, title and date added** ("Added Nov 18, 2026"), plus a **next-airing chip** from the weekly schedule ("TODAY 9:30 PM", "MON 9:30 PM", or "NOT AIRING" when the show isn't on it).
-- **Sort:** Recently added, Title A–Z, Release time. Not saved until Settings exists.
+- **Sort:** Recently added, Title A–Z, Release time. The choice is saved (the `bookmarks_sort` key, [§5](#5-local-persistence)).
 - **Remove** from the card's bookmark button, with an **Undo** snackbar. Tapping a card opens Details.
-- An **alerts chip** shows whether new-episode alerts are on; when off, it offers the permission dialog or the system settings ([§3.7](#37-new-episode-alerts)).
+- An **alerts chip** shows whether new-episode alerts are on. When they're on or switched off in Settings, it opens Settings; when Android blocks notifications, it offers the permission dialog or the system settings ([§3.7](#37-new-episode-alerts)).
 - Pull-to-refresh refreshes the airing times. The empty state invites the user to bookmark shows, with a button to the Schedule tab.
 - Works fully offline (covers load from Coil's cache when available).
 - Data: [§5](#5-local-persistence). Plan: [5-bookmarks.md](5-bookmarks.md).
@@ -119,16 +119,17 @@ Data: [§4.4](#44-details).
 
 ### 3.6 Settings
 
-A list of preferences, saved locally:
+A pushed screen (back arrow, no bottom bar on phones), opened from the **gear** in the top bar of every tab. A list of preferences, saved locally; each change applies at once, with no toast (a snackbar only if saving fails):
 
 | Preference | Options | Default | Effect |
 |---|---|---|---|
 | **First day of week** | Monday, Sunday | Monday | Tab order on Schedule |
-| **Time format** | 12-hour (AM/PM), 24-hour | 12-hour | Every time shown in the app |
-| **Theme** | System, Light, Dark | System | App color scheme |
+| **Time format** | 12-hour (AM/PM), 24-hour | 12-hour | Every time shown in the app, including screens already open |
+| **Theme** | System default, Light, Dark | System default | App color scheme and the system bars' icon colors, applied before the first frame |
+| **New-episode alerts** | On, Off | On | Off → no background checks' requests and no permission request on the first bookmark ([§3.7](#37-new-episode-alerts)); turning it on asks for the notification permission if Android blocks notifications |
 | **About** | — | — | Opens `https://github.com/zahichemaly/BakaMitai` |
 
-**Footer**: app name and version, for example "BakaMitai v1.0", with the version taken from the build's `versionName`.
+**Footer**: "BakaMitai v{versionName}" (the build's `versionName`) and the disclaimer "Unofficial app. Release data from subsplease.org." Plan: [6-settings.md](6-settings.md).
 
 ### 3.7 New-episode alerts
 
@@ -136,7 +137,8 @@ Every bookmarked show gets a local notification when its next episode is **out o
 - A background job (WorkManager) runs about 10 minutes after the show's weekly slot, confirms the release with one request that covers every bookmark, and retries over 24 hours while the episode is late ([api.md §7](api.md#7-client-guidelines) has the request budget).
 - One notification per show, with the episode ("Episode 9 is out"); several new episodes after a long offline period give one notification with the count. Revisions (`1216v2`) and old episodes released late never notify.
 - Tapping it opens that show's **Details** on top of the Home tab; Back returns to Home.
-- Android 13+ asks for the notification permission when the user adds their first bookmark. Denied → bookmarks still work, no checks run, and the Bookmarks screen's alerts chip offers to turn alerts on.
+- Android 13+ asks for the notification permission when the user adds their first bookmark (unless alerts are switched off in Settings). Denied → bookmarks still work, no checks run, and the Bookmarks screen's alerts chip offers to turn alerts on.
+- **Global switch:** *New-episode alerts* in Settings (default on). Off → checks make no requests and resolve silently, so turning it back on doesn't send a burst of old alerts.
 - **Limits:** timing is best effort (about 10–15 min on a phone in use, up to an hour or two when idle, up to about a day for a rarely used app); some manufacturers' battery managers can hold checks back; shows not on the weekly schedule (movies, specials) only notify when another show's check sees them; batches never notify; a force stop stops checks until the app is opened. Plan: [5-bookmarks.md §5](5-bookmarks.md#5-notification-feasibility).
 
 ---
@@ -171,7 +173,7 @@ The full derivation is in [1-home.md §4.3](1-home.md#43-derivation-domain); thi
 - Two calls **in parallel**: the weekly schedule ([api.md §3.2](api.md#32-weekly-schedule)), required, and today's schedule ([api.md §3.1](api.md#31-todays-schedule)), best effort. Map weekday names to `DayOfWeek`.
 - **Today's `aired`** is joined onto today's tab by slug (today's bucket and today's schedule list the same shows). If today's call fails, today's cards simply have no status.
 - **Week dates:** the 7 dates of the current week, starting on the first day of the week, computed from the injected `Clock` and `TimeZoneProvider`.
-- **Tab order** comes from the *First day of week* setting. Until Settings exists, the week starts on **Monday** and times are **12-hour**.
+- **Tab order** comes from the *First day of week* setting (default Monday); Schedule re-reads it when the screen starts, so a change in Settings applies when you come back.
 - **Selected tab on open** = today's `DayOfWeek` in the device zone.
 - Grid items: cover, title, `time` formatted per the *Time format* setting, sorted by time and then title.
 - **Caching:** the weekly schedule is kept in memory for about 1 h per zone ([api.md §7](api.md#7-client-guidelines)); pull-to-refresh bypasses it. Today's schedule is never cached, since `aired` changes during the day.
@@ -197,7 +199,7 @@ The full derivation is in [1-home.md §4.3](1-home.md#43-derivation-domain); thi
 
 ### 4.5 Formatting rules (all screens)
 
-- **Times:** the API's `"HH:mm"` → `LocalTime` → format with kotlinx-datetime according to the setting:
+- **Times:** the API's `"HH:mm"` → `LocalTime` → format with kotlinx-datetime according to the setting: The *Time format* setting applies everywhere, and screens already open update immediately (times are formatted when they're drawn). Notification timestamps are drawn by the system in the device's own format.
   - 12-hour: `amPmHour()`, `:`, `minute()`, space, `amPmMarker("AM", "PM")` → "8:00 AM"
   - 24-hour: `hour()`, `:`, `minute()` → "08:00"
 - **Release instants:** `Instant` → `toLocalDateTime(timeZoneProvider.current())`, then format the same way.
@@ -211,14 +213,14 @@ Settings use **Jetpack DataStore**; bookmarks (and their alert-tracking state) u
 
 | Data | Store | Shape |
 |---|---|---|
-| **Settings** | Preferences DataStore (`common/data/local/`; the `structure` skill already plans `SettingsRepository` and `AppSettings` in `common/`) | `firstDayOfWeek: MONDAY \| SUNDAY`, `timeFormat: TWELVE_HOUR \| TWENTY_FOUR_HOUR`, `theme: SYSTEM \| LIGHT \| DARK` |
+| **Settings** | One Preferences DataStore file `settings` (`common/data/local/SettingsLocalDataSource`, `SettingsRepository`, `AppSettings` in `common/`) | Keys stored by enum name: `week_start` (`MONDAY` \| `SUNDAY`), `time_format` (`TWELVE_HOUR` \| `TWENTY_FOUR_HOUR`), `theme_mode` (`SYSTEM` \| `LIGHT` \| `DARK`), `new_episode_alerts` (Boolean, default `true`), and Bookmarks' `bookmarks_sort` (`RECENTLY_ADDED` \| `TITLE` \| `NEXT_AIRING`) |
 | **Bookmarks** | Room database `bookmarks.db` (`feature/bookmarks/data/local/`), one table, schema exported to `app/schemas/` | `slug` (primary key), `title`, `cover_url`, `added_at`; the weekly slot (`airing_day`, `airing_minute`, `airing_zone`, `airing_title`, `airing_checked_at`); alert tracking (`tracking_since`, `last_seen_episode`, `last_seen_released_at`, `resolved_through`). Details in [5-bookmarks.md §4.3](5-bookmarks.md#43-local-data). |
 
 - The **slug** is the bookmark key. It's what Details needs to reload the show.
 - Store the **absolute** cover URL so Bookmarks renders without extra lookups.
 - DataStore reads **MUST** catch `IOException` and emit defaults (`best-practices` §4.2). Room errors map to `DomainError.Unknown`.
 - The Details plan's bookmarks DataStore (`bookmarks.json`) was replaced without migration: the app hadn't shipped.
-- The theme setting must apply before first frame, so the app root reads it (`AppRoute`/`AppViewModel` in the `structure` skill).
+- The theme setting applies before the first frame: `AppViewModel` reads the settings, `AppRoute` draws nothing until they've loaded, and `MainActivity` holds the first draw until then, also setting the status- and navigation-bar icon colors from the app's theme. Known limit: the system splash still follows the device's dark mode when the theme is forced.
 
 ---
 

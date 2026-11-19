@@ -90,8 +90,6 @@ private val fullLineSpan: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemS
 
 /**
  * Schedule: the week's day tabs pinned under the top bar, then the selected day's header and its poster grid.
- *
- * @param showSettingsAction whether the top bar shows the settings action; `false` until Settings exists.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,7 +97,6 @@ fun ScheduleScreen(
     state: ScheduleState,
     onIntent: (ScheduleIntent) -> Unit,
     modifier: Modifier = Modifier,
-    showSettingsAction: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     // One bar state per day: a newly selected day starts at the top, so the bar tint starts over too.
@@ -111,7 +108,6 @@ fun ScheduleScreen(
         topBar = {
             TopLevelAppBarView(
                 subtitle = UiText.StringResource(StringResource.schedule_app_bar_subtitle),
-                showSettingsAction = showSettingsAction,
                 onSettingsClick = { onIntent(ScheduleIntent.SettingsClicked) },
                 scrollBehavior = scrollBehavior,
                 bottomContent = if (state.hasContent) {
@@ -313,7 +309,7 @@ private fun ScheduleEmptyView(model: ScheduleEmptyUIModel, onResetClick: () -> U
 @Composable
 private fun ScheduleScreenPreview(@PreviewParameter(ScheduleStatePreviewProvider::class) state: ScheduleState) {
     BakaMitaiTheme {
-        ScheduleScreen(state = state, onIntent = {}, showSettingsAction = false)
+        ScheduleScreen(state = state, onIntent = {})
     }
 }
 

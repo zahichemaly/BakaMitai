@@ -2,6 +2,7 @@ package com.zc.bakamitai.feature.schedule.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zc.bakamitai.common.domain.usecase.GetSettingsUseCase
 import com.zc.bakamitai.common.domain.usecase.GetTodayDateUseCase
 import com.zc.bakamitai.common.ui.component.error.mapper.toErrorUIModel
 import com.zc.bakamitai.feature.schedule.domain.model.WeeklySchedule
@@ -21,10 +22,15 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import org.koin.core.annotation.KoinViewModel
 
+/**
+ * The current week, from the user's first day of week, with today's statuses. The week start is read at each load,
+ * and checked again each time the screen starts (the user may come back from Settings).
+ */
 @KoinViewModel
 class ScheduleViewModel(
     private val getWeeklySchedule: GetWeeklyScheduleUseCase,
     private val getTodayDate: GetTodayDateUseCase,
+    private val getSettings: GetSettingsUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ScheduleState())
@@ -50,7 +56,7 @@ class ScheduleViewModel(
 
             ScheduleIntent.Refresh -> load(forceRefresh = true)
 
-            ScheduleIntent.ScreenStarted -> reloadOnNewDay()
+            ScheduleIntent.ScreenStarted -> reloadIfStale()
 
             is ScheduleIntent.DaySelected -> selectDay(intent.day)
 
@@ -69,12 +75,14 @@ class ScheduleViewModel(
         if (loadJob?.isActive == true) return
         _state.update { it.copy(isLoading = !it.hasContent, isRefreshing = it.hasContent, error = null) }
         loadJob = viewModelScope.launch {
-            getWeeklySchedule(forceRefresh = forceRefresh)
+            val weekStart = getSettings().weekStart.dayOfWeek
+            getWeeklySchedule(weekStart = weekStart, forceRefresh = forceRefresh)
                 .onSuccess { loaded ->
                     val previous = schedule
                     schedule = loaded
                     _state.update { state ->
-                        // A new day (or the first load) selects today; otherwise the selection stays.
+                        // A new day (or the first load) selects today; otherwise the selection stays, also when
+                        // the week start changed (the same weekday, now at another position).
                         val isNewDay = previous == null || previous.today != loaded.today
                         val selectedDay = state.selectedDay.takeUnless { isNewDay } ?: loaded.today.dayOfWeek
                         state.copy(
@@ -101,9 +109,18 @@ class ScheduleViewModel(
         }
     }
 
-    private fun reloadOnNewDay() {
-        val lastToday = schedule?.today ?: return
-        if (loadJob?.isActive != true && getTodayDate() != lastToday) load(forceRefresh = false)
+    /**
+     * Reloads when the local date changed, or the user's first day of week isn't the loaded week's first day. Only
+     * after a successful load, and never while one runs.
+     */
+    private fun reloadIfStale() {
+        val loaded = schedule ?: return
+        if (loadJob?.isActive == true) return
+        viewModelScope.launch {
+            val weekStart = getSettings().weekStart.dayOfWeek
+            val isNewDay = getTodayDate() != loaded.today
+            if (isNewDay || loaded.days.firstOrNull()?.dayOfWeek != weekStart) load(forceRefresh = false)
+        }
     }
 
     private fun selectDay(day: DayOfWeek) {

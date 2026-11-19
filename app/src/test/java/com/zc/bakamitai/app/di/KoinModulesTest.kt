@@ -17,6 +17,7 @@ import com.zc.bakamitai.feature.home.domain.usecase.GetTodayBroadcastsUseCase
 import com.zc.bakamitai.feature.schedule.data.repository.ScheduleRepositoryImpl
 import com.zc.bakamitai.feature.schedule.domain.repository.ScheduleRepository
 import com.zc.bakamitai.feature.schedule.domain.usecase.GetWeeklyScheduleUseCase
+import com.zc.bakamitai.feature.settings.domain.usecase.GetAppInfoUseCase
 import com.zc.bakamitai.feature.shows.data.repository.ShowCatalogRepositoryImpl
 import com.zc.bakamitai.feature.shows.domain.repository.ShowCatalogRepository
 import com.zc.bakamitai.feature.shows.domain.usecase.FilterShowIndexUseCase
@@ -68,7 +69,8 @@ class KoinModulesTest {
             assertIs<ShowDetailsRepositoryImpl>(koin.get<ShowDetailsRepository>())
             koin.get<GetShowOverviewUseCase>()
             koin.get<GetShowEpisodesUseCase>()
-            // The bookmarks bindings need an Android Context: verify() above covers them.
+            koin.get<GetAppInfoUseCase>()
+            // The bookmarks and settings-store bindings need an Android Context: verify() above covers them.
             koin.get<Json>()
             koin.get<HttpClient>().close()
         } finally {

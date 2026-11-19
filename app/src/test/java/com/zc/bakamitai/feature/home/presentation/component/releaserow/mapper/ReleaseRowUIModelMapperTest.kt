@@ -5,6 +5,7 @@ import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.feature.home.domain.HomeTestData.release
 import com.zc.bakamitai.feature.home.presentation.component.releaserow.model.ReleaseRowUIModel
 import com.zc.bakamitai.feature.home.presentation.model.EpisodeBadgeUIModel
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,7 +25,7 @@ class ReleaseRowUIModelMapperTest {
                 slug = "tensei",
                 title = UiText.StringValue("Tensei Shitara Ken Deshita S2"),
                 coverUrl = null,
-                timeLabel = UiText.StringValue("9:33 AM"),
+                timeLabel = UiText.TimeValue(LocalTime(9, 33)),
                 episodeBadge = EpisodeBadgeUIModel(
                     label = UiText.StringResource(StringResource.home_episode, listOf("08")),
                     contentDescription = UiText.StringResource(StringResource.cd_episode, listOf("08")),
@@ -37,7 +38,7 @@ class ReleaseRowUIModelMapperTest {
 
     @Test
     fun `the time label follows the zone`() {
-        assertEquals(UiText.StringValue("11:33 PM"), release.toUIModel(TimeZone.of("Asia/Tokyo")).timeLabel)
+        assertEquals(UiText.TimeValue(LocalTime(23, 33)), release.toUIModel(TimeZone.of("Asia/Tokyo")).timeLabel)
     }
 
     @Test

@@ -19,6 +19,7 @@ com.zc.bakamitai/
 │   ├── MainActivity.kt
 │   ├── AppRoute.kt                  # App root: provides app-wide settings (composition locals) around AppNavigation
 │   ├── AppViewModel.kt              # Reads those settings (scanned by AppModule)
+│   ├── AppState.kt                  # The app root's state (theme, clock, loaded flag); no Intent/Effect
 │   ├── AppApplication.kt            # Initializes Koin (+ Coil ImageLoader factory)
 │   ├── di/
 │   │   ├── AppModule.kt             # @Module(includes = [...]): CommonModule and every feature module
@@ -36,7 +37,8 @@ com.zc.bakamitai/
 │   │   ├── local/                   # Shared Jetpack DataStore sources (e.g. app settings)
 │   │   ├── repository/              # Implementations of common/domain repositories (e.g. SettingsRepositoryImpl)
 │   │   └── util/
-│   │       └── SafeApiCall.kt       # safeApiCall { } — Ktor/serialization exceptions -> DomainError
+│   │       ├── SafeApiCall.kt       # safeApiCall { } — Ktor/serialization exceptions -> DomainError
+│   │       └── SafeDataStoreCall.kt # safeDataStoreCall { } — DataStore write failures -> DomainError
 │   ├── domain/
 │   │   ├── model/                   # Shared pure Kotlin domain primitives, DomainError.kt, result types, AppSettings
 │   │   ├── repository/              # Interfaces used by 2+ features (e.g. SettingsRepository)
@@ -48,7 +50,8 @@ com.zc.bakamitai/
 │   │   └── CommonModule.kt          # @Module @ComponentScan(common) + @Single providers for Json, HttpClient, Clock, DataStore
 │   └── ui/
 │       ├── theme/                   # Material 3 Color.kt, Type.kt, Theme.kt
-│       ├── util/                    # ObserveAsEvents.kt, AdaptivePreviews.kt, NotificationPermission.kt (non-visual Compose helpers)
+│       ├── util/                    # ObserveAsEvents.kt, AdaptivePreviews.kt, NotificationPermission.kt, OpenLink.kt (non-visual helpers)
+│       ├── text/                    # UiText.kt; TimeText.kt (LocalUse24HourClock and the 12/24-hour clock formats)
 │       ├── mapper/                  # common/domain -> UiText/UI model mappers used by 2+ features (e.g. NovelLength labels)
 │       └── component/               # Shared UI widgets & adaptive scaffolds — same recursive shape as §1.1
 │           └── [name]/              # e.g. coverimage/, markdown/, error/
@@ -168,9 +171,10 @@ Rules are in `library-management`.
 | A feature's `Navigator.navigateTo[Name](...)` helpers and `EntryProviderScope<NavKey>.[name]Entry(...)` (and `[Name]NavActions` when a Route has more than ~4 navigation callbacks) | `feature/[name]/presentation/navigation/[Name]Navigation.kt` (`[Name]NavActions.kt`) |
 | Shared `HttpClient` factory, `Json` instance | `common/data/network/` |
 | `safeApiCall { }` (exception → `DomainError` mapping) | `common/data/util/SafeApiCall.kt` |
+| `safeDataStoreCall { }` (DataStore write failure → `DomainError`) | `common/data/util/SafeDataStoreCall.kt` |
 | DTO used by 2+ features (query body, image, tag) | `common/data/dto/[Name]DTO.kt` |
 | Mapper from a shared DTO to a `common/domain` model | `common/data/mapper/[Name]DTOMapper.kt` |
-| Shared DataStore helpers (file factory, preference key helpers) | `common/data/local/` |
+| Shared DataStore helpers (file factory, preference key helpers: `createSettingsDataStore`, `safeData()`, `enumOrNull()`) and the settings source (`SettingsLocalDataSource`) | `common/data/local/` |
 | `DomainError` and other error/result/value types used by 2+ features' domains (incl. `AppSettings`) | `common/domain/model/` |
 | Repository interface / use case used by 2+ features (e.g. settings) | `common/domain/{repository,usecase}/` |
 | `DispatcherProvider` / `DefaultDispatcherProvider` | `common/domain/util/DispatcherProvider.kt` |
@@ -183,6 +187,8 @@ Rules are in `library-management`.
 | The `POST_NOTIFICATIONS` request and the app-notification-settings shortcut, used by 2+ features | `common/ui/util/NotificationPermission.kt` |
 | Presentation mapper for a `common/domain` type used by 2+ features (not tied to one component) | `common/ui/mapper/[Name]UIModelMapper.kt` |
 | `UiText` (all user-visible text in `presentation`) | `common/ui/text/UiText.kt` |
+| `LocalUse24HourClock` (provided by `AppRoute` from the *Time format* setting) and the 12/24-hour clock formats used by `UiText.TimeValue` | `common/ui/text/TimeText.kt` |
+| `Context.openLink(url)` (`ACTION_VIEW`, used by 2+ features) | `common/ui/util/OpenLink.kt` |
 | `StringResource` / `PluralResource` / `FontResource` / `DrawableResource` typealiases for `R.string` / `R.plurals` / `R.font` / `R.drawable` (the only way code names a resource) | `common/ui/resource/ResourceTypes.kt` |
 | `ErrorUIModel`, `ErrorUIModelMapper`, `ErrorView` | `common/ui/component/error/{model,mapper}/`, `ErrorView.kt` |
 | Loading placeholders: `SkeletonView`, `SkeletonBlock`, `SkeletonTextLine`, `textLineHeight` (`best-practices` §5.3) | `common/ui/component/skeleton/SkeletonView.kt` |
@@ -327,7 +333,7 @@ grep -rlE "import com\.zc\.bakamitai\.app\." app/src/main/java/com/zc/bakamitai/
 
 ### Current repo state
 
-The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`), Schedule (`feature/schedule/`) and All Shows (`feature/shows/`) are built and enabled, and their cards and rows open **Details** (`feature/details/`), the first pushed screen: its `DetailsNavKey` implements `FullScreenNavKey` (`common/ui/navigation/`), which hides the bottom bar on phones. **Bookmarks** (`feature/bookmarks/`) is built and enabled too, so all four tabs work: Room in `data/local/`, the release-check worker in `data/worker/`, the scheduler and notifier ports in `domain/repository/`, and the notification code in `presentation/notification/` (Bookmarks plan, [docs/5-bookmarks.md](../../../docs/5-bookmarks.md)). The Details plan's temporary exception (bookmarks without `presentation/`) is closed. Details moved two more pieces to `common/`: the `release_date` parser (`common/data/mapper/ReleaseDateDTOMapper.kt`, from Home) and the centered-column helper (`common/ui/util/ContentWidth.kt`, from All Shows). All Shows added the first HTML parser (`feature/shows/data/remote/AllShowsHtmlParser.kt`, the only Ksoup import) and the shared `common/ui/component/emptystate/EmptyStateView.kt`. Schedule, as the second user, moved Home's shared pieces to `common/` ([docs/2-schedule.md §5.1](../../../docs/2-schedule.md#51-shared-code-moved-from-featurehome)): `Show`, `ShowSlug`, `ScheduledShow` and `GetTodayDateUseCase` in `common/domain/`, `ScheduleItemDTO`, `TodayScheduleDTO`, their mapper and image-URL mapping in `common/data/`, `TimeUIModelMapper` and `UtcOffsetUIModelMapper` in `common/ui/mapper/`, and `CoverImageView` and `TopLevelAppBarView` in `common/ui/component/`.
+The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`), Schedule (`feature/schedule/`) and All Shows (`feature/shows/`) are built and enabled, and their cards and rows open **Details** (`feature/details/`), the first pushed screen: its `DetailsNavKey` implements `FullScreenNavKey` (`common/ui/navigation/`), which hides the bottom bar on phones. **Bookmarks** (`feature/bookmarks/`) is built and enabled too, so all four tabs work: Room in `data/local/`, the release-check worker in `data/worker/`, the scheduler and notifier ports in `domain/repository/`, and the notification code in `presentation/notification/` (Bookmarks plan, [docs/5-bookmarks.md](../../../docs/5-bookmarks.md)). The Details plan's temporary exception (bookmarks without `presentation/`) is closed. **Settings** (`feature/settings/`, [docs/6-settings.md](../../../docs/6-settings.md)) is a pushed `FullScreenNavKey` screen opened from the gear on every tab; the settings themselves live in `common/` (`AppSettings`, `SettingsRepository`, the `settings` Preferences DataStore), and the app root (`AppViewModel` / `AppState` / `AppRoute`) applies the theme before the first frame and provides `LocalUse24HourClock`. Details moved two more pieces to `common/`: the `release_date` parser (`common/data/mapper/ReleaseDateDTOMapper.kt`, from Home) and the centered-column helper (`common/ui/util/ContentWidth.kt`, from All Shows). All Shows added the first HTML parser (`feature/shows/data/remote/AllShowsHtmlParser.kt`, the only Ksoup import) and the shared `common/ui/component/emptystate/EmptyStateView.kt`. Schedule, as the second user, moved Home's shared pieces to `common/` ([docs/2-schedule.md §5.1](../../../docs/2-schedule.md#51-shared-code-moved-from-featurehome)): `Show`, `ShowSlug`, `ScheduledShow` and `GetTodayDateUseCase` in `common/domain/`, `ScheduleItemDTO`, `TodayScheduleDTO`, their mapper and image-URL mapping in `common/data/`, `TimeUIModelMapper` and `UtcOffsetUIModelMapper` in `common/ui/mapper/`, and `CoverImageView` and `TopLevelAppBarView` in `common/ui/component/`.
 
 ## 8. Checklist
 

@@ -1,9 +1,11 @@
 package com.zc.bakamitai.feature.details.presentation
 
 import app.cash.turbine.test
+import com.zc.bakamitai.common.domain.model.AppSettings
 import com.zc.bakamitai.common.domain.model.DomainError
 import com.zc.bakamitai.common.domain.model.ShowSlug
 import com.zc.bakamitai.common.domain.model.ShowTestData.show
+import com.zc.bakamitai.common.domain.repository.FakeSettingsRepository
 import com.zc.bakamitai.common.domain.util.FixedTimeZoneProvider
 import com.zc.bakamitai.common.ui.component.error.model.ErrorUIModel
 import com.zc.bakamitai.common.ui.resource.StringResource
@@ -12,7 +14,9 @@ import com.zc.bakamitai.common.util.FixedClock
 import com.zc.bakamitai.common.util.MainDispatcherRule
 import com.zc.bakamitai.feature.bookmarks.domain.model.Bookmark
 import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeBookmarkRepository
+import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeReleaseAlertNotifier
 import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeReleaseCheckScheduler
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.GetReleaseAlertsStatusUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ObserveIsBookmarkedUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ToggleBookmarkUseCase
 import com.zc.bakamitai.feature.details.domain.DetailsTestData.episode
@@ -71,12 +75,16 @@ class DetailsViewModelTest {
         synopsis = UiText.StringValue("A synopsis."),
     )
 
+    private val settings = FakeSettingsRepository()
+    private val notifier = FakeReleaseAlertNotifier()
+
     private fun createViewModel() = DetailsViewModel(
         slug = slug,
         getShowOverview = GetShowOverviewUseCase(repository),
         getShowEpisodes = GetShowEpisodesUseCase(repository, FixedTimeZoneProvider(newYork)),
         observeIsBookmarked = ObserveIsBookmarkedUseCase(bookmarks),
         toggleBookmark = ToggleBookmarkUseCase(bookmarks, FakeReleaseCheckScheduler(), FixedClock(now)),
+        getAlertsStatus = GetReleaseAlertsStatusUseCase(settings, notifier),
     )
 
     /** Keeps the `WhileSubscribed` state collected, so `state.value` follows every update. */
@@ -326,6 +334,32 @@ class DetailsViewModelTest {
 
             assertEquals(DetailsEffect.AskForReleaseAlerts, awaitItem())
         }
+    }
+
+    @Test
+    fun `the first bookmark asks for release alerts when Android blocks them`() = runTest {
+        notifier.enabled = false
+        val viewModel = loadedViewModel()
+
+        viewModel.effect.test {
+            viewModel.onIntent(DetailsIntent.BookmarkClicked)
+
+            assertEquals(DetailsEffect.AskForReleaseAlerts, awaitItem())
+        }
+    }
+
+    @Test
+    fun `the first bookmark asks for nothing when alerts are switched off in Settings`() = runTest {
+        settings.settings.value = AppSettings(newEpisodeAlerts = false)
+        val viewModel = loadedViewModel()
+
+        viewModel.effect.test {
+            viewModel.onIntent(DetailsIntent.BookmarkClicked)
+            advanceUntilIdle()
+
+            expectNoEvents()
+        }
+        assertEquals(1, bookmarks.toggled.size)
     }
 
     @Test

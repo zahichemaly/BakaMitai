@@ -33,7 +33,7 @@ private const val NAV_INDICATOR_ALPHA = 0.2f
 /**
  * The app shell: the navigation suite (bottom bar on compact widths or heights, rail otherwise) around the
  * selected tab's back stack. A tab whose feature isn't built yet is shown disabled. The bottom bar hides while a
- * `FullScreenNavKey` (Details) is on top; reselecting the selected tab pops it back to its root.
+ * `FullScreenNavKey` (Details, Settings) is on top; reselecting the selected tab pops it back to its root.
  *
  * @param showDeepLinks slugs of shows to open from notifications: each opens the show's Details over Home.
  */

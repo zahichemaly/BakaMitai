@@ -12,9 +12,9 @@ fun Navigator.navigateToSchedule() = navigate(ScheduleNavKey)
  * Registers Schedule, a top-level tab selected through `TopLevelDestination` or [navigateToSchedule].
  *
  * @param onOpenDetails opens a show's Details by slug.
- * @param onOpenSettings opens Settings; `null` until Settings exists.
+ * @param onOpenSettings opens Settings (the top bar's gear).
  */
-fun EntryProviderScope<NavKey>.scheduleEntry(onOpenDetails: (slug: String) -> Unit, onOpenSettings: (() -> Unit)?) {
+fun EntryProviderScope<NavKey>.scheduleEntry(onOpenDetails: (slug: String) -> Unit, onOpenSettings: () -> Unit) {
     entry<ScheduleNavKey> {
         ScheduleRoute(onOpenDetails = onOpenDetails, onOpenSettings = onOpenSettings)
     }

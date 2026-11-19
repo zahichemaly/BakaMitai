@@ -1,7 +1,9 @@
 package com.zc.bakamitai.feature.bookmarks.presentation
 
 import app.cash.turbine.test
+import com.zc.bakamitai.common.domain.model.AppSettings
 import com.zc.bakamitai.common.domain.model.DomainError
+import com.zc.bakamitai.common.domain.repository.FakeSettingsRepository
 import com.zc.bakamitai.common.domain.util.FixedTimeZoneProvider
 import com.zc.bakamitai.common.ui.component.error.model.ErrorUIModel
 import com.zc.bakamitai.common.ui.resource.StringResource
@@ -10,16 +12,21 @@ import com.zc.bakamitai.common.util.FixedClock
 import com.zc.bakamitai.common.util.MainDispatcherRule
 import com.zc.bakamitai.feature.bookmarks.domain.BookmarksTestData.bookmark
 import com.zc.bakamitai.feature.bookmarks.domain.BookmarksTestData.watch
+import com.zc.bakamitai.feature.bookmarks.domain.model.BookmarkSort
+import com.zc.bakamitai.feature.bookmarks.domain.model.ReleaseAlertsStatus
 import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeBookmarkRepository
+import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeBookmarkSortRepository
 import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeReleaseAlertNotifier
 import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeReleaseCheckScheduler
 import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeReleaseCheckScheduler.Call
-import com.zc.bakamitai.feature.bookmarks.domain.usecase.GetReleaseAlertsEnabledUseCase
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.GetReleaseAlertsStatusUseCase
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.ObserveBookmarkSortUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ObserveBookmarksUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.RefreshAiringSlotsUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.RemoveBookmarkUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.RestoreBookmarkUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.UpdateAiringSlotsUseCase
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.UpdateBookmarkSortUseCase
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.mapper.sortChipUIModels
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.mapper.toAlertsChipUIModel
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.mapper.toBookmarkCountLabel
@@ -57,6 +64,8 @@ class BookmarksViewModelTest {
     private val schedule = FakeScheduleRepository()
     private val scheduler = FakeReleaseCheckScheduler()
     private val notifier = FakeReleaseAlertNotifier()
+    private val settings = FakeSettingsRepository()
+    private val sortRepository = FakeBookmarkSortRepository()
 
     private val frieren = bookmark("frieren", "2026-11-18T09:00:00Z", title = "Sousou no Frieren")
     private val bleach = bookmark("bleach", "2026-11-10T09:00:00Z", title = "Bleach")
@@ -66,6 +75,8 @@ class BookmarksViewModelTest {
 
     private fun createViewModel() = BookmarksViewModel(
         observeBookmarks = ObserveBookmarksUseCase(repository, clock, timeZoneProvider),
+        observeBookmarkSort = ObserveBookmarkSortUseCase(sortRepository),
+        updateBookmarkSort = UpdateBookmarkSortUseCase(sortRepository),
         refreshAiringSlots = RefreshAiringSlotsUseCase(
             updateAiringSlots = UpdateAiringSlotsUseCase(
                 repository = repository,
@@ -76,7 +87,7 @@ class BookmarksViewModelTest {
         ),
         removeBookmark = RemoveBookmarkUseCase(repository, scheduler),
         restoreBookmark = RestoreBookmarkUseCase(repository, scheduler, clock),
-        getAlertsEnabled = GetReleaseAlertsEnabledUseCase(notifier),
+        getAlertsStatus = GetReleaseAlertsStatusUseCase(settings, notifier),
     )
 
     /** Keeps the `WhileSubscribed` state collected and runs the first load. */
@@ -100,7 +111,7 @@ class BookmarksViewModelTest {
             assertEquals(listOf("frieren", "bleach"), loaded.slugs())
             assertEquals(sortChipUIModels(), state.header.sortChips)
             assertEquals(2.toBookmarkCountLabel(), state.header.countLabel)
-            assertEquals(true.toAlertsChipUIModel(), state.header.alertsChip)
+            assertEquals(ReleaseAlertsStatus.ON.toAlertsChipUIModel(), state.header.alertsChip)
             assertFalse(state.isEmpty)
         }
     }
@@ -129,15 +140,40 @@ class BookmarksViewModelTest {
     }
 
     @Test
-    fun `selecting a sort re-sorts the grid`() = runTest {
+    fun `selecting a sort saves it and re-sorts the grid`() = runTest {
         repository.bookmarks.value = listOf(frieren, bleach)
         val viewModel = loadedViewModel()
 
         viewModel.onIntent(BookmarksIntent.SortSelected(BookmarkSortOption.TITLE))
         runCurrent()
 
+        assertEquals(BookmarkSort.TITLE, sortRepository.sort.value)
         assertEquals(BookmarkSortOption.TITLE, viewModel.state.value.selectedSort)
         assertEquals(listOf("bleach", "frieren"), viewModel.slugs())
+    }
+
+    @Test
+    fun `the saved sort is the initial sort`() = runTest {
+        sortRepository.sort.value = BookmarkSort.TITLE
+        repository.bookmarks.value = listOf(frieren, bleach)
+        val viewModel = loadedViewModel()
+
+        assertEquals(BookmarkSortOption.TITLE, viewModel.state.value.selectedSort)
+        assertEquals(listOf("bleach", "frieren"), viewModel.slugs())
+    }
+
+    @Test
+    fun `a failed sort write shows the error and keeps the saved sort`() = runTest {
+        repository.bookmarks.value = listOf(frieren, bleach)
+        sortRepository.failWrites = true
+        val viewModel = loadedViewModel()
+
+        viewModel.effect.test {
+            viewModel.onIntent(BookmarksIntent.SortSelected(BookmarkSortOption.TITLE))
+            assertEquals(BookmarksEffect.ShowError(genericError), awaitItem())
+        }
+        assertEquals(BookmarkSortOption.RECENTLY_ADDED, viewModel.state.value.selectedSort)
+        assertEquals(listOf("frieren", "bleach"), viewModel.slugs())
     }
 
     @Test
@@ -201,7 +237,7 @@ class BookmarksViewModelTest {
         viewModel.onIntent(BookmarksIntent.ScreenStarted)
         runCurrent()
 
-        assertEquals(false.toAlertsChipUIModel(), viewModel.state.value.header.alertsChip)
+        assertEquals(ReleaseAlertsStatus.BLOCKED.toAlertsChipUIModel(), viewModel.state.value.header.alertsChip)
         assertEquals(listOf<Call>(Call.EnsureScheduled, Call.EnsureScheduled), scheduler.calls)
     }
 
@@ -241,15 +277,24 @@ class BookmarksViewModelTest {
     }
 
     @Test
-    fun `the alerts chip opens the settings when on and turns alerts on when off`() = runTest {
+    fun `the alerts chip opens Settings when on or switched off, and turns alerts on when blocked`() = runTest {
         val viewModel = loadedViewModel()
 
         viewModel.effect.test {
             viewModel.onIntent(BookmarksIntent.AlertsChipClicked)
-            assertEquals(BookmarksEffect.OpenNotificationSettings, awaitItem())
+            assertEquals(BookmarksEffect.OpenSettings, awaitItem())
 
+            settings.settings.value = AppSettings(newEpisodeAlerts = false)
+            viewModel.onIntent(BookmarksIntent.ScreenStarted)
+            runCurrent()
+            assertEquals(ReleaseAlertsStatus.OFF.toAlertsChipUIModel(), viewModel.state.value.header.alertsChip)
+            viewModel.onIntent(BookmarksIntent.AlertsChipClicked)
+            assertEquals(BookmarksEffect.OpenSettings, awaitItem())
+
+            settings.settings.value = AppSettings()
             notifier.enabled = false
             viewModel.onIntent(BookmarksIntent.ScreenStarted)
+            runCurrent()
             viewModel.onIntent(BookmarksIntent.AlertsChipClicked)
             assertEquals(BookmarksEffect.EnableAlerts, awaitItem())
         }
@@ -264,7 +309,7 @@ class BookmarksViewModelTest {
             viewModel.onIntent(BookmarksIntent.AlertsPermissionResult(granted = false))
             assertEquals(BookmarksEffect.ShowAlertsDenied, awaitItem())
         }
-        assertEquals(false.toAlertsChipUIModel(), viewModel.state.value.header.alertsChip)
+        assertEquals(ReleaseAlertsStatus.BLOCKED.toAlertsChipUIModel(), viewModel.state.value.header.alertsChip)
     }
 
     @Test
@@ -276,7 +321,7 @@ class BookmarksViewModelTest {
         viewModel.onIntent(BookmarksIntent.AlertsPermissionResult(granted = true))
         runCurrent()
 
-        assertEquals(true.toAlertsChipUIModel(), viewModel.state.value.header.alertsChip)
+        assertEquals(ReleaseAlertsStatus.ON.toAlertsChipUIModel(), viewModel.state.value.header.alertsChip)
     }
 
     @Test

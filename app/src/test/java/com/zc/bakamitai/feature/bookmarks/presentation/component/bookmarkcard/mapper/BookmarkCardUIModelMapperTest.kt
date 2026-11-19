@@ -9,6 +9,7 @@ import com.zc.bakamitai.feature.bookmarks.domain.model.BookmarkedShow
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarkcard.model.BookmarkCardUIModel
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -34,7 +35,10 @@ class BookmarkCardUIModelMapperTest {
                     listOf(UiText.StringValue("Nov 18, 2026")),
                 ),
                 airing = TimeChipUIModel(
-                    UiText.StringResource(StringResource.bookmarks_airing_today, listOf(UiText.StringValue("9:30 PM"))),
+                    UiText.StringResource(
+                        StringResource.bookmarks_airing_today,
+                        listOf(UiText.TimeValue(LocalTime(21, 30))),
+                    ),
                     TimeChipTone.UPCOMING,
                 ),
                 removeLabel = UiText.StringResource(StringResource.cd_bookmarks_remove, listOf(title)),
@@ -49,7 +53,7 @@ class BookmarkCardUIModelMapperTest {
             TimeChipUIModel(
                 UiText.StringResource(
                     StringResource.bookmarks_airing_day,
-                    listOf(UiText.StringResource(StringResource.day_short_monday), UiText.StringValue("9:30 PM")),
+                    listOf(UiText.StringResource(StringResource.day_short_monday), UiText.TimeValue(LocalTime(21, 30))),
                 ),
                 TimeChipTone.DEFAULT,
             ),

@@ -15,12 +15,12 @@ import org.koin.compose.viewmodel.koinViewModel
  * Schedule's navigation destination.
  *
  * @param onOpenDetails opens a show's Details by slug.
- * @param onOpenSettings opens Settings; `null` while Settings doesn't exist (the action is hidden).
+ * @param onOpenSettings opens Settings (the top bar's gear).
  */
 @Composable
 fun ScheduleRoute(
     onOpenDetails: (slug: String) -> Unit,
-    onOpenSettings: (() -> Unit)?,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ScheduleViewModel = koinViewModel(),
 ) {
@@ -36,7 +36,7 @@ fun ScheduleRoute(
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
             is ScheduleEffect.OpenDetails -> onOpenDetails(effect.slug)
-            ScheduleEffect.OpenSettings -> onOpenSettings?.invoke()
+            ScheduleEffect.OpenSettings -> onOpenSettings()
             is ScheduleEffect.ShowError -> snackbarHostState.showSnackbar(effect.error.message.asString(context))
         }
     }
@@ -45,7 +45,6 @@ fun ScheduleRoute(
         state = state,
         onIntent = viewModel::onIntent,
         modifier = modifier,
-        showSettingsAction = onOpenSettings != null,
         snackbarHostState = snackbarHostState,
     )
 }

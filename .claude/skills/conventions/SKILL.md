@@ -255,8 +255,9 @@ sealed interface UiText {
     data class StringValue(val value: String) : UiText                                              // hardcoded / API data
     data class StringResource(@StringRes val id: Int, val args: List<Any> = emptyList()) : UiText     // StringResource.*
     data class StringPlural(@PluralsRes val id: Int, val quantity: Int, val args: List<Any> = emptyList()) : UiText // PluralResource.*
-    @Composable fun asString(): String
-    fun asString(context: Context): String
+    data class TimeValue(val time: LocalTime) : UiText                                              // a clock time; 12/24-hour decided when drawn
+    @Composable fun asString(): String                                   // TimeValue reads LocalUse24HourClock
+    fun asString(context: Context, use24HourClock: Boolean = false): String
 }
 ```
 
@@ -274,6 +275,7 @@ snackbarHostState.showSnackbar(effect.message.asString(context))                
 - Every user-visible text in a `UIModel`, `UIState`, screen `State`, `Effect` and View parameter is typed `UiText` (or `UiText?`), never `String`, `Int` or `@StringRes Int`. That includes API data, which the mapper wraps in `UiText.StringValue(...)`.
 - Reference strings as `StringResource.x` / `PluralResource.x`, wrapped in `UiText.StringResource(...)` / `UiText.StringPlural(...)`.
 - Composables resolve text at the last moment with `.asString()`; code outside composition (snackbars in a Route effect, share choosers) uses `.asString(context)`. This applies to static labels and `contentDescription`s too.
+- **Clock times are always `UiText.TimeValue`** (built by `toTimeLabel()` in `common/ui/mapper/`), never preformatted strings, so the *Time format* setting applies everywhere and open screens update at once. Outside composition, a Route passes `LocalUse24HourClock.current` to `asString(context, use24HourClock)`.
 - A label chosen by a `when` is a function returning `UiText`: `private fun Genre.toLabel(): UiText = UiText.StringResource(when (this) { … StringResource.genre_romance … })`. Properties and parameters hold that `UiText`, not a resource id.
 - Non-display strings (ids, URLs, query keys) stay `String`.
 

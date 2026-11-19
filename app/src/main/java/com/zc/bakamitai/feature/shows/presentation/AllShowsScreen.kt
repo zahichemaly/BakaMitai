@@ -96,8 +96,6 @@ private val SkeletonTitleFractions = listOf(0.7f, 0.45f, 0.85f, 0.6f, 0.5f, 0.75
 /**
  * All Shows: the A–Z catalogue under a search field and letter chips pinned in the top bar. The chips jump to a
  * section and follow the section at the top of the list.
- *
- * @param showSettingsAction whether the top bar shows the settings action; `false` until Settings exists.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,7 +103,6 @@ fun AllShowsScreen(
     state: AllShowsState,
     onIntent: (AllShowsIntent) -> Unit,
     modifier: Modifier = Modifier,
-    showSettingsAction: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     // A new query starts the list (and so the bar tint) at the top; rotation keeps both.
@@ -119,7 +116,6 @@ fun AllShowsScreen(
         topBar = {
             TopLevelAppBarView(
                 subtitle = UiText.StringResource(StringResource.all_shows_app_bar_subtitle),
-                showSettingsAction = showSettingsAction,
                 onSettingsClick = { onIntent(AllShowsIntent.SettingsClicked) },
                 scrollBehavior = scrollBehavior,
                 bottomContent = if (state.error == null) {
@@ -427,7 +423,7 @@ private fun CatalogFooter(label: UiText, modifier: Modifier = Modifier) {
 @Composable
 private fun AllShowsScreenPreview(@PreviewParameter(AllShowsStatePreviewProvider::class) state: AllShowsState) {
     BakaMitaiTheme {
-        AllShowsScreen(state = state, onIntent = {}, showSettingsAction = false)
+        AllShowsScreen(state = state, onIntent = {})
     }
 }
 

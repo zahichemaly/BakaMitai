@@ -4,6 +4,7 @@ import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.feature.details.domain.DetailsTestData.episode
 import com.zc.bakamitai.feature.details.domain.DetailsTestData.newYork
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,14 +29,14 @@ class EpisodeUIModelMapperTest {
         assertEquals(
             UiText.StringResource(
                 StringResource.details_episode_released,
-                listOf(UiText.StringValue("Nov 17, 2026"), UiText.StringValue("12:38 PM")),
+                listOf(UiText.StringValue("Nov 17, 2026"), UiText.TimeValue(LocalTime(12, 38))),
             ),
             released.toEpisodeUIState(isBatch = false, timeZone = newYork, isExpanded = false).releasedLabel,
         )
         assertEquals(
             UiText.StringResource(
                 StringResource.details_episode_released,
-                listOf(UiText.StringValue("Nov 18, 2026"), UiText.StringValue("2:38 AM")),
+                listOf(UiText.StringValue("Nov 18, 2026"), UiText.TimeValue(LocalTime(2, 38))),
             ),
             released.toEpisodeUIState(isBatch = false, timeZone = TimeZone.of("Asia/Tokyo"), isExpanded = false)
                 .releasedLabel,

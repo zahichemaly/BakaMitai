@@ -44,11 +44,6 @@ class GetWeeklyScheduleUseCaseTest {
     }
 
     @Test
-    fun `the default week start is Monday`() = runTest {
-        assertEquals(LocalDate(2026, 11, 16), useCase().getOrThrow().days.first().date)
-    }
-
-    @Test
     fun `a Sunday week start gives Sunday to Saturday`() = runTest {
         val week = useCase(weekStart = DayOfWeek.SUNDAY).getOrThrow()
 
@@ -59,7 +54,7 @@ class GetWeeklyScheduleUseCaseTest {
     fun `today on the first day of the week comes first`() = runTest {
         clock.instant = Instant.parse("2026-11-16T17:00:00Z")
 
-        val week = useCase().getOrThrow()
+        val week = useCase(DayOfWeek.MONDAY).getOrThrow()
 
         assertEquals(dates(LocalDate(2026, 11, 16)), week.days.map { it.date })
         assertEquals(week.today, week.days.first().date)
@@ -69,7 +64,7 @@ class GetWeeklyScheduleUseCaseTest {
     fun `today on the last day of the week comes last`() = runTest {
         clock.instant = Instant.parse("2026-11-22T17:00:00Z")
 
-        val week = useCase().getOrThrow()
+        val week = useCase(DayOfWeek.MONDAY).getOrThrow()
 
         assertEquals(dates(LocalDate(2026, 11, 16)), week.days.map { it.date })
         assertEquals(week.today, week.days.last().date)
@@ -79,9 +74,9 @@ class GetWeeklyScheduleUseCaseTest {
     fun `the device zone decides today, the week and the offset`() = runTest {
         clock.instant = Instant.parse("2026-11-19T02:30:00Z")
 
-        val inNewYork = useCase().getOrThrow()
+        val inNewYork = useCase(DayOfWeek.MONDAY).getOrThrow()
         timeZoneProvider.timeZone = tokyo
-        val inTokyo = useCase().getOrThrow()
+        val inTokyo = useCase(DayOfWeek.MONDAY).getOrThrow()
 
         assertEquals(LocalDate(2026, 11, 18), inNewYork.today)
         assertEquals(UtcOffset(-5), inNewYork.utcOffset)
@@ -107,7 +102,7 @@ class GetWeeklyScheduleUseCaseTest {
             ),
         )
 
-        val week = useCase().getOrThrow()
+        val week = useCase(DayOfWeek.MONDAY).getOrThrow()
 
         assertEquals(
             listOf("a", "b", "c"),
@@ -135,7 +130,7 @@ class GetWeeklyScheduleUseCaseTest {
             ),
         )
 
-        val week = useCase().getOrThrow()
+        val week = useCase(DayOfWeek.MONDAY).getOrThrow()
 
         val thursday = week.days.single { it.date == week.today }
         assertEquals(listOf(true, false, null), thursday.shows.map { it.aired })
@@ -152,7 +147,7 @@ class GetWeeklyScheduleUseCaseTest {
         )
         repository.today = Result.failure(DomainError.Network)
 
-        val week = useCase().getOrThrow()
+        val week = useCase(DayOfWeek.MONDAY).getOrThrow()
 
         assertTrue(week.days.flatMap { it.shows }.all { it.aired == null })
         assertEquals(1, week.days.single { it.date == week.today }.shows.size)
@@ -162,12 +157,12 @@ class GetWeeklyScheduleUseCaseTest {
     fun `a failed weekly schedule fails with its error`() = runTest {
         repository.weekly = Result.failure(DomainError.Server)
 
-        assertEquals(DomainError.Server, useCase().exceptionOrNull())
+        assertEquals(DomainError.Server, useCase(DayOfWeek.MONDAY).exceptionOrNull())
     }
 
     @Test
     fun `forceRefresh and the zone are passed on`() = runTest {
-        useCase(forceRefresh = true)
+        useCase(DayOfWeek.MONDAY, forceRefresh = true)
 
         assertEquals(setOf(Call.Weekly(newYork, forceRefresh = true), Call.Today(newYork)), repository.calls.toSet())
     }
@@ -177,7 +172,7 @@ class GetWeeklyScheduleUseCaseTest {
         val gate = CompletableDeferred<Unit>()
         repository.gate = gate
 
-        val result = async { useCase() }
+        val result = async { useCase(DayOfWeek.MONDAY) }
         runCurrent()
 
         assertEquals(setOf(Call.Weekly(newYork, forceRefresh = false), Call.Today(newYork)), repository.calls.toSet())

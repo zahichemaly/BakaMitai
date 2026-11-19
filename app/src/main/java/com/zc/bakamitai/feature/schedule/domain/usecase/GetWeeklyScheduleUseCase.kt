@@ -20,7 +20,7 @@ import kotlin.time.Clock
 
 /**
  * The current week's schedule in the device's time zone (docs/2-schedule.md §4.4): the 7 days of the week that
- * contains today, from [DEFAULT_WEEK_START] (or the given week start), each with its shows by time then title.
+ * contains today, from the given week start (the user's setting), each with its shows by time then title.
  *
  * The weekly schedule is required. Today's schedule is best effort: when it loads, today's shows get its `aired`
  * flag by slug; other days never have a status, because the weekly schedule has none.
@@ -33,35 +33,32 @@ class GetWeeklyScheduleUseCase(
 ) {
 
     /**
-     * @param weekStart the first day of the week, the first tab. Monday until the Settings feature passes the
-     * user's choice (context.md §3.6).
+     * @param weekStart the first day of the week, the first tab: the user's *First day of week* (context.md §3.6).
      * @param forceRefresh bypass the weekly cache (pull-to-refresh).
      */
-    suspend operator fun invoke(
-        weekStart: DayOfWeek = DEFAULT_WEEK_START,
-        forceRefresh: Boolean = false,
-    ): Result<WeeklySchedule> = coroutineScope {
-        val timeZone = timeZoneProvider.current()
-        val now = clock.now()
-        val today = now.toLocalDateTime(timeZone).date
+    suspend operator fun invoke(weekStart: DayOfWeek, forceRefresh: Boolean = false): Result<WeeklySchedule> =
+        coroutineScope {
+            val timeZone = timeZoneProvider.current()
+            val now = clock.now()
+            val today = now.toLocalDateTime(timeZone).date
 
-        val weeklyRequest = async { repository.getWeeklySchedule(timeZone, forceRefresh) }
-        val todayRequest = async { repository.getTodaySchedule(timeZone) }
+            val weeklyRequest = async { repository.getWeeklySchedule(timeZone, forceRefresh) }
+            val todayRequest = async { repository.getTodaySchedule(timeZone) }
 
-        val weekly = weeklyRequest.await()
-        val todaySchedule = todayRequest.await().getOrDefault(emptyList())
+            val weekly = weeklyRequest.await()
+            val todaySchedule = todayRequest.await().getOrDefault(emptyList())
 
-        weekly.map { showsByDay ->
-            val airedBySlug = todaySchedule.associate { it.show.slug to it.aired }
-            val days = weekDates(today, weekStart).map { date ->
-                val shows = showsByDay[date.dayOfWeek].orEmpty()
-                    .sortedWith(compareBy<ScheduledShow>({ it.time }, { it.show.title }))
-                    .map { show -> show.copy(aired = if (date == today) airedBySlug[show.show.slug] else null) }
-                ScheduleDay(date = date, shows = shows)
+            weekly.map { showsByDay ->
+                val airedBySlug = todaySchedule.associate { it.show.slug to it.aired }
+                val days = weekDates(today, weekStart).map { date ->
+                    val shows = showsByDay[date.dayOfWeek].orEmpty()
+                        .sortedWith(compareBy<ScheduledShow>({ it.time }, { it.show.title }))
+                        .map { show -> show.copy(aired = if (date == today) airedBySlug[show.show.slug] else null) }
+                    ScheduleDay(date = date, shows = shows)
+                }
+                WeeklySchedule(today = today, timeZone = timeZone, utcOffset = timeZone.offsetAt(now), days = days)
             }
-            WeeklySchedule(today = today, timeZone = timeZone, utcOffset = timeZone.offsetAt(now), days = days)
         }
-    }
 
     /** The dates of the week that contains [today], starting on [weekStart]. */
     private fun weekDates(today: LocalDate, weekStart: DayOfWeek): List<LocalDate> {
@@ -70,10 +67,7 @@ class GetWeeklyScheduleUseCase(
         return (0 until DAYS_PER_WEEK).map { firstDate.plus(it, DateTimeUnit.DAY) }
     }
 
-    companion object {
-        /** context.md §3.6's default *First day of week*. */
-        val DEFAULT_WEEK_START = DayOfWeek.MONDAY
-
-        private const val DAYS_PER_WEEK = 7
+    private companion object {
+        const val DAYS_PER_WEEK = 7
     }
 }

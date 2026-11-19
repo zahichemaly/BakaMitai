@@ -9,11 +9,14 @@ import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.feature.bookmarks.domain.model.Bookmark
 import com.zc.bakamitai.feature.bookmarks.domain.model.BookmarkSort
 import com.zc.bakamitai.feature.bookmarks.domain.model.BookmarkedShow
-import com.zc.bakamitai.feature.bookmarks.domain.usecase.GetReleaseAlertsEnabledUseCase
+import com.zc.bakamitai.feature.bookmarks.domain.model.ReleaseAlertsStatus
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.GetReleaseAlertsStatusUseCase
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.ObserveBookmarkSortUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ObserveBookmarksUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.RefreshAiringSlotsUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.RemoveBookmarkUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.RestoreBookmarkUseCase
+import com.zc.bakamitai.feature.bookmarks.domain.usecase.UpdateBookmarkSortUseCase
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarkcard.mapper.toBookmarkCardUIModels
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.mapper.sortChipUIModels
 import com.zc.bakamitai.feature.bookmarks.presentation.component.bookmarksheader.mapper.toAlertsChipUIModel
@@ -28,7 +31,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -38,17 +40,19 @@ import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
 /**
- * The saved shows in the selected order, from Room, with their airing chips; removal with Undo; the alerts chip.
- * Reducer rules: docs/5-bookmarks.md §6.11.
+ * The saved shows in the saved order, from Room, with their airing chips; removal with Undo; the alerts chip.
+ * Reducer rules: docs/5-bookmarks.md §6.11, with the sort and the alerts status of docs/6-settings.md §5.6.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @KoinViewModel
 class BookmarksViewModel(
     observeBookmarks: ObserveBookmarksUseCase,
+    observeBookmarkSort: ObserveBookmarkSortUseCase,
+    private val updateBookmarkSort: UpdateBookmarkSortUseCase,
     private val refreshAiringSlots: RefreshAiringSlotsUseCase,
     private val removeBookmark: RemoveBookmarkUseCase,
     private val restoreBookmark: RestoreBookmarkUseCase,
-    private val getAlertsEnabled: GetReleaseAlertsEnabledUseCase,
+    private val getAlertsStatus: GetReleaseAlertsStatusUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(BookmarksState())
@@ -56,20 +60,22 @@ class BookmarksViewModel(
     /** Bumped by Retry: re-reads the bookmarks after a failure. */
     private val retries = MutableStateFlow(0)
 
-    private val bookmarks: Flow<Result<List<BookmarkedShow>>> =
-        combine(_state.map { it.selectedSort }.distinctUntilChanged(), retries) { sort, _ -> sort }
+    /** The saved sort, with the bookmarks in that order (or the read failure). */
+    private val bookmarks: Flow<Pair<BookmarkSort, Result<List<BookmarkedShow>>>> =
+        combine(observeBookmarkSort(), retries) { sort, _ -> sort }
             .flatMapLatest { sort ->
-                observeBookmarks(sort.toBookmarkSort())
-                    .map { Result.success(it) }
-                    .catch { emit(Result.failure(it)) }
+                observeBookmarks(sort)
+                    .map { sort to Result.success(it) }
+                    .catch { emit(sort to Result.failure(it)) }
             }
 
-    val state: StateFlow<BookmarksState> = combine(_state, bookmarks) { state, result -> state.reduce(result) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-            initialValue = BookmarksState(),
-        )
+    val state: StateFlow<BookmarksState> =
+        combine(_state, bookmarks) { state, (sort, result) -> state.reduce(sort, result) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                initialValue = BookmarksState(),
+            )
 
     private val _effect = Channel<BookmarksEffect>(Channel.BUFFERED)
     val effect: Flow<BookmarksEffect> = _effect.receiveAsFlow()
@@ -78,6 +84,9 @@ class BookmarksViewModel(
 
     /** The last removed bookmark, for Undo. Never exposed. */
     private var lastRemoved: Bookmark? = null
+
+    /** The last alerts status read, for the chip's tap; `null` until read. Never exposed. */
+    private var alertsStatus: ReleaseAlertsStatus? = null
 
     init {
         onIntent(BookmarksIntent.Load)
@@ -99,7 +108,7 @@ class BookmarksViewModel(
 
             BookmarksIntent.Retry -> retries.update { it + 1 }
 
-            is BookmarksIntent.SortSelected -> _state.update { it.copy(selectedSort = intent.option) }
+            is BookmarksIntent.SortSelected -> selectSort(intent.option)
 
             is BookmarksIntent.BookmarkClicked -> sendEffect(BookmarksEffect.OpenDetails(intent.slug))
 
@@ -121,8 +130,19 @@ class BookmarksViewModel(
     }
 
     private fun checkAlerts() {
-        val alertsChip = getAlertsEnabled().toAlertsChipUIModel()
-        _state.update { it.copy(header = it.header.copy(alertsChip = alertsChip)) }
+        viewModelScope.launch {
+            val status = getAlertsStatus()
+            alertsStatus = status
+            _state.update { it.copy(header = it.header.copy(alertsChip = status.toAlertsChipUIModel())) }
+        }
+    }
+
+    /** Saves the sort; the grid follows the store. A failed write keeps the saved order. */
+    private fun selectSort(option: BookmarkSortOption) {
+        viewModelScope.launch {
+            updateBookmarkSort(option.toBookmarkSort())
+                .onFailure { error -> _effect.send(BookmarksEffect.ShowError(error.toErrorUIModel())) }
+        }
     }
 
     /**
@@ -172,10 +192,11 @@ class BookmarksViewModel(
         }
     }
 
+    /** On, or switched off in Settings: opens Settings. Blocked by Android: turns them on. */
     private fun onAlertsChipClicked() {
-        when (_state.value.header.alertsChip?.isEnabled) {
-            true -> sendEffect(BookmarksEffect.OpenNotificationSettings)
-            false -> sendEffect(BookmarksEffect.EnableAlerts)
+        when (alertsStatus) {
+            ReleaseAlertsStatus.ON, ReleaseAlertsStatus.OFF -> sendEffect(BookmarksEffect.OpenSettings)
+            ReleaseAlertsStatus.BLOCKED -> sendEffect(BookmarksEffect.EnableAlerts)
             null -> Unit
         }
     }
@@ -189,18 +210,26 @@ class BookmarksViewModel(
     }
 }
 
-/** The bookmarks read (or the read failure) reduced into the screen state. */
-private fun BookmarksState.reduce(result: Result<List<BookmarkedShow>>): BookmarksState = result.fold(
-    onSuccess = { shows ->
-        copy(
-            isLoading = false,
-            error = null,
-            cards = shows.toBookmarkCardUIModels(),
-            header = header.copy(countLabel = shows.size.toBookmarkCountLabel()),
-        )
-    },
-    onFailure = { error -> copy(isLoading = false, error = error.toErrorUIModel()) },
-)
+/** The saved sort and the bookmarks read (or the read failure) reduced into the screen state. */
+private fun BookmarksState.reduce(sort: BookmarkSort, result: Result<List<BookmarkedShow>>): BookmarksState {
+    val sorted = copy(isLoading = false, selectedSort = sort.toSortOption())
+    return result.fold(
+        onSuccess = { shows ->
+            sorted.copy(
+                error = null,
+                cards = shows.toBookmarkCardUIModels(),
+                header = header.copy(countLabel = shows.size.toBookmarkCountLabel()),
+            )
+        },
+        onFailure = { error -> sorted.copy(error = error.toErrorUIModel()) },
+    )
+}
+
+private fun BookmarkSort.toSortOption(): BookmarkSortOption = when (this) {
+    BookmarkSort.RECENTLY_ADDED -> BookmarkSortOption.RECENTLY_ADDED
+    BookmarkSort.TITLE -> BookmarkSortOption.TITLE
+    BookmarkSort.NEXT_AIRING -> BookmarkSortOption.RELEASE_TIME
+}
 
 private fun BookmarkSortOption.toBookmarkSort(): BookmarkSort = when (this) {
     BookmarkSortOption.RECENTLY_ADDED -> BookmarkSort.RECENTLY_ADDED

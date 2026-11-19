@@ -9,9 +9,9 @@ import com.zc.bakamitai.feature.shows.presentation.AllShowsRoute
  * so there is no `navigateToAllShows()`.
  *
  * @param onOpenDetails opens a show's Details by slug.
- * @param onOpenSettings opens Settings; `null` until Settings exists.
+ * @param onOpenSettings opens Settings (the top bar's gear).
  */
-fun EntryProviderScope<NavKey>.allShowsEntry(onOpenDetails: (slug: String) -> Unit, onOpenSettings: (() -> Unit)?) {
+fun EntryProviderScope<NavKey>.allShowsEntry(onOpenDetails: (slug: String) -> Unit, onOpenSettings: () -> Unit) {
     entry<AllShowsNavKey> {
         AllShowsRoute(onOpenDetails = onOpenDetails, onOpenSettings = onOpenSettings)
     }

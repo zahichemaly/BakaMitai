@@ -88,7 +88,7 @@ class HomeViewModelTest {
             )
             assertEquals(listOf("later"), loaded.upcoming.map { it.slug })
             assertEquals(listOf("kikansha"), loaded.latest.map { it.slug })
-            assertEquals(UiText.StringValue("11:17 AM"), loaded.latest.single().timeLabel)
+            assertEquals(UiText.TimeValue(LocalTime(11, 17)), loaded.latest.single().timeLabel)
         }
     }
 

@@ -146,7 +146,7 @@
     <string name="details_link_copied">Link copied</string>
     <!-- The clipboard entry's label (not shown on most devices). -->
     <string name="details_clip_label">Link</string>
-    <string name="details_alerts_denied">New-episode alerts are off. You can turn them on in Bookmarks.</string>
+    <string name="details_alerts_denied">New-episode alerts are off. You can turn them on in Settings.</string>
 
     <!-- Bookmarks (feature/bookmarks) -->
     <string name="bookmarks_app_bar_subtitle">BOOKMARKS</string>
@@ -157,7 +157,10 @@
     <string name="bookmarks_header_title">SAVED SHOWS</string>
     <string name="bookmarks_alerts_on">ALERTS ON</string>
     <string name="bookmarks_alerts_off">ALERTS OFF</string>
-    <string name="cd_bookmarks_alerts_on">New-episode alerts are on. Opens notification settings</string>
+    <string name="cd_bookmarks_alerts_on">New-episode alerts are on. Opens Settings</string>
+    <!-- Alerts switched off in Settings. -->
+    <string name="cd_bookmarks_alerts_switched_off">New-episode alerts are off. Opens Settings</string>
+    <!-- Alerts blocked by Android (permission, app or channel notifications off). -->
     <string name="cd_bookmarks_alerts_off">New-episode alerts are off. Turns them on</string>
     <!-- %1$s: the date the show was bookmarked, "Nov 18, 2026". -->
     <string name="bookmarks_added_on">Added %1$s</string>
@@ -178,6 +181,42 @@
     <string name="bookmarks_empty_action">Discover airing shows</string>
     <string name="bookmarks_alerts_denied">Notifications are off for BakaMitai.</string>
     <string name="bookmarks_alerts_settings">Settings</string>
+
+    <!-- Settings (feature/settings) -->
+    <string name="settings_title">Settings</string>
+    <!-- Section titles are stored uppercase (DESIGN.md labels). -->
+    <string name="settings_section_general">GENERAL PREFERENCES</string>
+    <string name="settings_section_appearance">APPEARANCE</string>
+    <string name="settings_section_notifications">NOTIFICATIONS</string>
+    <string name="settings_section_about">ABOUT</string>
+    <string name="settings_week_start_title">First day of week</string>
+    <string name="settings_week_start_description">Choose the starting day for the release schedule</string>
+    <!-- Shown after the default option, "Monday (Default)". -->
+    <string name="settings_option_default">(Default)</string>
+    <string name="settings_time_format_title">Time format</string>
+    <string name="settings_time_format_description">Display release times in 12-hour or 24-hour clock</string>
+    <string name="settings_time_format_12h">12-hour</string>
+    <string name="settings_time_format_12h_qualifier">(AM/PM)</string>
+    <string name="settings_time_format_24h">24-hour</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_description">Choose how BakaMitai looks</string>
+    <string name="settings_theme_system">System default</string>
+    <string name="settings_theme_system_description">Follows your device\'s dark theme setting</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_light_description">Always use the light theme</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_dark_description">Always use the dark theme</string>
+    <string name="settings_alerts_title">New-episode alerts</string>
+    <string name="settings_alerts_description">Get a notification when a bookmarked show\'s new episode is out</string>
+    <string name="settings_alerts_blocked">Notifications are blocked for BakaMitai.</string>
+    <string name="settings_alerts_allow">Allow notifications</string>
+    <string name="settings_about_title">About BakaMitai</string>
+    <!-- The About row's click action for TalkBack: "double-tap to open in browser". -->
+    <string name="cd_settings_open_in_browser">Open in browser</string>
+    <string name="settings_no_browser">No app can open this link.</string>
+    <!-- %1$s: the app's version name, "1.0". -->
+    <string name="settings_footer_version">BakaMitai v%1$s</string>
+    <string name="settings_footer_disclaimer">Unofficial app. Release data from subsplease.org.</string>
 
     <!-- New-episode notifications (feature/bookmarks/presentation/notification) -->
     <string name="notification_channel_new_episodes">New episodes</string>

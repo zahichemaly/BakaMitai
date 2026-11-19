@@ -39,19 +39,17 @@ import com.zc.bakamitai.common.ui.util.AdaptivePreviews
 private const val SCROLLED_FRACTION = 0.01f
 
 /**
- * The top app bar of a top-level tab: "BakaMitai" with the tab's [subtitle] under it, and the settings action.
+ * The top app bar of a top-level tab: "BakaMitai" with the tab's [subtitle] under it, and the settings gear.
  * [bottomContent] (e.g. Schedule's day strip) is pinned under the bar and shares its background, which turns
  * `surfaceContainer` once content scrolls under it. It's inset from side system bars like the screen's content, so
  * both measure the same width.
  *
- * @param showSettingsAction whether the settings action is shown; `false` until Settings exists.
  * @param scrollBehavior the screen's pinned scroll behavior, connected to the scrolling content.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopLevelAppBarView(
     subtitle: UiText,
-    showSettingsAction: Boolean,
     onSettingsClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
@@ -70,14 +68,12 @@ fun TopLevelAppBarView(
         TopAppBar(
             title = { TopLevelAppBarTitle(subtitle = subtitle) },
             actions = {
-                if (showSettingsAction) {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = UiText.StringResource(StringResource.cd_settings).asString(),
-                            tint = colors.onSurfaceVariant,
-                        )
-                    }
+                IconButton(onClick = onSettingsClick) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = UiText.StringResource(StringResource.cd_settings).asString(),
+                        tint = colors.onSurfaceVariant,
+                    )
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -116,23 +112,21 @@ private fun TopLevelAppBarTitle(subtitle: UiText, modifier: Modifier = Modifier)
     }
 }
 
-/** Samples: with the settings action, without it, and with bottom content. */
-private class TopLevelAppBarPreviewProvider : PreviewParameterProvider<Pair<Boolean, Boolean>> {
-    override val values = sequenceOf(true to false, false to false, false to true)
+/** Samples: without bottom content, and with it. */
+private class TopLevelAppBarPreviewProvider : PreviewParameterProvider<Boolean> {
+    override val values = sequenceOf(false, true)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AdaptivePreviews
 @Composable
 private fun TopLevelAppBarViewPreview(
-    @PreviewParameter(TopLevelAppBarPreviewProvider::class) sample: Pair<Boolean, Boolean>,
+    @PreviewParameter(TopLevelAppBarPreviewProvider::class) hasBottomContent: Boolean,
 ) {
-    val (showSettingsAction, hasBottomContent) = sample
     BakaMitaiTheme {
         Surface {
             TopLevelAppBarView(
                 subtitle = UiText.StringResource(StringResource.nav_home),
-                showSettingsAction = showSettingsAction,
                 onSettingsClick = {},
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
                 bottomContent = if (hasBottomContent) {

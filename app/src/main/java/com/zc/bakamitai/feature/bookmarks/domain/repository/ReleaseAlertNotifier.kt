@@ -6,8 +6,8 @@ import com.zc.bakamitai.feature.bookmarks.domain.model.EpisodeAlert
 interface ReleaseAlertNotifier {
 
     /**
-     * Whether notifications can be posted: the permission (Android 13+), the app's notifications and the channel
-     * are on. The Settings feature will AND its own switch in here.
+     * Whether Android lets the app post notifications: the permission (Android 13+), the app's notifications and the
+     * channel are on. The in-app switch (Settings) is combined with it by `GetReleaseAlertsStatusUseCase`.
      */
     fun areAlertsEnabled(): Boolean
 

@@ -139,6 +139,8 @@ class VisualNovelRepositoryImpl(
 
 ## 3. MVI (Model–View–Intent)
 
+Screens follow the loop below. The one exception is the app root: `app/AppViewModel` exposes a single `StateFlow<AppState>` (theme, clock format, loaded flag) read by `AppRoute`, with no Intent or Effect, because it isn't a screen.
+
 ### The loop
 
 ```text

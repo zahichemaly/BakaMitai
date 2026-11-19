@@ -5,8 +5,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.zc.bakamitai.common.ui.text.UiText
 
 /**
- * Whether new-episode alerts can be posted: "ALERTS ON" (opens the notification settings) or "ALERTS OFF" (turns
- * them on).
+ * Whether new-episode alerts are posted: "ALERTS ON" (opens Settings), or "ALERTS OFF", either switched off in
+ * Settings (opens Settings) or blocked by Android (turns them on).
+ *
+ * @property isEnabled alerts are on: switched on and allowed by Android.
  */
 @Immutable
 data class AlertsChipUIModel(
