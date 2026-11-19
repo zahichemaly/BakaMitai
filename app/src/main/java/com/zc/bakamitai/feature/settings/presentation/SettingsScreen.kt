@@ -308,7 +308,7 @@ private fun SettingsPickerDialog(state: SettingsState, onIntent: (SettingsIntent
 /** Loading; the defaults; Sunday, 24-hour, Dark and alerts off; alerts blocked by Android; the theme dialog open. */
 private class SettingsStatePreviewProvider : PreviewParameterProvider<SettingsState> {
     private val loading = SettingsState(
-        versionLabel = UiText.StringResource(StringResource.settings_footer_version, listOf("1.0")),
+        versionLabel = UiText.StringResource(StringResource.settings_footer_version, listOf("2.0.0")),
     )
 
     override val values = sequenceOf(

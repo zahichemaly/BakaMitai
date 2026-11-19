@@ -17,7 +17,7 @@ import com.zc.bakamitai.feature.settings.presentation.model.WeekStartOption
  * @property alerts the alerts switch; `null` while loading.
  * @property openPicker the picker whose dialog is open, or none. Kept here, not in the composition, so the dialog
  *   survives rotation.
- * @property versionLabel the footer's "BakaMitai v1.0".
+ * @property versionLabel the footer's "BakaMitai v2.0.0".
  */
 @Immutable
 data class SettingsState(

@@ -12,8 +12,8 @@ android {
 
     defaultConfig {
         applicationId = "com.zc.bakamitai"
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "2.0.0"
     }
 }
 

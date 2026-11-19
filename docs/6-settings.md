@@ -140,7 +140,7 @@ Node: `section` "About & Community", first row. "Check for Updates" is dropped (
 ### 2.7 Footer
 
 - `SettingsFooterView(versionLabel)`: centered `Column(spacedBy(spacing.xs))`, top padding `spacing.md`:
-  - "BakaMitai v1.0" (`settings_footer_version` "BakaMitai v%1$s" with `BuildConfig.VERSION_NAME` through `AppInfo`), `labelLarge`, `onSurface`. No "(Build …)", no verified badge.
+  - "BakaMitai v2.0.0" (`settings_footer_version` "BakaMitai v%1$s" with `BuildConfig.VERSION_NAME` through `AppInfo`), `labelLarge`, `onSurface`. No "(Build …)", no verified badge.
   - "Unofficial app. Release data from subsplease.org." (`settings_footer_disclaimer`, proposed, [Q7](#10-open-questions)), `bodySmall`, `outline`, `widthIn(max = 320.dp)`, `TextAlign.Center`.
 
 ### 2.8 States not in the design (all proposed)
@@ -176,7 +176,7 @@ Node: `section` "About & Community", first row. "Check for Updates" is dropped (
 | 11 | About URL | "github.com/BakaMitai-App/tracker" (invented) | `https://github.com/zahichemaly/BakaMitai` | **The real URL.** |
 | 12 | About icon | GitHub mark (SVG) | — | **`Icons.Outlined.Code`** ([Q6](#10-open-questions)): Material Icons Extended has no GitHub logo, and the app takes icons from it. |
 | 13 | Check for Updates | Row, "You are on the latest build", spinning icon, toast | Not in the spec | **Drop**: there's no update service; the claim would be unverifiable. |
-| 14 | Footer version | "BakaMitai v1.4.2 (Build 2025.1)" + `verified` icon | "BakaMitai v1.0", version from `versionName` | **"BakaMitai v{versionName}"**. Drop "(Build …)" and the verified badge (it suggests a check that doesn't exist). |
+| 14 | Footer version | "BakaMitai v1.4.2 (Build 2025.1)" + `verified` icon | "BakaMitai v2.0.0", version from `versionName` | **"BakaMitai v{versionName}"**. Drop "(Build …)" and the verified badge (it suggests a check that doesn't exist). |
 | 15 | Footer tagline | "Fast, sleek, ad-free anime release tracker • Powered by open community data" | — | **Replace** with "Unofficial app. Release data from subsplease.org." ([Q7](#10-open-questions)): "open community data" misdescribes a scraped site; the disclaimer is accurate. |
 | 16 | Toasts | "Settings updated", "Schedule starts on …", "Time format switched to …", "Theme updated to …" | — | **None**: every change is visible at once. A snackbar only when a save fails. |
 | 17 | Card shadows | `shadow-sm` | DESIGN.md: tonal layering | **No shadow.** |
@@ -662,7 +662,7 @@ Private: `appInfo` (for `AboutClicked`), `alertsStatus = MutableStateFlow<Releas
 
 **About and footer**
 - [ ] About BakaMitai opens `https://github.com/zahichemaly/BakaMitai` in the browser (TalkBack: "double-tap to open in browser").
-- [ ] The footer says "BakaMitai v1.0" (the build's `versionName`) and the disclaimer.
+- [ ] The footer says "BakaMitai v2.0.0" (the build's `versionName`) and the disclaimer.
 
 **Layout, states and accessibility**
 - [ ] Light and dark, compact and expanded: one column, 16 / 24 dp margins, centered at 720 dp on wide windows; the footer ends above the system navigation bar.

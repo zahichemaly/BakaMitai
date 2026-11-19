@@ -20,7 +20,7 @@ import com.zc.bakamitai.common.ui.util.AdaptivePreviews
 
 private val DisclaimerMaxWidth = 320.dp
 
-/** The app's version ("BakaMitai v1.0") and the unofficial-app disclaimer, centered. */
+/** The app's version ("BakaMitai v2.0.0") and the unofficial-app disclaimer, centered. */
 @Composable
 fun SettingsFooterView(versionLabel: UiText, modifier: Modifier = Modifier) {
     Column(
@@ -52,7 +52,7 @@ private fun SettingsFooterViewPreview() {
     BakaMitaiTheme {
         Surface {
             SettingsFooterView(
-                versionLabel = UiText.StringResource(StringResource.settings_footer_version, listOf("1.0")),
+                versionLabel = UiText.StringResource(StringResource.settings_footer_version, listOf("2.0.0")),
                 modifier = Modifier.padding(BakaMitaiTheme.spacing.md),
             )
         }

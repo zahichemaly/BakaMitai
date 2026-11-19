@@ -212,7 +212,7 @@
     <!-- The About row's click action for TalkBack: "double-tap to open in browser". -->
     <string name="cd_settings_open_in_browser">Open in browser</string>
     <string name="settings_no_browser">No app can open this link.</string>
-    <!-- %1$s: the app's version name, "1.0". -->
+    <!-- %1$s: the app's version name, "2.0.0". -->
     <string name="settings_footer_version">BakaMitai v%1$s</string>
     <string name="settings_footer_disclaimer">Unofficial app. Release data from subsplease.org.</string>
 
