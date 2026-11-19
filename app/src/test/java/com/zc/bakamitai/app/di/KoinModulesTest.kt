@@ -1,6 +1,7 @@
 package com.zc.bakamitai.app.di
 
 import android.content.Context
+import androidx.work.WorkerParameters
 import com.zc.bakamitai.common.domain.usecase.GetTodayDateUseCase
 import com.zc.bakamitai.common.domain.util.DefaultDispatcherProvider
 import com.zc.bakamitai.common.domain.util.DispatcherProvider
@@ -37,11 +38,12 @@ class KoinModulesTest {
     @OptIn(KoinExperimentalAPI::class)
     @Test
     fun `all modules resolve`() {
-        // verify() checks the constructors of the provided types. The ones below are built by provider
-        // function in CommonModule (createHttpClient), not by Koin.
+        // verify() checks the constructors of the provided types. Context and WorkerParameters come from Android
+        // (androidContext, WorkManager's factory); the Ktor types are built by createHttpClient, not by Koin.
         AppModule().module().verify(
             extraTypes = listOf(
                 Context::class,
+                WorkerParameters::class,
                 HttpClientEngine::class,
                 HttpClientConfig::class,
             ),

@@ -164,11 +164,16 @@ class DetailsViewModel(
             }
     }
 
-    /** Saves or removes the page's show; [state] follows the store, so there's nothing to roll back. */
+    /**
+     * Saves or removes the page's show; [state] follows the store, so there's nothing to roll back. The very first
+     * bookmark asks for the notification permission (new-episode alerts).
+     */
     private fun onBookmarkClicked() {
         val show = overview?.show ?: return
         viewModelScope.launch {
-            toggleBookmark(show).onFailure { error -> _effect.send(DetailsEffect.ShowError(error.toErrorUIModel())) }
+            toggleBookmark(show)
+                .onSuccess { toggle -> if (toggle.isFirstBookmark) _effect.send(DetailsEffect.AskForReleaseAlerts) }
+                .onFailure { error -> _effect.send(DetailsEffect.ShowError(error.toErrorUIModel())) }
         }
     }
 

@@ -11,3 +11,6 @@ typealias PluralResource = com.zc.bakamitai.R.plurals
 
 /** Bundled fonts (res/font), used by `common/ui/theme/Type.kt`. */
 typealias FontResource = com.zc.bakamitai.R.font
+
+/** Drawables, e.g. a notification's small icon: `DrawableResource.ic_notification`. */
+typealias DrawableResource = com.zc.bakamitai.R.drawable

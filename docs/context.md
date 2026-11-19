@@ -81,11 +81,14 @@ Two sections, both about **today** (in the device's time zone):
 
 ### 3.4 Bookmarks
 
-- A **grid** of the shows the user bookmarked, newest first.
-- Each item shows the **cover, title and date added**, formatted for the user's locale.
-- Empty state invites the user to bookmark shows from the Details screen.
+- A **grid** of the shows the user bookmarked (2 / 3 / 4 columns by width), newest first by default.
+- Each item shows the **cover, title and date added** ("Added Nov 18, 2026"), plus a **next-airing chip** from the weekly schedule ("TODAY 9:30 PM", "MON 9:30 PM", or "NOT AIRING" when the show isn't on it).
+- **Sort:** Recently added, Title A–Z, Release time. Not saved until Settings exists.
+- **Remove** from the card's bookmark button, with an **Undo** snackbar. Tapping a card opens Details.
+- An **alerts chip** shows whether new-episode alerts are on; when off, it offers the permission dialog or the system settings ([§3.7](#37-new-episode-alerts)).
+- Pull-to-refresh refreshes the airing times. The empty state invites the user to bookmark shows, with a button to the Schedule tab.
 - Works fully offline (covers load from Coil's cache when available).
-- Data: [§5](#5-local-persistence).
+- Data: [§5](#5-local-persistence). Plan: [5-bookmarks.md](5-bookmarks.md).
 
 ### 3.5 Details
 
@@ -126,6 +129,15 @@ A list of preferences, saved locally:
 | **About** | — | — | Opens `https://github.com/zahichemaly/BakaMitai` |
 
 **Footer**: app name and version, for example "BakaMitai v1.0", with the version taken from the build's `versionName`.
+
+### 3.7 New-episode alerts
+
+Every bookmarked show gets a local notification when its next episode is **out on SubsPlease** (there's no push service; the app checks in the background).
+- A background job (WorkManager) runs about 10 minutes after the show's weekly slot, confirms the release with one request that covers every bookmark, and retries over 24 hours while the episode is late ([api.md §7](api.md#7-client-guidelines) has the request budget).
+- One notification per show, with the episode ("Episode 9 is out"); several new episodes after a long offline period give one notification with the count. Revisions (`1216v2`) and old episodes released late never notify.
+- Tapping it opens that show's **Details** on top of the Home tab; Back returns to Home.
+- Android 13+ asks for the notification permission when the user adds their first bookmark. Denied → bookmarks still work, no checks run, and the Bookmarks screen's alerts chip offers to turn alerts on.
+- **Limits:** timing is best effort (about 10–15 min on a phone in use, up to an hour or two when idle, up to about a day for a rarely used app); some manufacturers' battery managers can hold checks back; shows not on the weekly schedule (movies, specials) only notify when another show's check sees them; batches never notify; a force stop stops checks until the app is opened. Plan: [5-bookmarks.md §5](5-bookmarks.md#5-notification-feasibility).
 
 ---
 
@@ -195,16 +207,17 @@ The full derivation is in [1-home.md §4.3](1-home.md#43-derivation-domain); thi
 
 ## 5. Local persistence
 
-Everything is stored with **Jetpack DataStore**. That's the only approved persistence library, so there's no Room/SQL.
+Settings use **Jetpack DataStore**; bookmarks (and their alert-tracking state) use **Room** (approved by the user, 2026-11-19, Bookmarks plan).
 
 | Data | Store | Shape |
 |---|---|---|
 | **Settings** | Preferences DataStore (`common/data/local/`; the `structure` skill already plans `SettingsRepository` and `AppSettings` in `common/`) | `firstDayOfWeek: MONDAY \| SUNDAY`, `timeFormat: TWELVE_HOUR \| TWENTY_FOUR_HOUR`, `theme: SYSTEM \| LIGHT \| DARK` |
-| **Bookmarks** | Typed DataStore with a kotlinx.serialization JSON serializer, file `bookmarks.json` (`feature/bookmarks/data/`, added by the Details plan) | `BookmarkListDTO(bookmarks: List<BookmarkDTO(slug: String, title: String, coverUrl: String?, addedAtEpochMillis: Long)>)`, unique by `slug` |
+| **Bookmarks** | Room database `bookmarks.db` (`feature/bookmarks/data/local/`), one table, schema exported to `app/schemas/` | `slug` (primary key), `title`, `cover_url`, `added_at`; the weekly slot (`airing_day`, `airing_minute`, `airing_zone`, `airing_title`, `airing_checked_at`); alert tracking (`tracking_since`, `last_seen_episode`, `last_seen_released_at`, `resolved_through`). Details in [5-bookmarks.md §4.3](5-bookmarks.md#43-local-data). |
 
 - The **slug** is the bookmark key. It's what Details needs to reload the show.
 - Store the **absolute** cover URL so Bookmarks renders without extra lookups.
-- DataStore reads **MUST** catch `IOException` and emit defaults (`best-practices` §4.2).
+- DataStore reads **MUST** catch `IOException` and emit defaults (`best-practices` §4.2). Room errors map to `DomainError.Unknown`.
+- The Details plan's bookmarks DataStore (`bookmarks.json`) was replaced without migration: the app hadn't shipped.
 - The theme setting must apply before first frame, so the app root reads it (`AppRoute`/`AppViewModel` in the `structure` skill).
 
 ---
@@ -219,7 +232,7 @@ Follow the `structure` skill's `feature/[name]/{data,domain,di,presentation}` la
 | `schedule` | Schedule | weekly schedule |
 | `shows` | All Shows | all shows list (HTML) |
 | `details` | Details | show page (HTML), show episodes |
-| `bookmarks` | Bookmarks (+ the bookmark toggle used by Details, exposed through its `domain` use cases) | Bookmarks DataStore |
+| `bookmarks` | Bookmarks (+ the bookmark toggle used by Details, exposed through its `domain` use cases) and new-episode alerts | Bookmarks Room database, weekly schedule, search releases (alerts) |
 | `settings` | Settings | Settings DataStore (repository in `common/`) |
 
 Shared across features (`common/`): the SubsPlease `HttpClient` ([api.md §7](api.md#7-client-guidelines)), any DTO used by two or more features (e.g. the schedule item and today's schedule, moved there by the Schedule plan), image-URL resolution (relative path → absolute, placeholder → `null`), the time formatter driven by the *Time format* setting, the UTC-offset label, `CoverImageView`, the top-level app bar and `EmptyStateView` (added by the All Shows plan, shared with Schedule). [2-schedule.md §5.1](2-schedule.md#51-shared-code-moved-from-featurehome) lists the moves.
@@ -255,3 +268,5 @@ data class Bookmark(val show: Show, val addedAt: Instant)
    - `androidx.browser` isn't approved either.
    - **Chosen for v1 (Details, 2026-11-19):** a plain `ACTION_VIEW` intent. Custom Tabs would need `androidx.browser` approved first.
 3. ~~**Dynamic color (Material You)** on Android 12+ versus a fixed brand palette.~~ **Decided:** fixed brand palette from [DESIGN.md](DESIGN.md), no dynamic color. DESIGN.md defines the dark scheme; the light scheme is derived from the same tonal palettes, so the *Theme* setting (System / Light / Dark) still applies.
+
+4. **Decided (2026-11-19, Bookmarks plan):** bookmarks are stored with **Room**, and new-episode alerts run with **WorkManager** (and `koin-androidx-workmanager` for injected workers). Both were approved by the user; the alerts follow the request budget in [api.md §7](api.md#7-client-guidelines).

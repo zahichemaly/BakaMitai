@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
+import com.zc.bakamitai.feature.bookmarks.presentation.navigation.BookmarksNavKey
 import com.zc.bakamitai.feature.home.presentation.navigation.HomeNavKey
 import com.zc.bakamitai.feature.schedule.presentation.navigation.ScheduleNavKey
 import com.zc.bakamitai.feature.shows.presentation.navigation.AllShowsNavKey
@@ -20,7 +21,8 @@ import com.zc.bakamitai.feature.shows.presentation.navigation.AllShowsNavKey
 /**
  * The navigation suite's tabs, in order (context.md §2).
  *
- * @property key the tab's root key, or `null` while its feature isn't built: the tab is shown disabled.
+ * @property key the tab's root key, or `null` for a tab whose feature isn't built yet (shown disabled). Every tab
+ * has one today.
  */
 enum class TopLevelDestination(
     val key: NavKey?,
@@ -47,7 +49,7 @@ enum class TopLevelDestination(
         label = UiText.StringResource(StringResource.nav_all_shows),
     ),
     BOOKMARKS(
-        key = null,
+        key = BookmarksNavKey,
         selectedIcon = Icons.Filled.Bookmark,
         unselectedIcon = Icons.Outlined.BookmarkBorder,
         label = UiText.StringResource(StringResource.nav_bookmarks),

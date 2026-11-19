@@ -32,8 +32,8 @@ presentation ──▶ domain ◀── data
 | Layer | MAY import | MUST NEVER import |
 |---|---|---|
 | `domain` | Kotlin stdlib, `kotlinx.coroutines` core, kotlinx-datetime, Koin annotations (`org.koin.core.annotation.*` only), `common/domain`, other features' `domain` | `presentation`, `data`, `di`, `android.*`, `androidx.*`, Compose, Ktor, `kotlinx.serialization`, DataStore, Koin beyond `org.koin.core.annotation.*`, `javax.inject` |
-| `data` | own feature's `domain`, `common/domain`, `common/data`, Ktor, kotlinx.serialization, DataStore, Koin annotations, Android framework where needed | `presentation`, `common/ui`, Compose |
-| `presentation` | own feature's `domain`, other features' `domain` (models + use cases), `common/domain`, `common/ui`, Android, Compose, Lifecycle, Coil | any `data` package, DTOs, Ktor, DataStore, repository implementations |
+| `data` | own feature's `domain`, `common/domain`, `common/data`, Ktor, kotlinx.serialization, DataStore, Room, WorkManager, Koin annotations, Android framework where needed | `presentation`, `common/ui`, Compose |
+| `presentation` | own feature's `domain`, other features' `domain` (models + use cases), `common/domain`, `common/ui`, Android (incl. notifications), Compose, Lifecycle, Coil | any `data` package, DTOs, Ktor, DataStore, Room, WorkManager, repository implementations |
 | `di` | everything in its own feature, `common`, Koin | — |
 
 ### Domain purity
@@ -81,13 +81,14 @@ ViewModel ◀────────── Domain model / Result ◀───�
 - Repository interfaces live in `domain`, speak only **domain models**, and expose `suspend` functions or `Flow`.
 - Repository implementations live in `data`. They are the **only** place that touches DTOs and data sources together, and they wrap every service call in `safeApiCall {}`, so failures reach `domain` only as `DomainError` (`common/domain/model`).
 - Errors cross the layers as **`data`** exception → `DomainError` → **`domain`** `Result<T>` → **`presentation`** `ErrorUIModel`. Details are in `best-practices` §4.
+- **Background entry points.** A WorkManager worker (`data/worker/`) is to background work what a ViewModel is to a screen: it calls its own feature's **use cases** only, and never imports `presentation`. Scheduling and notifications are platform services the domain triggers through **ports**: interfaces in `domain/repository/` (`[Name]Scheduler`, `[Name]Notifier`), implemented in `data/worker/` (WorkManager) and `presentation/notification/` (notifications are user-visible text), bound by `@ComponentScan`. Use cases depend on the port, never on the implementation.
 - Threading: every `suspend` function is main-safe. Ktor and DataStore already are, so `data` switches dispatchers only for heavy CPU work, using the injected `DispatcherProvider`. Nothing outside `DispatcherProvider` and `ObserveAsEvents` references `Dispatchers.*`.
 
 ### Model boundaries
 
 | Layer | Owns | Leaves the layer as |
 |---|---|---|
-| `data` | `[Name]DTO` | **Never leaves `data`.** Mapped via `[Name]DTOMapper` / `[Name]DomainMapper` |
+| `data` | `[Name]DTO`, `[Name]Entity` (Room) | **Never leaves `data`.** Mapped via `[Name]DTOMapper` / `[Name]EntityMapper` / `[Name]DomainMapper` |
 | `domain` | `[Name]` | Returned from repositories and use cases to the ViewModel |
 | `presentation` | `[Name]UIModel`, `[Name]UIState`, `[Name]State` | Rendered by Compose |
 

@@ -48,7 +48,7 @@ com.zc.bakamitai/
 │   │   └── CommonModule.kt          # @Module @ComponentScan(common) + @Single providers for Json, HttpClient, Clock, DataStore
 │   └── ui/
 │       ├── theme/                   # Material 3 Color.kt, Type.kt, Theme.kt
-│       ├── util/                    # ObserveAsEvents.kt, AdaptivePreviews.kt (non-visual Compose helpers)
+│       ├── util/                    # ObserveAsEvents.kt, AdaptivePreviews.kt, NotificationPermission.kt (non-visual Compose helpers)
 │       ├── mapper/                  # common/domain -> UiText/UI model mappers used by 2+ features (e.g. NovelLength labels)
 │       └── component/               # Shared UI widgets & adaptive scaffolds — same recursive shape as §1.1
 │           └── [name]/              # e.g. coverimage/, markdown/, error/
@@ -60,19 +60,21 @@ com.zc.bakamitai/
     └── [name]/                      # Lowercase feature package (e.g. novel, search, settings)
         ├── data/
         │   ├── remote/              # Ktor [Name]Service classes and [Name]HtmlParser (Ksoup) for this feature
-        │   ├── local/               # Feature-specific DataStore sources (if needed)
+        │   ├── local/               # Feature-specific DataStore sources, or Room: [Name]Entity, [Name]Dao, [Name]Database
         │   ├── dto/                 # [Name]DTO.kt — strictly one DTO per file (@Serializable, unless a parser builds it)
-        │   ├── mapper/              # [Name]DTOMapper.kt & [Name]DomainMapper.kt — separate files
+        │   ├── mapper/              # [Name]DTOMapper.kt / [Name]EntityMapper.kt & [Name]DomainMapper.kt — separate files
+        │   ├── worker/              # WorkManager [Name]Worker (@KoinWorker) and [Name]SchedulerImpl (if needed)
         │   └── repository/          # [Name]RepositoryImpl.kt implementing the domain interface
         ├── domain/
         │   ├── model/               # [Name].kt — pure Kotlin domain models, NO suffix
-        │   ├── repository/          # [Name]Repository.kt — interface
+        │   ├── repository/          # [Name]Repository.kt — interface; platform ports [Name]Scheduler / [Name]Notifier
         │   └── usecase/             # [Name]UseCase.kt — single responsibility, operator fun invoke
         ├── di/
         │   └── [Name]Module.kt      # @Module @ComponentScan class; classes carry @Single/@Factory/@KoinViewModel
         └── presentation/
             ├── model/               # Immutable [Name]UIModel.kt (static) & [Name]UIState.kt (dynamic)
             ├── mapper/              # [Name]UIModelMapper.kt (Domain -> UIModel / UIState)
+            ├── notification/        # [Name]NotifierImpl.kt: builds and posts system notifications (if needed)
             ├── component/           # Components reused ONLY within this feature — recursive, see §1.1
             │   └── [name]/          # One lowercase subpackage per component (e.g. novelheader/)
             │       ├── model/       # [Name]UIModel.kt / [Name]UIState.kt owned by this component
@@ -143,6 +145,7 @@ Rules:
 ```text
 BakaMitai/
 ├── app/build.gradle.kts             # Declarative only: plugins, namespace, dependencies (libs.*)
+├── app/schemas/                     # Room schemas exported at build time (bakamitai.android.room), committed
 ├── build-logic/                     # Included build: convention plugins + ALL custom Gradle tasks
 ├── config/detekt/detekt.yml
 ├── gradle/libs.versions.toml        # Version catalog: every library, BOM and plugin
@@ -176,15 +179,23 @@ Rules are in `library-management`.
 | Theme, colors, typography | `common/ui/theme/` |
 | `ObserveAsEvents`, `@AdaptivePreviews` and other non-visual Compose helpers (incl. `ContentWidth.kt`: `MaxContentWidth` and `centeredContentPadding`, the 720 dp centered column for tablets) | `common/ui/util/` |
 | Navigation plumbing shared by all features (`Navigator`, `NavigationState`, marker interfaces, bottom-sheet scene) | `common/ui/navigation/` |
+| The intent a notification opens and how `MainActivity` reads it (`showDetailsIntent`, `showSlugOrNull`) | `common/ui/navigation/ShowDeepLink.kt` |
+| The `POST_NOTIFICATIONS` request and the app-notification-settings shortcut, used by 2+ features | `common/ui/util/NotificationPermission.kt` |
 | Presentation mapper for a `common/domain` type used by 2+ features (not tied to one component) | `common/ui/mapper/[Name]UIModelMapper.kt` |
 | `UiText` (all user-visible text in `presentation`) | `common/ui/text/UiText.kt` |
-| `StringResource` / `PluralResource` / `FontResource` typealiases for `R.string` / `R.plurals` / `R.font` (the only way code names a resource) | `common/ui/resource/ResourceTypes.kt` |
+| `StringResource` / `PluralResource` / `FontResource` / `DrawableResource` typealiases for `R.string` / `R.plurals` / `R.font` / `R.drawable` (the only way code names a resource) | `common/ui/resource/ResourceTypes.kt` |
 | `ErrorUIModel`, `ErrorUIModelMapper`, `ErrorView` | `common/ui/component/error/{model,mapper}/`, `ErrorView.kt` |
 | Loading placeholders: `SkeletonView`, `SkeletonBlock`, `SkeletonTextLine`, `textLineHeight` (`best-practices` §5.3) | `common/ui/component/skeleton/SkeletonView.kt` |
 | Composable used by 2+ features | `common/ui/component/[name]/[Name]View.kt` |
 | Ktor API calls for one feature | `feature/[name]/data/remote/[Name]Service.kt` |
 | HTML parser for a scraped page (the only Ksoup user) | `feature/[name]/data/remote/[Name]HtmlParser.kt` |
 | DataStore source for one feature | `feature/[name]/data/local/[Name]LocalDataSource.kt` |
+| Room entity / DAO / database of one feature | `feature/[name]/data/local/[Name]Entity.kt` / `[Name]Dao.kt` / `[Name]Database.kt` |
+| Entity → Domain / Domain → Entity | `feature/[name]/data/mapper/[Name]EntityMapper.kt` / `[Name]DomainMapper.kt` |
+| Room database, DAO and `WorkManager` providers | the feature's `feature/[name]/di/[Name]Module.kt` |
+| WorkManager worker (`@KoinWorker`) / the scheduler that enqueues it | `feature/[name]/data/worker/[Name]Worker.kt` / `[Name]SchedulerImpl.kt` |
+| Domain port for a platform service (`[Name]Scheduler`, `[Name]Notifier`) | `feature/[name]/domain/repository/` |
+| System notifications (implements the domain `[Name]Notifier`) | `feature/[name]/presentation/notification/[Name]NotifierImpl.kt` |
 | Wire-format class (a DTO built by an HTML parser is a plain `data class`, not `@Serializable`) | `feature/[name]/data/dto/[Name]DTO.kt` |
 | DTO → Domain / Domain → DTO | `feature/[name]/data/mapper/[Name]DTOMapper.kt` / `[Name]DomainMapper.kt` |
 | Repository implementation | `feature/[name]/data/repository/[Name]RepositoryImpl.kt` |
@@ -203,6 +214,7 @@ Rules are in `library-management`.
 | Library / plugin dependency declaration | `gradle/libs.versions.toml` |
 | Custom Gradle task, convention plugin, shared build config | `build-logic/convention/src/main/kotlin/` |
 | Unit test for `X` | `app/src/test/java/com/zc/bakamitai/<same package as X>/XTest.kt` |
+| Instrumented test for `X` (Room DAO, worker, scheduler, notifier, anything needing a real `Context` or `Intent`) | `app/src/androidTest/java/com/zc/bakamitai/<same package as X>/XTest.kt` |
 | Test fakes (`Fake[Name]Repository`, `TestDispatcherProvider`) and rules (`MainDispatcherRule`) | Test source set, mirroring the package of the thing they fake (`MainDispatcherRule` → `common/util/`) |
 
 ---
@@ -315,7 +327,7 @@ grep -rlE "import com\.zc\.bakamitai\.app\." app/src/main/java/com/zc/bakamitai/
 
 ### Current repo state
 
-The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`), Schedule (`feature/schedule/`) and All Shows (`feature/shows/`) are built and enabled, and their cards and rows open **Details** (`feature/details/`), the first pushed screen: its `DetailsNavKey` implements `FullScreenNavKey` (`common/ui/navigation/`), which hides the bottom bar on phones. Bookmarks shows as a disabled destination until its feature lands. **Temporary exception (Details plan Q5):** `feature/bookmarks/` has only `data/`, `domain/` and `di/` (the bookmark DataStore and the toggle used by Details) until the Bookmarks plan adds `presentation/`. Details moved two more pieces to `common/`: the `release_date` parser (`common/data/mapper/ReleaseDateDTOMapper.kt`, from Home) and the centered-column helper (`common/ui/util/ContentWidth.kt`, from All Shows). All Shows added the first HTML parser (`feature/shows/data/remote/AllShowsHtmlParser.kt`, the only Ksoup import) and the shared `common/ui/component/emptystate/EmptyStateView.kt`. Schedule, as the second user, moved Home's shared pieces to `common/` ([docs/2-schedule.md §5.1](../../../docs/2-schedule.md#51-shared-code-moved-from-featurehome)): `Show`, `ShowSlug`, `ScheduledShow` and `GetTodayDateUseCase` in `common/domain/`, `ScheduleItemDTO`, `TodayScheduleDTO`, their mapper and image-URL mapping in `common/data/`, `TimeUIModelMapper` and `UtcOffsetUIModelMapper` in `common/ui/mapper/`, and `CoverImageView` and `TopLevelAppBarView` in `common/ui/component/`.
+The template files have moved: `app/MainActivity.kt`, `app/AppApplication.kt` (registered in the manifest), and the theme in `common/ui/theme/`. `app/navigation/` exists (`AppNavigation`, `TopLevelDestination`, `AppEntryProvider`), and `app/AppRoute.kt` hosts it. Home (`feature/home/`), Schedule (`feature/schedule/`) and All Shows (`feature/shows/`) are built and enabled, and their cards and rows open **Details** (`feature/details/`), the first pushed screen: its `DetailsNavKey` implements `FullScreenNavKey` (`common/ui/navigation/`), which hides the bottom bar on phones. **Bookmarks** (`feature/bookmarks/`) is built and enabled too, so all four tabs work: Room in `data/local/`, the release-check worker in `data/worker/`, the scheduler and notifier ports in `domain/repository/`, and the notification code in `presentation/notification/` (Bookmarks plan, [docs/5-bookmarks.md](../../../docs/5-bookmarks.md)). The Details plan's temporary exception (bookmarks without `presentation/`) is closed. Details moved two more pieces to `common/`: the `release_date` parser (`common/data/mapper/ReleaseDateDTOMapper.kt`, from Home) and the centered-column helper (`common/ui/util/ContentWidth.kt`, from All Shows). All Shows added the first HTML parser (`feature/shows/data/remote/AllShowsHtmlParser.kt`, the only Ksoup import) and the shared `common/ui/component/emptystate/EmptyStateView.kt`. Schedule, as the second user, moved Home's shared pieces to `common/` ([docs/2-schedule.md §5.1](../../../docs/2-schedule.md#51-shared-code-moved-from-featurehome)): `Show`, `ShowSlug`, `ScheduledShow` and `GetTodayDateUseCase` in `common/domain/`, `ScheduleItemDTO`, `TodayScheduleDTO`, their mapper and image-URL mapping in `common/data/`, `TimeUIModelMapper` and `UtcOffsetUIModelMapper` in `common/ui/mapper/`, and `CoverImageView` and `TopLevelAppBarView` in `common/ui/component/`.
 
 ## 8. Checklist
 

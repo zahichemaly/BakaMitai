@@ -22,6 +22,13 @@ Rules marked **MUST** / **NEVER** are non-negotiable. Examples use the feature `
 | DTO | `data/dto` | `[Name]DTO` | `VisualNovelDTO` |
 | DTO → Domain mapper | `data/mapper` | `[Name]DTOMapper.kt` | `VisualNovelDTOMapper.kt` |
 | Domain → DTO mapper | `data/mapper` | `[Name]DomainMapper.kt` | `VoteRequestDomainMapper.kt` |
+| Room entity | `data/local` | `[Name]Entity` | `BookmarkEntity` |
+| Room DAO | `data/local` | `[Name]Dao` (Room's own spelling) | `BookmarkDao` |
+| Room database | `data/local` | `[Name]Database` | `BookmarksDatabase` |
+| Entity → Domain mapper | `data/mapper` | `[Name]EntityMapper.kt` | `BookmarkEntityMapper.kt` |
+| WorkManager worker | `data/worker` | `[Name]Worker` | `ReleaseCheckWorker` |
+| Scheduling port / its implementation | `domain/repository` / `data/worker` | `[Name]Scheduler` / `[Name]SchedulerImpl` | `ReleaseCheckScheduler` / `ReleaseCheckSchedulerImpl` |
+| Notification port / its implementation | `domain/repository` / `presentation/notification` | `[Name]Notifier` / `[Name]NotifierImpl` | `ReleaseAlertNotifier` / `ReleaseAlertNotifierImpl` |
 | Domain model | `domain/model` | `[Name]` (no suffix) | `VisualNovel` |
 | Static UI model | `presentation/model` | `[Name]UIModel` | `VisualNovelUIModel` |
 | Dynamic UI model | `presentation/model` | `[Name]UIState` | `ScreenshotUIState` |
@@ -41,7 +48,7 @@ Rules marked **MUST** / **NEVER** are non-negotiable. Examples use the feature `
 | A screen's loading layout | `private` in `[Screen]Screen.kt` | `[Screen]Skeleton` | `HomeSkeleton` |
 | Koin module | `di` | file `[Name]Module.kt`, `@Module class [Name]Module` | `NovelModule.kt` → `class NovelModule` |
 
-Acronyms in suffixes are **all caps**: `DTO`, `UI` — never `Dto`, `Ui`, `UiModel`, `UiState`. The one exception is the shared text type `UiText` (`common/ui/text/UiText.kt`, see §2.5).
+Acronyms in suffixes are **all caps**: `DTO`, `UI` — never `Dto`, `Ui`, `UiModel`, `UiState`. The exceptions are the shared text type `UiText` (`common/ui/text/UiText.kt`, see §2.5) and Room's `Dao` suffix.
 
 **File name == primary declaration name.** One public top-level class/interface per file (sealed hierarchies nest their members inside the sealed interface).
 
@@ -308,6 +315,8 @@ grep -rnE "R\.(string|plurals)\.|import com\.zc\.bakamitai\.R$|[^.]stringResourc
 |---|---|---|---|
 | `DTO → Domain` | `data/mapper` | `[Name]DTOMapper.kt` | `fun [Name]DTO.toDomain(): [Name]` |
 | `Domain → DTO` (request payloads only) | `data/mapper` | `[Name]DomainMapper.kt` | `fun [Name].toDTO(): [Name]DTO` |
+| `Entity → Domain` (Room) | `data/mapper` | `[Name]EntityMapper.kt` | `fun [Name]Entity.toDomain(): [Name]` (or `to[Model]()` when one entity feeds several domain models) |
+| `Domain → Entity` (Room) | `data/mapper` | `[Name]DomainMapper.kt` | `fun [Name].toEntity(): [Name]Entity` |
 | `Domain → UIModel/UIState` | `presentation/mapper` | `[Name]UIModelMapper.kt` | `fun [Name].toUIModel(): [Name]UIModel` |
 
 **NEVER**:

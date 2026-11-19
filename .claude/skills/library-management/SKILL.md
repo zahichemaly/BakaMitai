@@ -43,11 +43,15 @@ Each approved library from `tech-stack` §1, with its catalog accessor and coord
 | Ktor Client | `libs.bundles.ktor.client`, `libs.ktor.client.logging` | `io.ktor:ktor-client-core`, `ktor-client-okhttp` (engine only), `ktor-client-content-negotiation`, `ktor-serialization-kotlinx-json`, `ktor-client-logging` |
 | kotlinx.serialization | `libs.kotlinx.serialization.json` | `org.jetbrains.kotlinx:kotlinx-serialization-json` |
 | HTML parsing (Ksoup) | `libs.ksoup` | `com.fleeksoft.ksoup:ksoup` (KMP; resolves to `ksoup-android`) |
-| DataStore | `libs.androidx.datastore.preferences` (or `libs.androidx.datastore`) | `androidx.datastore:datastore-preferences` / `androidx.datastore:datastore` |
-| Koin | `libs.koin.bom`, `libs.koin.android` *BOM*, `libs.koin.androidx.compose` *BOM*, `libs.koin.annotations` *BOM*, `libs.plugins.koin.compiler` | `io.insert-koin:koin-bom`, `koin-android`, `koin-androidx-compose`, `koin-annotations`, plugin `io.insert-koin.compiler.plugin` |
+| DataStore | `libs.androidx.datastore.preferences` | `androidx.datastore:datastore-preferences` |
+| Room | `libs.androidx.room.runtime`, `libs.androidx.room.compiler` (KSP), `libs.plugins.room`: all applied by `bakamitai.android.room` | `androidx.room:room-runtime`, `androidx.room:room-compiler`, plugin `androidx.room` |
+| KSP | `libs.plugins.ksp` (Room's compiler only, applied by `bakamitai.android.room`) | plugin `com.google.devtools.ksp` |
+| WorkManager | `libs.androidx.work.runtime` | `androidx.work:work-runtime` (includes `CoroutineWorker`) |
+| Koin | `libs.koin.bom`, `libs.koin.android` *BOM*, `libs.koin.androidx.compose` *BOM*, `libs.koin.androidx.workmanager` *BOM*, `libs.koin.annotations` *BOM*, `libs.plugins.koin.compiler` | `io.insert-koin:koin-bom`, `koin-android`, `koin-androidx-compose`, `koin-androidx-workmanager` (`@KoinWorker`, `workManagerFactory()`), `koin-annotations`, plugin `io.insert-koin.compiler.plugin` |
 | Detekt (2.x) | `libs.plugins.detekt`, `libs.detekt.formatting`, `libs.compose.rules.detekt` | plugin `dev.detekt`, `dev.detekt:detekt-rules-ktlint-wrapper`, `io.nlopez.compose.rules:detekt` (Compose rules 0.6.x require Detekt 2.x) |
 | Testing | `libs.bundles.test.unit` | `junit:junit`, `org.jetbrains.kotlin:kotlin-test-junit` (provides `kotlin.test.Test`; AGP's built-in Kotlin doesn't pick the JUnit variant of plain `kotlin-test`), `org.jetbrains.kotlinx:kotlinx-coroutines-test`, `app.cash.turbine:turbine`, `io.ktor:ktor-client-mock`, `io.insert-koin:koin-test` |
-| build-logic compile-only | `libs.android.gradle.plugin`, `libs.kotlin.gradle.plugin`, `libs.compose.gradle.plugin`, `libs.detekt.gradle.plugin` | `com.android.tools.build:gradle`, `org.jetbrains.kotlin:kotlin-gradle-plugin`, `org.jetbrains.kotlin:compose-compiler-gradle-plugin`, `dev.detekt:detekt-gradle-plugin` |
+| Instrumented testing (`androidTestImplementation`) | `libs.androidx.junit`, `libs.androidx.espresso.core`, `libs.androidx.work.testing`, `libs.kotlinx.coroutines.test`, `libs.turbine`, `libs.kotlin.test` | `androidx.test.ext:junit`, `androidx.test.espresso:espresso-core`, `androidx.work:work-testing`, plus the unit-test artifacts of the same names |
+| build-logic compile-only | `libs.android.gradle.plugin`, `libs.kotlin.gradle.plugin`, `libs.compose.gradle.plugin`, `libs.detekt.gradle.plugin`, `libs.ksp.gradle.plugin`, `libs.room.gradle.plugin` | `com.android.tools.build:gradle`, `org.jetbrains.kotlin:kotlin-gradle-plugin`, `org.jetbrains.kotlin:compose-compiler-gradle-plugin`, `dev.detekt:detekt-gradle-plugin`, `com.google.devtools.ksp:symbol-processing-gradle-plugin`, `androidx.room:room-gradle-plugin` |
 
 ---
 
@@ -135,6 +139,7 @@ build-logic/
         ├── AndroidApplicationConventionPlugin.kt   # bakamitai.android.application: SDKs, JVM target, Compose, compose compiler reports
         ├── DetektConventionPlugin.kt               # bakamitai.detekt: detekt config + detektPlugins
         ├── KotlinOnlyConventionPlugin.kt           # bakamitai.kotlin.only: registers verifyNoJavaSources
+        ├── AndroidRoomConventionPlugin.kt          # bakamitai.android.room: KSP + Room plugin, app/schemas/, room-runtime + ksp(room-compiler)
         ├── extension/                               # Project.libs helper, shared configure functions
         └── task/
             └── VerifyNoJavaSourcesTask.kt
@@ -257,7 +262,9 @@ class KotlinOnlyConventionPlugin : Plugin<Project> {
 }
 ```
 
-> **Current state:** `build-logic/` is included from `settings.gradle.kts` and has all three convention plugins: `bakamitai.android.application` (SDKs 27/37, Java 11, Compose, BuildConfig, release optimization, Compose compiler reports in `app/build/compose_compiler/`), `bakamitai.detekt` and `bakamitai.kotlin.only` (`task/VerifyNoJavaSourcesTask.kt`, wired into `check`).
+> **Current state:** `build-logic/` is included from `settings.gradle.kts` and has four convention plugins: `bakamitai.android.application` (SDKs 27/37, Java 11, Compose, BuildConfig, release optimization, Compose compiler reports in `app/build/compose_compiler/`), `bakamitai.detekt`, `bakamitai.kotlin.only` (`task/VerifyNoJavaSourcesTask.kt`, wired into `check`) and `bakamitai.android.room` (applies KSP and the Room Gradle plugin, exports schemas to `app/schemas/`, sets `room.generateKotlin`, adds `room-runtime` and `ksp(room-compiler)`).
+>
+> **KSP:** KSP2 versions are independent of Kotlin's. It runs **only** Room's compiler (Koin keeps its compiler plugin). The root `build.gradle.kts` declares `alias(libs.plugins.ksp) apply false` and `alias(libs.plugins.room) apply false`, like Detekt, so the convention plugin can apply them. A module that needs Room applies `bakamitai.android.room` instead of the two plugins.
 >
 > **Kotlin version:** AGP 9 has built-in Kotlin and brings KGP 2.2.10, but the Koin compiler plugin needs Kotlin 2.3.20–2.4.20. The root `build.gradle.kts` declares `alias(libs.plugins.kotlin.android) apply false` (never applied) so the catalog's `kotlin` version replaces it on the build classpath. When bumping `kotlin`, stay within the Koin compiler plugin's verified Kotlin versions.
 >

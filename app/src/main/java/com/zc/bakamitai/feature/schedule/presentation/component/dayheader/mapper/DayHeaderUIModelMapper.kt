@@ -1,5 +1,6 @@
 package com.zc.bakamitai.feature.schedule.presentation.component.dayheader.mapper
 
+import com.zc.bakamitai.common.ui.mapper.toDayName
 import com.zc.bakamitai.common.ui.mapper.toUtcOffsetLabel
 import com.zc.bakamitai.common.ui.resource.PluralResource
 import com.zc.bakamitai.common.ui.resource.StringResource
@@ -7,7 +8,6 @@ import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.feature.schedule.domain.model.ScheduleDay
 import com.zc.bakamitai.feature.schedule.presentation.component.dayheader.model.DayHeaderUIModel
 import com.zc.bakamitai.feature.schedule.presentation.component.dayheader.model.StatusFilterChipUIModel
-import com.zc.bakamitai.feature.schedule.presentation.mapper.toDayName
 import com.zc.bakamitai.feature.schedule.presentation.model.StatusFilter
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.UtcOffset

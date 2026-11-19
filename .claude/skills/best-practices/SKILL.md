@@ -414,6 +414,11 @@ dataStore.data
     .map { prefs -> prefs[SHOW_NSFW_COVERS] ?: false }
 ```
 
+### 4.3 Room errors
+
+- Room reports disk problems (corrupt database, full disk) as `SQLiteException`. The repository implementation maps it to `DomainError.Unknown(e)` in one private wrapper around every DAO call, and rethrows `CancellationException` untouched. A Room `Flow` rethrows it as `DomainError.Unknown` too (`.catch { if (it is SQLiteException) throw DomainError.Unknown(it) else throw it }`), so the ViewModel's `catch` shows the error state.
+- Code that must not fail half-way (a background run's "save, then notify") checks the save's `Result` before the side effect, and runs both in `withContext(NonCancellable)`.
+
 ---
 
 ## 5. UI composition, adaptive layouts & previews
@@ -633,6 +638,13 @@ class VisualNovelDTOMapperTest {
 
 - Test every `[Name]ViewModel` for **state transitions** (initial → loading → content/error) and **effect sequences**, using `MainDispatcherRule` and Turbine. Build ViewModels with real use cases backed by fake repositories.
 - `Navigator` and every `NavKey`'s serialization are unit tested (`NavigatorTest`, `NavKeySerializationTest`); a new `NavKey` is added to the serialization test's sample list.
+
+### 6.5 Instrumented tests (`androidTest`)
+
+- Code that needs Android to run (Room DAOs, WorkManager workers and schedulers, notification posting, `Intent`s) is tested in `app/src/androidTest/java/com/zc/bakamitai/`, mirroring the main tree, with `./gradlew connectedDebugAndroidTest` on an emulator.
+  - DAOs: `Room.inMemoryDatabaseBuilder`.
+  - Workers: `TestListenableWorkerBuilder` with a `WorkerFactory` over fakes; schedulers: `WorkManagerTestInitHelper`.
+- Keep the logic out of these classes: rules (dedup, schedules, retry ladders) live in pure domain code with thorough unit tests. Instrumented tests only check the platform wiring.
 - Test every `[Name]UIModelMapper` for formatting: dates, ratings, empty/null fallbacks, markup → Markdown.
 
 ```kotlin
@@ -711,6 +723,12 @@ class VisualNovelUIModelMapperTest {
 
 The last `grep` must print nothing for Screens and Views.
 
+When `app/src/androidTest/` or the code it covers changed, also run (needs an emulator; it uninstalls the app afterwards):
+
+```bash
+./gradlew connectedDebugAndroidTest
+```
+
 ## 8. Checklist
 
 - [ ] Every State, UIModel and UIState is `@Immutable` (or `@Stable`) and uses only immutable collections.
@@ -721,8 +739,8 @@ The last `grep` must print nothing for Screens and Views.
 - [ ] `./gradlew detekt` passes; no unexplained `@Suppress`; compose reports show no unstable parameters.
 - [ ] Routes use `collectAsStateWithLifecycle()` and `ObserveAsEvents`.
 - [ ] No hardcoded dispatchers (only `DispatcherProvider`); `CancellationException` is never swallowed; Flows reach the ViewModel through `stateIn(WhileSubscribed(5_000))`.
-- [ ] Network failures go through `safeApiCall` → `DomainError` → `ErrorUIModel`; DataStore reads `.catch` `IOException`.
+- [ ] Network failures go through `safeApiCall` → `DomainError` → `ErrorUIModel`; DataStore reads `.catch` `IOException`; Room's `SQLiteException` becomes `DomainError.Unknown`.
 - [ ] User-visible text in State/UIModel/UIState/Effect is `UiText`, resolved with `asString()`; strings are referenced as `StringResource.x` / `PluralResource.x` (never `R.string` / `R.plurals`), and nothing outside `UiText` calls `stringResource()` / `getString()` or carries a raw resource id.
 - [ ] Screens and Views are stateless, with `@AdaptivePreviews`; theme tokens only; 48.dp touch targets; meaningful `contentDescription`s.
 - [ ] Loading states are shimmering skeletons (§5.3): one `SkeletonView` per screen or section, mirroring the content layout, built from each component's `[Name]SkeletonView`; no `CircularProgressIndicator` / `LinearProgressIndicator` except `PullToRefreshBox`'s and determinate progress.
-- [ ] Tests exist for every new use case, service, mapper and ViewModel, and they pass; new `NavKey`s are in `NavKeySerializationTest`.
+- [ ] Tests exist for every new use case, service, mapper and ViewModel, and they pass; new `NavKey`s are in `NavKeySerializationTest`; DAOs, workers and notifiers have instrumented tests.

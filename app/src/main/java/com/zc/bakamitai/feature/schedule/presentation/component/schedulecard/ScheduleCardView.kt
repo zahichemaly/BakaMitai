@@ -1,23 +1,15 @@
 package com.zc.bakamitai.feature.schedule.presentation.component.schedulecard
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Alarm
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +29,9 @@ import com.zc.bakamitai.common.ui.component.coverimage.POSTER_ASPECT_RATIO
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonBlock
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonTextLine
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
+import com.zc.bakamitai.common.ui.component.timechip.TimeChipView
+import com.zc.bakamitai.common.ui.component.timechip.model.TimeChipTone
+import com.zc.bakamitai.common.ui.component.timechip.model.TimeChipUIModel
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
@@ -48,11 +43,7 @@ import com.zc.bakamitai.feature.schedule.presentation.component.schedulecard.mod
 private const val TITLE_LINES = 2
 private const val SCRIM_MIDDLE_STOP = 0.5f
 private const val SCRIM_MIDDLE_ALPHA = 0.4f
-private const val TIME_CHIP_CONTAINER_ALPHA = 0.8f
 private const val SKELETON_SECOND_LINE_FRACTION = 0.6f
-private val TimeIconSize = 14.dp
-private val TimeChipHorizontalPadding = 8.dp
-private val TimeChipVerticalPadding = 2.dp
 private val PreviewCardWidth = 180.dp
 
 /**
@@ -105,9 +96,8 @@ private fun ColumnScope.ScheduleCardContent(model: ScheduleCardUIModel) {
                     .padding(spacing.sm),
             )
         }
-        TimeChip(
-            timeLabel = model.timeLabel,
-            isUpcoming = model.status?.isUpcoming == true,
+        TimeChipView(
+            model = model.time,
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(spacing.sm),
@@ -122,32 +112,6 @@ private fun ColumnScope.ScheduleCardContent(model: ScheduleCardUIModel) {
         minLines = TITLE_LINES,
         style = MaterialTheme.typography.titleMedium,
     )
-}
-
-/** The scheduled time: tertiary with an alarm for an upcoming show, otherwise a primary clock. */
-@Composable
-private fun TimeChip(timeLabel: UiText, isUpcoming: Boolean, modifier: Modifier = Modifier) {
-    val colors = MaterialTheme.colorScheme
-    Surface(
-        modifier = modifier,
-        shape = CircleShape,
-        color = colors.surfaceContainerLowest.copy(alpha = TIME_CHIP_CONTAINER_ALPHA),
-        contentColor = if (isUpcoming) colors.tertiary else colors.onSurface,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = TimeChipHorizontalPadding, vertical = TimeChipVerticalPadding),
-            horizontalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = if (isUpcoming) Icons.Outlined.Alarm else Icons.Outlined.Schedule,
-                contentDescription = null,
-                modifier = Modifier.size(TimeIconSize),
-                tint = if (isUpcoming) colors.tertiary else colors.primary,
-            )
-            Text(text = timeLabel.asString(), maxLines = 1, style = MaterialTheme.typography.labelSmall)
-        }
-    }
 }
 
 /**
@@ -189,7 +153,7 @@ private class ScheduleCardPreviewProvider : PreviewParameterProvider<Pair<Schedu
             slug = "bleach",
             title = UiText.StringValue("Bleach: Thousand-Year Blood War"),
             coverUrl = null,
-            timeLabel = UiText.StringValue("5:00 PM"),
+            time = TimeChipUIModel(UiText.StringValue("5:00 PM"), TimeChipTone.DEFAULT),
             status = previewAired,
         ) to true,
         ScheduleCardUIModel(
@@ -197,7 +161,7 @@ private class ScheduleCardPreviewProvider : PreviewParameterProvider<Pair<Schedu
             slug = "dungeon",
             title = UiText.StringValue("Delicious in Dungeon"),
             coverUrl = null,
-            timeLabel = UiText.StringValue("9:00 PM"),
+            time = TimeChipUIModel(UiText.StringValue("9:00 PM"), TimeChipTone.UPCOMING),
             status = previewUpcoming,
         ) to false,
         ScheduleCardUIModel(
@@ -205,7 +169,7 @@ private class ScheduleCardPreviewProvider : PreviewParameterProvider<Pair<Schedu
             slug = "prince",
             title = UiText.StringValue("The Prince of Tennis II - U-17 World Cup Final Member Selection Match"),
             coverUrl = null,
-            timeLabel = UiText.StringValue("11:00 AM"),
+            time = TimeChipUIModel(UiText.StringValue("11:00 AM"), TimeChipTone.DEFAULT),
             status = null,
         ) to false,
     )

@@ -109,6 +109,35 @@ class NavigatorTest {
     }
 
     @Test
+    fun `navigating from start selects the start tab, pops it to the root and pushes the key`() {
+        navigator.navigate(Details("one-piece"))
+        navigator.navigate(Schedule)
+        navigator.navigate(Details("dandadan"))
+
+        navigator.navigateFromStart(Details("frieren"))
+
+        assertEquals(Home, state.topLevelRoute)
+        assertEquals(listOf(Home, Details("frieren")), state.visibleKeys)
+        assertEquals(listOf(Schedule, Details("dandadan")), state.backStacks.getValue(Schedule).toList())
+    }
+
+    @Test
+    fun `navigating from start then back returns to the start root`() {
+        navigator.navigateFromStart(Details("frieren"))
+        navigator.goBack()
+
+        assertEquals(listOf<NavKey>(Home), state.visibleKeys)
+    }
+
+    @Test
+    fun `navigating from start to a top-level key only selects it`() {
+        navigator.navigateFromStart(Schedule)
+
+        assertEquals(Schedule, state.topLevelRoute)
+        assertEquals(listOf(Home, Schedule), state.visibleKeys)
+    }
+
+    @Test
     fun `back pops the selected tab`() {
         navigator.navigate(Details("frieren"))
         navigator.goBack()

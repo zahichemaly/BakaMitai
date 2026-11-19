@@ -16,6 +16,9 @@ sealed interface DetailsEffect {
     /** The share sheet, with [text] (the title and the page URL) and [title]. */
     data class Share(val title: UiText, val text: UiText) : DetailsEffect
 
+    /** The first bookmark was just added: ask for the notification permission, for new-episode alerts. */
+    data object AskForReleaseAlerts : DetailsEffect
+
     /** A refresh or a bookmark write failed while content is shown. */
     data class ShowError(val error: ErrorUIModel) : DetailsEffect
 }

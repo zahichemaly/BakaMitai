@@ -2,6 +2,8 @@ package com.zc.bakamitai.feature.schedule.presentation.component.schedulecard.ma
 
 import com.zc.bakamitai.common.domain.model.ShowTestData.scheduled
 import com.zc.bakamitai.common.domain.model.ShowTestData.show
+import com.zc.bakamitai.common.ui.component.timechip.model.TimeChipTone
+import com.zc.bakamitai.common.ui.component.timechip.model.TimeChipUIModel
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.feature.schedule.presentation.component.schedulecard.component.statusbadge.model.StatusBadgeUIModel
@@ -24,7 +26,7 @@ class ScheduleCardUIModelMapperTest {
                 slug = "bleach",
                 title = UiText.StringValue("Bleach"),
                 coverUrl = "https://subsplease.org/cover.jpg",
-                timeLabel = UiText.StringValue("5:00 PM"),
+                time = TimeChipUIModel(UiText.StringValue("5:00 PM"), TimeChipTone.DEFAULT),
                 status = StatusBadgeUIModel(
                     UiText.StringResource(StringResource.schedule_status_aired),
                     isUpcoming = false,
@@ -41,11 +43,14 @@ class ScheduleCardUIModelMapperTest {
         assertNull(card.coverUrl)
         assertNull(card.status)
         assertEquals("x@08:05", card.key)
-        assertEquals(UiText.StringValue("8:05 AM"), card.timeLabel)
+        assertEquals(TimeChipUIModel(UiText.StringValue("8:05 AM"), TimeChipTone.DEFAULT), card.time)
     }
 
     @Test
-    fun `an upcoming show has the upcoming badge`() {
-        assertEquals(true, scheduled("x", LocalTime(8, 0), aired = false).toScheduleCardUIModel().status?.isUpcoming)
+    fun `an upcoming show has the upcoming badge and an upcoming time chip`() {
+        val card = scheduled("x", LocalTime(8, 0), aired = false).toScheduleCardUIModel()
+
+        assertEquals(true, card.status?.isUpcoming)
+        assertEquals(TimeChipTone.UPCOMING, card.time.tone)
     }
 }

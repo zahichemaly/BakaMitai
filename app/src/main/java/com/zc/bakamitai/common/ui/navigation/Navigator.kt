@@ -28,6 +28,21 @@ class Navigator(val state: NavigationState) {
     }
 
     /**
+     * Opens [key] over the start route (a notification tap): selects the start tab, pops its stack to the root and
+     * pushes [key]. Other tabs keep their stacks. A top-level [key] is only selected.
+     */
+    fun navigateFromStart(key: NavKey) {
+        if (key in state.backStacks.keys) {
+            state.topLevelRoute = key
+            return
+        }
+        state.topLevelRoute = state.startRoute
+        val stack = state.backStacks.getValue(state.startRoute)
+        while (stack.size > 1) stack.removeAt(stack.lastIndex)
+        stack.add(key)
+    }
+
+    /**
      * Pops the selected tab's stack. At the root of a tab other than the start route, returns to the start
      * route instead ("exit through home"). At the root of the start route, does nothing: `NavDisplay` leaves the
      * app.

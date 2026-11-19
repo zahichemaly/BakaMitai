@@ -23,21 +23,27 @@ import androidx.navigation3.ui.NavDisplay
 import com.zc.bakamitai.common.ui.navigation.FullScreenNavKey
 import com.zc.bakamitai.common.ui.navigation.Navigator
 import com.zc.bakamitai.common.ui.navigation.rememberNavigationState
+import com.zc.bakamitai.common.ui.util.ObserveAsEvents
+import com.zc.bakamitai.feature.details.presentation.navigation.navigateToDetailsFromStart
 import com.zc.bakamitai.feature.home.presentation.navigation.HomeNavKey
+import kotlinx.coroutines.flow.Flow
 
 private const val NAV_INDICATOR_ALPHA = 0.2f
 
 /**
  * The app shell: the navigation suite (bottom bar on compact widths or heights, rail otherwise) around the
- * selected tab's back stack. Tabs whose feature isn't built yet are shown disabled. The bottom bar hides while a
+ * selected tab's back stack. A tab whose feature isn't built yet is shown disabled. The bottom bar hides while a
  * `FullScreenNavKey` (Details) is on top; reselecting the selected tab pops it back to its root.
+ *
+ * @param showDeepLinks slugs of shows to open from notifications: each opens the show's Details over Home.
  */
 @Composable
-fun AppNavigation(modifier: Modifier = Modifier) {
+fun AppNavigation(showDeepLinks: Flow<String>, modifier: Modifier = Modifier) {
     val topLevelRoutes = remember { TopLevelDestination.entries.mapNotNull { it.key }.toSet() }
     val navigationState = rememberNavigationState(startRoute = HomeNavKey, topLevelRoutes = topLevelRoutes)
     val navigator = remember(navigationState) { Navigator(navigationState) }
     val entryProvider = remember(navigator) { appEntryProvider(navigator) }
+    ObserveAsEvents(showDeepLinks, navigator) { slug -> navigator.navigateToDetailsFromStart(slug) }
     val itemColors = navigationSuiteItemColors()
     // A full-screen key on top slides the bottom bar away; the rail of wider windows stays.
     val layoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())

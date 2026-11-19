@@ -46,7 +46,11 @@ import com.zc.bakamitai.common.ui.component.emptystate.EmptyStateView
 import com.zc.bakamitai.common.ui.component.error.ErrorView
 import com.zc.bakamitai.common.ui.component.error.model.ErrorUIModel
 import com.zc.bakamitai.common.ui.component.skeleton.SkeletonView
+import com.zc.bakamitai.common.ui.component.timechip.model.TimeChipTone
+import com.zc.bakamitai.common.ui.component.timechip.model.TimeChipUIModel
 import com.zc.bakamitai.common.ui.component.toplevelappbar.TopLevelAppBarView
+import com.zc.bakamitai.common.ui.mapper.toDayName
+import com.zc.bakamitai.common.ui.mapper.toShortDayName
 import com.zc.bakamitai.common.ui.resource.PluralResource
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
@@ -63,8 +67,6 @@ import com.zc.bakamitai.feature.schedule.presentation.component.schedulecard.Sch
 import com.zc.bakamitai.feature.schedule.presentation.component.schedulecard.ScheduleCardView
 import com.zc.bakamitai.feature.schedule.presentation.component.schedulecard.component.statusbadge.model.StatusBadgeUIModel
 import com.zc.bakamitai.feature.schedule.presentation.component.schedulecard.model.ScheduleCardUIModel
-import com.zc.bakamitai.feature.schedule.presentation.mapper.toDayName
-import com.zc.bakamitai.feature.schedule.presentation.mapper.toShortDayName
 import com.zc.bakamitai.feature.schedule.presentation.model.ScheduleDayUIModel
 import com.zc.bakamitai.feature.schedule.presentation.model.ScheduleEmptyUIModel
 import com.zc.bakamitai.feature.schedule.presentation.model.StatusFilter
@@ -338,7 +340,10 @@ private fun previewCard(title: String, time: String, status: StatusBadgeUIModel?
     slug = title,
     title = UiText.StringValue(title),
     coverUrl = null,
-    timeLabel = UiText.StringValue(time),
+    time = TimeChipUIModel(
+        label = UiText.StringValue(time),
+        tone = if (status?.isUpcoming == true) TimeChipTone.UPCOMING else TimeChipTone.DEFAULT,
+    ),
     status = status,
 )
 

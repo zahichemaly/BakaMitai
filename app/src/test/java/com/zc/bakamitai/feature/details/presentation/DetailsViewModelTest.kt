@@ -12,6 +12,7 @@ import com.zc.bakamitai.common.util.FixedClock
 import com.zc.bakamitai.common.util.MainDispatcherRule
 import com.zc.bakamitai.feature.bookmarks.domain.model.Bookmark
 import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeBookmarkRepository
+import com.zc.bakamitai.feature.bookmarks.domain.repository.FakeReleaseCheckScheduler
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ObserveIsBookmarkedUseCase
 import com.zc.bakamitai.feature.bookmarks.domain.usecase.ToggleBookmarkUseCase
 import com.zc.bakamitai.feature.details.domain.DetailsTestData.episode
@@ -75,7 +76,7 @@ class DetailsViewModelTest {
         getShowOverview = GetShowOverviewUseCase(repository),
         getShowEpisodes = GetShowEpisodesUseCase(repository, FixedTimeZoneProvider(newYork)),
         observeIsBookmarked = ObserveIsBookmarkedUseCase(bookmarks),
-        toggleBookmark = ToggleBookmarkUseCase(bookmarks, FixedClock(now)),
+        toggleBookmark = ToggleBookmarkUseCase(bookmarks, FakeReleaseCheckScheduler(), FixedClock(now)),
     )
 
     /** Keeps the `WhileSubscribed` state collected, so `state.value` follows every update. */
@@ -314,6 +315,33 @@ class DetailsViewModelTest {
         viewModel.onIntent(DetailsIntent.BookmarkClicked)
         advanceUntilIdle()
         assertFalse(viewModel.state.value.isBookmarked)
+    }
+
+    @Test
+    fun `the very first bookmark asks for release alerts`() = runTest {
+        val viewModel = loadedViewModel()
+
+        viewModel.effect.test {
+            viewModel.onIntent(DetailsIntent.BookmarkClicked)
+
+            assertEquals(DetailsEffect.AskForReleaseAlerts, awaitItem())
+        }
+    }
+
+    @Test
+    fun `a second bookmark or a removal asks for nothing`() = runTest {
+        bookmarks.bookmarks.value = listOf(Bookmark(show("dandadan"), now))
+        val viewModel = loadedViewModel()
+
+        viewModel.effect.test {
+            viewModel.onIntent(DetailsIntent.BookmarkClicked)
+            advanceUntilIdle()
+            viewModel.onIntent(DetailsIntent.BookmarkClicked)
+            advanceUntilIdle()
+
+            expectNoEvents()
+        }
+        assertEquals(2, bookmarks.toggled.size)
     }
 
     @Test

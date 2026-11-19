@@ -1,35 +1,30 @@
 package com.zc.bakamitai.feature.bookmarks.di
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.dataStoreFile
-import com.zc.bakamitai.feature.bookmarks.data.dto.BookmarkListDTO
-import com.zc.bakamitai.feature.bookmarks.data.local.BOOKMARKS_DATA_STORE
-import com.zc.bakamitai.feature.bookmarks.data.local.BookmarkListSerializer
-import kotlinx.serialization.json.Json
+import androidx.room.Room
+import androidx.work.WorkManager
+import com.zc.bakamitai.feature.bookmarks.data.local.BOOKMARKS_DATABASE_NAME
+import com.zc.bakamitai.feature.bookmarks.data.local.BookmarkDao
+import com.zc.bakamitai.feature.bookmarks.data.local.BookmarksDatabase
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
-import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 
-private const val BOOKMARKS_FILE = "bookmarks.json"
-
 /**
- * Registers the annotated classes of the Bookmarks feature, and its `DataStore`. The store is provided here,
- * not in `CommonModule` (which can't see a feature's DTO), and named so it can't collide with another
- * `DataStore` binding (Koin keys by class, and the type argument is erased).
+ * Registers the annotated classes of the Bookmarks feature (repository, scheduler, worker, notifier, ViewModel),
+ * and the types it doesn't own: the Room database, its DAO and `WorkManager`.
  */
 @Module
 @ComponentScan("com.zc.bakamitai.feature.bookmarks")
 class BookmarksModule {
 
     @Single
-    @Named(BOOKMARKS_DATA_STORE)
-    fun bookmarksDataStore(context: Context, json: Json): DataStore<BookmarkListDTO> = DataStoreFactory.create(
-        serializer = BookmarkListSerializer(json),
-        corruptionHandler = ReplaceFileCorruptionHandler { BookmarkListDTO(bookmarks = emptyList()) },
-        produceFile = { context.dataStoreFile(BOOKMARKS_FILE) },
-    )
+    fun bookmarksDatabase(context: Context): BookmarksDatabase =
+        Room.databaseBuilder<BookmarksDatabase>(context, BOOKMARKS_DATABASE_NAME).build()
+
+    @Single
+    fun bookmarkDao(database: BookmarksDatabase): BookmarkDao = database.bookmarkDao()
+
+    @Single
+    fun workManager(context: Context): WorkManager = WorkManager.getInstance(context)
 }

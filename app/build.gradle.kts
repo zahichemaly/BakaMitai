@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.bakamitai.android.application)
     alias(libs.plugins.bakamitai.detekt)
     alias(libs.plugins.bakamitai.kotlin.only)
+    alias(libs.plugins.bakamitai.android.room)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.koin.compiler)
 }
@@ -56,12 +57,15 @@ dependencies {
     implementation(libs.coil.network.ktor3)
     implementation(libs.richtext.ui.material3)
     implementation(libs.richtext.commonmark)
-    implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.preferences)
+
+    // Background work
+    implementation(libs.androidx.work.runtime)
 
     // DI
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.workmanager)
     implementation(libs.koin.annotations)
 
     testImplementation(libs.bundles.test.unit)
@@ -70,6 +74,10 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.work.testing)
+    androidTestImplementation(libs.kotlin.test)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.turbine)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

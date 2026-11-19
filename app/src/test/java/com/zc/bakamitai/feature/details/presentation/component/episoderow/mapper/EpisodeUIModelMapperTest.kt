@@ -16,37 +16,9 @@ class EpisodeUIModelMapperTest {
         episode(label).toEpisodeUIState(isBatch = isBatch, timeZone = newYork, isExpanded = false).title
 
     @Test
-    fun `a number is an episode`() {
-        assertEquals(UiText.StringResource(StringResource.details_episode, listOf("20")), title("20"))
-        assertEquals(UiText.StringResource(StringResource.details_episode, listOf("07")), title("07"))
-    }
-
-    @Test
-    fun `a revision is the episode with its version`() {
-        assertEquals(
-            UiText.StringResource(StringResource.details_episode_revision, listOf("1216", "2")),
-            title("1216v2"),
-        )
-    }
-
-    @Test
-    fun `a movie in any case is Movie`() {
-        assertEquals(UiText.StringResource(StringResource.details_episode_movie), title("Movie"))
-        assertEquals(UiText.StringResource(StringResource.details_episode_movie), title("movie"))
-    }
-
-    @Test
-    fun `a batch range uses an en dash`() {
-        assertEquals(
-            UiText.StringResource(StringResource.details_episode_batch, listOf("01–28")),
-            title("01-28", isBatch = true),
-        )
-    }
-
-    @Test
-    fun `anything else is shown as SubsPlease writes it`() {
+    fun `the title is the shared episode title`() {
+        assertEquals(UiText.StringResource(StringResource.episode_label_number, listOf("20")), title("20"))
         assertEquals(UiText.StringValue("Egghead SP11"), title("Egghead SP11"))
-        assertEquals(UiText.StringValue("The Counterfeit Case of Ultra 30"), title("The Counterfeit Case of Ultra 30"))
     }
 
     @Test

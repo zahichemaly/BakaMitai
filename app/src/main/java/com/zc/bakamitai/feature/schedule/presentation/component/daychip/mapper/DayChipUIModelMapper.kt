@@ -1,12 +1,12 @@
 package com.zc.bakamitai.feature.schedule.presentation.component.daychip.mapper
 
+import com.zc.bakamitai.common.ui.mapper.toDayName
+import com.zc.bakamitai.common.ui.mapper.toShortDayName
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.feature.schedule.domain.model.ScheduleDay
 import com.zc.bakamitai.feature.schedule.domain.model.WeeklySchedule
 import com.zc.bakamitai.feature.schedule.presentation.component.daychip.model.DayChipUIModel
-import com.zc.bakamitai.feature.schedule.presentation.mapper.toDayName
-import com.zc.bakamitai.feature.schedule.presentation.mapper.toShortDayName
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate

@@ -114,7 +114,7 @@ What the app does with this data (which screen uses which call, and how) is in [
 
 - The response is an **object keyed by `"<show> - <episode>"`**. Decode it as `Map<String, ReleaseDTO>` and use the **values**. Order is newest first, but sort by `release_date` yourself.
 - **20 items per page.** Only `p=1` and `p=2` work. From `p=3` on, the response is `{"error":"limit_reached"}`, which has a different shape. Handle it.
-- **The feed can lag by days.** On 2026-11-18 at 15:21 UTC, page 1 started on Sun 15 Nov while releases up to Wed 18 Nov existed; it had caught up by about 15:40 UTC, and lagged again at 20:28 UTC. The website's homepage makes the same call, so it's stale too. [Search with an empty `s`](#34-search-releases) stayed current, so Home merges both and removes duplicates.
+- **The feed can lag by days.** On 2026-11-18 at 15:21 UTC, page 1 started on Sun 15 Nov while releases up to Wed 18 Nov existed; it had caught up by about 15:40 UTC, and lagged again at 20:28 UTC. The website's homepage makes the same call, so it's stale too. [Search with an empty `s`](#34-search-releases) stayed current, so Home merges both and removes duplicates. On 2026-11-19 at 09:57 UTC it was 3 days behind again.
 - `release_date` is RFC 1123 (`EEE, dd MMM yyyy HH:mm:ss Z`). **Always parse it to an `Instant`.** Its offset **varies per item**, even for one show: some items use the requested `tz` (`-0500`), others the server's zone (`+0100`, `+0200` and `-0300` were all seen on one day). Never trust the offset; convert the `Instant` to the device zone yourself.
 - **`release_date` is currently 1 hour early.** See [§3.5](#35-show-episodes); it applies to this endpoint too.
 - `time` is only a display label: `"New"` (released in the last ~24 h) or `"Nov 17th"`. **Never use it in logic.**
@@ -129,7 +129,7 @@ What the app does with this data (which screen uses which call, and how) is in [
 `GET /api/?f=search&tz=<tz>&s=<query>`
 
 - Same shape as [latest releases](#33-latest-releases): an object keyed by `"<show> - <episode>"`, with `page` and `image_url`, and magnet-only `downloads`.
-- **An empty query (`s=`) returns the 20 newest releases**, in the same shape and without the lag `f=latest` sometimes has. `p` is ignored. The website calls it when its search box is cleared.
+- **An empty query (`s=`) returns the 20 newest releases**, in the same shape and without the lag `f=latest` sometimes has. `p` is ignored. The website calls it when its search box is cleared. Its window is about **45 hours** of releases (20 items, 9–10 releases per busy day; checked 2026-11-19), newest first. A search for a title returns that show's releases newest first (filter by `page`).
 - **No results returns `[]`**, an empty **array** rather than an object. Decode defensively: check whether the root is a `JsonArray` or a `JsonObject`.
 - `time` labels are `"New"` / `"Nov 17th"` for an empty query and `"New"` / `"MM/dd/yy"` otherwise. Display only, never parse. `release_date` has the same offset and 1-hour issues as [latest releases](#33-latest-releases).
 - Results appear capped (30 were returned for `s=sora`) and can include several shows whose titles match. Filter by `page` when you need one show.
@@ -172,7 +172,8 @@ What the app does with this data (which screen uses which call, and how) is in [
 - **Downloads:** every entry checked had `res`, `magnet`, `torrent` and `xdcc` filled, ordered 480 → 720 → 1080. `360` and `540` appear live as the SD value. The site still renders three slots (SD / 720p / 1080p) and greys out a missing one.
 - `release_date` here **ignores `tz`**: `tz=Asia/Tokyo` returned the same values. Its offset is **per show**, not the server's (`-0500`/`-0400` for most shows, `+0100`/`+0200` and `+0800` for others). Parse to `Instant` and convert to the device zone yourself.
 - Sizes: 3 KB for a one-entry movie up to about 159 KB for 52 entries (about 10 KB gzipped).
-- **The instant is 1 hour early since European DST ended (25 Oct 2026).** Checked against nyaa.si upload times for *Tensei Shitara Ken Deshita S2*: episodes 07 (11 Nov) and 08 (18 Nov) are an hour early, episode 04 (21 Oct) is correct. The schedule `time` matches the real release. The app shows `release_date` as-is, because it can't tell when the server gets fixed; so in winter, release times look an hour early, and a release in the first local hour after midnight counts as the previous day.
+- **The instant is 1 hour early since late October / early November 2026**, most likely since **US** DST ended (1 Nov): *Kyouran Reijou Nia Liston* episode 04 (27 Oct) matched its slot and episode 05 (3 Nov) was 56 min early. It will likely end when US DST starts (14 Mar 2027). Checked against nyaa.si upload times for *Tensei Shitara Ken Deshita S2*: episodes 07 (11 Nov) and 08 (18 Nov) are an hour early, episode 04 (21 Oct) is correct. The schedule `time` matches the real release. The app shows `release_date` as-is, because it can't tell when the server gets fixed; so in winter, release times look an hour early, and a release in the first local hour after midnight counts as the previous day.
+- **Releases follow the weekly slot within minutes:** for 37 of 39 releases checked on 2026-11-19, the real release (with the skew removed) came 1–6 min after the show's weekly-schedule slot. Exceptions run later (+35, +69 min), and an older episode can be released after a newer one (*Gensou Suikoden* 02 after 07).
 - This response has **no `image_url` and no `page`**. Those come from the [show page](#42-show-page).
 
 ### 3.6 Resolutions
@@ -285,6 +286,7 @@ The JSON API covers every screen. RSS is listed only so nobody rediscovers it as
 - **Be a polite scraper.** SubsPlease is a volunteer-run site:
   - no polling and no background sync
   - fetch on screen open and on pull-to-refresh only
+  - **Exception: new-episode alerts (Bookmarks plan, 2026-11-19).** Only while the user has bookmarks and notifications are on. Event-driven, never periodic: a check runs 10 minutes after a bookmarked show's weekly slot, and retries over 24 hours (10 min, 30 min, 1 h, 2 h, 4 h, 8 h, 16 h, 24 h after the slot) only while that episode isn't out. A check makes **one** `f=search&s=` request for all bookmarks (`f=latest&p=1` only if it fails), plus one `f=search&s=<title>` per late show only when the newest releases no longer reach back to its slot (at most 5 per check). Slots come from `f=schedule` at most once a day. Budget: about one request per bookmarked show per week when episodes are on time.
 - **In-memory caches**, all invalidated by pull-to-refresh:
   - All shows list: for the process lifetime
   - weekly schedule: about 1 h

@@ -22,12 +22,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.util.ObserveAsEvents
+import com.zc.bakamitai.common.ui.util.canAskNotificationPermission
+import com.zc.bakamitai.common.ui.util.rememberNotificationPermissionRequester
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 /**
- * Details' navigation destination. It opens links, the share sheet and snackbars itself, in response to effects.
+ * Details' navigation destination. It opens links, the share sheet, snackbars and the notification permission
+ * dialog (on the first bookmark) itself, in response to effects.
  * Snackbars run in their own coroutine, so a 10-second one never holds back a later effect such as going back.
  *
  * @param slug the show to load.
@@ -44,6 +47,15 @@ fun DetailsRoute(
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
+    val askForAlerts = rememberNotificationPermissionRequester { granted ->
+        if (!granted) {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    UiText.StringResource(StringResource.details_alerts_denied).asString(context),
+                )
+            }
+        }
+    }
 
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
@@ -73,6 +85,8 @@ fun DetailsRoute(
 
             is DetailsEffect.Share ->
                 context.share(title = effect.title.asString(context), text = effect.text.asString(context))
+
+            DetailsEffect.AskForReleaseAlerts -> if (context.canAskNotificationPermission()) askForAlerts()
 
             is DetailsEffect.ShowError -> scope.launch {
                 snackbarHostState.showSnackbar(effect.error.message.asString(context))

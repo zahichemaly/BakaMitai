@@ -9,9 +9,13 @@ import coil3.request.crossfade
 import com.zc.bakamitai.app.di.AppKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.plugin.module.dsl.startKoin
 
-/** Starts Koin and provides Coil's singleton [ImageLoader] (Ktor network fetcher). */
+/**
+ * Starts Koin (which also initializes WorkManager with its worker factory) and provides Coil's singleton
+ * [ImageLoader] (Ktor network fetcher).
+ */
 class AppApplication :
     Application(),
     SingletonImageLoader.Factory {
@@ -21,6 +25,7 @@ class AppApplication :
         startKoin<AppKoin> {
             androidLogger()
             androidContext(this@AppApplication)
+            workManagerFactory()
         }
     }
 

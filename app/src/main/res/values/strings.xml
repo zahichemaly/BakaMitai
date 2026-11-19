@@ -26,6 +26,13 @@
     <!-- Shared labels (common/ui/mapper) -->
     <!-- %1$s: the offset after "UTC": "+9", "-5", "+5:30", or empty at zero. -->
     <string name="utc_offset">UTC%1$s</string>
+    <!-- Episode titles (Details' rows, new-episode notifications). %1$s: the episode as SubsPlease writes it, "20". -->
+    <string name="episode_label_number">Episode %1$s</string>
+    <!-- %1$s: the episode, "1216"; %2$s: the revision, "2". -->
+    <string name="episode_label_revision">Episode %1$s (v%2$s)</string>
+    <!-- %1$s: the range with an en dash, "01–28". -->
+    <string name="episode_label_batch">Episodes %1$s</string>
+    <string name="episode_label_movie">Movie</string>
 
     <!-- Days of the week (Schedule's day tabs; neutral names so Settings can reuse them) -->
     <string name="day_monday">Monday</string>
@@ -111,13 +118,6 @@
     <!-- Group labels are stored uppercase (DESIGN.md labels). -->
     <string name="details_group_batches">BATCHES</string>
     <string name="details_group_episodes">EPISODES</string>
-    <!-- %1$s: the episode as SubsPlease writes it, "20". -->
-    <string name="details_episode">Episode %1$s</string>
-    <!-- %1$s: the episode, "1216"; %2$s: the revision, "2". -->
-    <string name="details_episode_revision">Episode %1$s (v%2$s)</string>
-    <!-- %1$s: the range with an en dash, "01–28". -->
-    <string name="details_episode_batch">Episodes %1$s</string>
-    <string name="details_episode_movie">Movie</string>
     <!-- %1$s: the release date, "Nov 17, 2026"; %2$s: the time, "12:38 PM". -->
     <string name="details_episode_released">%1$s · %2$s</string>
     <!-- An episode row's click action for TalkBack. -->
@@ -146,6 +146,46 @@
     <string name="details_link_copied">Link copied</string>
     <!-- The clipboard entry's label (not shown on most devices). -->
     <string name="details_clip_label">Link</string>
+    <string name="details_alerts_denied">New-episode alerts are off. You can turn them on in Bookmarks.</string>
+
+    <!-- Bookmarks (feature/bookmarks) -->
+    <string name="bookmarks_app_bar_subtitle">BOOKMARKS</string>
+    <string name="bookmarks_sort_recently_added">Recently added</string>
+    <string name="bookmarks_sort_title">Title (A–Z)</string>
+    <string name="bookmarks_sort_release_time">Release time</string>
+    <!-- Labels are stored uppercase (DESIGN.md labels). -->
+    <string name="bookmarks_header_title">SAVED SHOWS</string>
+    <string name="bookmarks_alerts_on">ALERTS ON</string>
+    <string name="bookmarks_alerts_off">ALERTS OFF</string>
+    <string name="cd_bookmarks_alerts_on">New-episode alerts are on. Opens notification settings</string>
+    <string name="cd_bookmarks_alerts_off">New-episode alerts are off. Turns them on</string>
+    <!-- %1$s: the date the show was bookmarked, "Nov 18, 2026". -->
+    <string name="bookmarks_added_on">Added %1$s</string>
+    <!-- The next airing, uppercase. %1$s: the time, "9:30 PM". -->
+    <string name="bookmarks_airing_today">TODAY %1$s</string>
+    <!-- %1$s: the short day name, "MON"; %2$s: the time, "9:30 PM". -->
+    <string name="bookmarks_airing_day">%1$s %2$s</string>
+    <string name="bookmarks_not_airing">NOT AIRING</string>
+    <!-- A card's click action for TalkBack. -->
+    <string name="cd_bookmarks_open">Open details</string>
+    <!-- %1$s: the show title. -->
+    <string name="cd_bookmarks_remove">Remove %1$s from bookmarks</string>
+    <!-- %1$s: the show title. -->
+    <string name="bookmarks_removed">Removed %1$s</string>
+    <string name="bookmarks_undo">Undo</string>
+    <string name="bookmarks_empty_title">No bookmarks yet</string>
+    <string name="bookmarks_empty_message">Bookmark a show from its page to keep it here. You\'ll get a notification when a new episode is out.</string>
+    <string name="bookmarks_empty_action">Discover airing shows</string>
+    <string name="bookmarks_alerts_denied">Notifications are off for BakaMitai.</string>
+    <string name="bookmarks_alerts_settings">Settings</string>
+
+    <!-- New-episode notifications (feature/bookmarks/presentation/notification) -->
+    <string name="notification_channel_new_episodes">New episodes</string>
+    <string name="notification_channel_new_episodes_description">When a bookmarked show releases a new episode</string>
+    <!-- %1$s: the episode title, "Episode 8", "Movie". -->
+    <string name="notification_episode_out">%1$s is out</string>
+    <!-- A line of the grouped summary. %1$s: the show title; %2$s: the episode title. -->
+    <string name="notification_summary_line">%1$s · %2$s</string>
 
     <plurals name="home_summary_airing">
         <item quantity="one">%d Airing</item>
@@ -177,5 +217,20 @@
     <plurals name="details_episode_count">
         <item quantity="one">%d EPISODE</item>
         <item quantity="other">%d EPISODES</item>
+    </plurals>
+    <!-- Bookmarks' counter row. -->
+    <plurals name="bookmarks_count">
+        <item quantity="one">%d show</item>
+        <item quantity="other">%d shows</item>
+    </plurals>
+    <!-- A notification's sub-text after a backlog. -->
+    <plurals name="notification_more_new_episodes">
+        <item quantity="one">%d new episode</item>
+        <item quantity="other">%d new episodes</item>
+    </plurals>
+    <!-- The grouped summary's text: one line per show. -->
+    <plurals name="notification_summary">
+        <item quantity="one">%d new episode</item>
+        <item quantity="other">%d new episodes</item>
     </plurals>
 </resources>

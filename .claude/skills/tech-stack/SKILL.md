@@ -33,11 +33,13 @@ Quality rules for using these libraries (performance, Detekt, error handling, te
 | Networking | Ktor Client (OkHttp engine, content negotiation, kotlinx-json, logging) |
 | Serialization | kotlinx.serialization (JSON) |
 | HTML parsing | Ksoup (`com.fleeksoft.ksoup:ksoup`), scraped SubsPlease pages only, inside a `data/remote/[Name]HtmlParser` |
-| Persistence | Jetpack DataStore (Preferences or Proto/typed) |
-| DI | Koin (Android, Compose) |
+| Persistence | Jetpack DataStore (Preferences) for settings; **Room** for structured, queryable data (`room-runtime`, `room-compiler` through **KSP**, which runs Room's compiler only) |
+| Background work | WorkManager (`CoroutineWorker`, unique one-time work), built by Koin (`@KoinWorker`, Koin WorkManager) |
+| Notifications | AndroidX Core `NotificationCompat` / `NotificationManagerCompat`, behind a domain port (`[Name]Notifier`) |
+| DI | Koin (Android, Compose, AndroidX WorkManager) through the Koin compiler plugin, not KSP |
 | Static analysis | Detekt + ktlint formatting + Compose rules |
 | Compose diagnostics | Compose compiler reports |
-| Testing | JUnit 4, kotlin.test, kotlinx-coroutines-test, Turbine, Ktor MockEngine, koin-test |
+| Testing | JUnit 4, kotlin.test, kotlinx-coroutines-test, Turbine, Ktor MockEngine, koin-test; instrumented (`androidTest`): AndroidX Test (JUnit runner), WorkManager testing |
 
 Coordinates, catalog accessors and build setup (Detekt, Compose reports) are in `library-management`. Detekt rules themselves are in `best-practices` §2.
 
@@ -58,6 +60,9 @@ Coordinates, catalog accessors and build setup (Detekt, Compose reports) are in 
 | Gson, Moshi, Jackson, `org.json` | kotlinx.serialization |
 | jsoup (Java), regex / `indexOf` HTML scraping, `Html.fromHtml` for parsing | Ksoup in a `[Name]HtmlParser` |
 | `SharedPreferences`, `EncryptedSharedPreferences`, file I/O on the main thread | DataStore |
+| `SQLiteOpenHelper`, raw `SQLiteDatabase` queries, `allowMainThreadQueries()`, `fallbackToDestructiveMigration()` | Room DAOs (`suspend` / `Flow`); an `AutoMigration` or `Migration` per schema change |
+| `AlarmManager` / exact alarms (`SCHEDULE_EXACT_ALARM`, `USE_EXACT_ALARM`), `JobScheduler`, a `Service` or foreground service for background work | WorkManager |
+| Koin KSP (`koin-ksp-compiler`), KSP for anything but Room | The Koin compiler plugin; KSP only as Room's processor |
 | Dagger, Hilt, `javax.inject`, hand-rolled service locators, `KoinComponent` / `by inject()` in classes | Koin Annotations + constructor injection |
 | `java.util.Date`, `Calendar`, `SimpleDateFormat`, `java.time` | kotlinx-datetime |
 | `collectAsState()` in Routes, `LaunchedEffect { flow.collect }` for effects | `collectAsStateWithLifecycle()`, `ObserveAsEvents` |
@@ -84,6 +89,20 @@ grep -rnE "import (retrofit2|okhttp3|com\.google\.gson|com\.squareup\.moshi|dagg
 grep -rnE "runBlocking|GlobalScope|KoinComponent|by inject\(\)" app/src/main
 ```
 
+```bash
+grep -rnE "import android\.(database\.sqlite\.SQLiteOpenHelper|app\.AlarmManager|app\.job\.)|allowMainThreadQueries|fallbackToDestructiveMigration" app/src/main
+```
+
+Room is imported only by `data/local/` and `di/`, WorkManager only by `data/worker/` and `di/`:
+
+```bash
+grep -rlE "import androidx\.room\." app/src/main | grep -vE "/data/local/|/di/"
+```
+
+```bash
+grep -rlE "import androidx\.work\." app/src/main | grep -vE "/data/worker/|/di/"
+```
+
 Ksoup is imported only by `data/remote/[Name]HtmlParser.kt` files:
 
 ```bash
@@ -105,13 +124,16 @@ grep -rln "import com.fleeksoft.ksoup" app/src/main | grep -v "/data/remote/[A-Z
 | Ktor Client | — | ✅ | — | — | ✅ create `HttpClient` | — |
 | Ksoup | — | ✅ `[Name]HtmlParser` only (`data/remote/`) | — | — | — | — |
 | DataStore | — | ✅ | — | — | ✅ create instance | — |
+| Room | — | ✅ `data/local/` (entities, DAOs, database) | — | — | ✅ create the database and its DAOs | — |
+| WorkManager | — | ✅ `data/worker/` (workers, scheduler implementations) | — | — | ✅ `WorkManager` instance | ✅ `workManagerFactory()` |
+| Notifications (`NotificationCompat`, `PendingIntent`, `POST_NOTIFICATIONS`) | — | — | ✅ `presentation/notification/` and Routes (permission ask) | ✅ permission and deep-link helpers | — | ✅ deep-link intent handling |
 | Compose, Material 3, Adaptive | — | — | ✅ | ✅ | — | ✅ |
 | Material Icons Extended | — | — | ✅ | ✅ | — | ✅ |
 | Compose RichText | — | — | ✅ | ✅ | — | — |
 | Coil | — | — | ✅ | ✅ | ✅ `DiskCache` provider | ✅ `ImageLoader` setup |
 | Navigation 3 | — | — | ✅ `NavKey`s and entry functions (`presentation/navigation/`) only | ✅ `common/ui/navigation/` plumbing | — | ✅ `NavDisplay`, back stack, entry wiring |
 | Lifecycle / ViewModel | — | — | ✅ | — | — | ✅ |
-| Koin | ✅ annotations only (`@Factory`, `@Single`) | ✅ annotations only (`@Single`) | ✅ `@KoinViewModel` / `@Factory`, `koinViewModel()` in Routes only | — | ✅ `@Module`, providers | ✅ `startKoin<AppKoin>` |
+| Koin | ✅ annotations only (`@Factory`, `@Single`) | ✅ annotations only (`@Single`, `@KoinWorker`) | ✅ `@KoinViewModel` / `@Factory`, `koinViewModel()` in Routes only | — | ✅ `@Module`, providers | ✅ `startKoin<AppKoin>`, `workManagerFactory()` |
 
 ---
 
@@ -417,6 +439,30 @@ context.getSharedPreferences("settings", MODE_PRIVATE).getBoolean("nsfw", false)
 runBlocking { dataStore.data.first() }                                              // ❌ blocking read
 ```
 
+### Room
+
+- For structured data that needs queries, ordering or atomic multi-row updates (bookmarks and their alert tracking). Settings stay in DataStore.
+- One `@Database` per feature store, in `feature/[name]/data/local/[Name]Database.kt`, provided as a `@Single` by the feature's `@Module` (`Room.databaseBuilder<[Name]Database>(context, NAME).build()`), with its DAOs provided from it.
+- `exportSchema = true`: the `bakamitai.android.room` convention plugin writes schemas to `app/schemas/`, and they are committed.
+- Entities (`[Name]Entity`) hold primitives only (no `TypeConverter`s): instants as epoch milliseconds, zones and enums as strings. Entities never leave `data`: `[Name]EntityMapper.kt` maps them to domain models, `[Name]DomainMapper.kt` maps domain models to entities.
+- DAO functions are `suspend` (one-shot) or return `Flow` (observed). A multi-statement write is a `@Transaction` function of an `abstract class` DAO, so it's atomic.
+- Repository implementations map `SQLiteException` to `DomainError.Unknown(e)` (`best-practices` §4.3) and never catch `CancellationException`.
+- **NEVER** `allowMainThreadQueries()` or `fallbackToDestructiveMigration()`. A schema change bumps the version and adds an `AutoMigration` (or a `Migration`) with a `MigrationTestHelper` test.
+- KSP runs **only** Room's compiler (`room.generateKotlin = true`); Koin keeps its compiler plugin.
+
+### WorkManager
+
+- Work that must survive process death (the release checks) is a `CoroutineWorker` in `feature/[name]/data/worker/[Name]Worker.kt`, annotated `@KoinWorker` so Koin builds it with constructor injection: `workManagerFactory()` in `AppApplication`, and the manifest removes WorkManager's default initializer.
+- A worker is a background entry point, like a ViewModel: it calls its feature's use cases and never imports `presentation`. WorkManager persists its class name: **NEVER** rename or move a shipped worker (or cancel its unique work by name in the same update).
+- Scheduling goes through a domain port (`[Name]Scheduler` in `domain/repository/`), implemented by `[Name]SchedulerImpl` in `data/worker/` with unique work names and explicit `ExistingWorkPolicy`s. Use cases call the port; nothing else touches `WorkManager`.
+- One-time unique work, with a network constraint when it calls the API. No periodic polling of SubsPlease beyond what `docs/api.md` §7 allows.
+
+### Notifications
+
+- Notifications are user-visible text, so they are `presentation`: `feature/[name]/presentation/notification/[Name]NotifierImpl.kt` implements a domain port (`[Name]Notifier`), maps domain models to a `[Name]UIModel`, and resolves every text with `UiText.asString(context)`.
+- Create the channel before the first post. Check `areNotificationsEnabled()` and, on API 33+, `POST_NOTIFICATIONS` before posting. Routes ask for the permission with `rememberNotificationPermissionRequester` (`common/ui/util/NotificationPermission.kt`).
+- A notification's content intent opens the app through `common/ui/navigation/ShowDeepLink.kt`; `MainActivity` turns it into navigation.
+
 ---
 
 ## 7. Dependency injection (Koin)
@@ -426,9 +472,11 @@ runBlocking { dataStore.data.first() }                                          
   - `@Single` — services, data sources, repository implementations.
   - `@Factory` — use cases, presentation mappers.
   - `@KoinViewModel` — ViewModels; navigation arguments are `@InjectedParam` constructor parameters (nullable allowed).
+  - `@KoinWorker` — WorkManager workers (`data/worker/`), built by `koin-androidx-workmanager`'s factory (`workManagerFactory()`).
   - **No manual binds**: a class with a single interface is registered under that interface automatically.
   - Use a provider function in a `@Module` class only for types you do not own. An Android `Context` parameter is resolved from `androidContext(...)`.
 - **NEVER** `KoinComponent`, `by inject()`, or `get()` inside classes.
+- Koin uses its compiler plugin, never KSP. KSP is applied (by `bakamitai.android.room`) only for Room's compiler.
 - The **only** Koin call outside `di`/`Application` is `koinViewModel()` in a `[Name]Route`.
 - Navigation arguments reach the ViewModel's `@InjectedParam` parameters through `parametersOf(...)` from the Route.
 - Add a Koin `verify()` unit test covering all modules (`AppModule().module().verify(...)`).
@@ -510,7 +558,8 @@ val novelModule = module { singleOf(::VisualNovelRepositoryImpl) { bind<VisualNo
 - [ ] Images via Coil `AsyncImage`; Markdown via `MarkdownView` (Compose RichText).
 - [ ] Destinations are `@Serializable` `[Name]NavKey`s; keys and `[name]Entry` functions in the feature's `presentation/navigation/`, wiring in `app/navigation/AppEntryProvider.kt`, back stack and `NavDisplay` only in `app/navigation/`; Routes navigate via callbacks in response to Effects.
 - [ ] Networking via the shared Ktor `HttpClient` in `data`; DTOs use kotlinx.serialization; Ktor types never leave `data`.
-- [ ] Persistence via DataStore exposed as `Flow`; no `SharedPreferences`.
+- [ ] Persistence via DataStore or Room, exposed as `Flow` / `suspend`; no `SharedPreferences`, no raw SQLite, no destructive migrations.
+- [ ] Background work is a `@KoinWorker` `CoroutineWorker` in `data/worker/` that calls use cases; scheduling goes through a domain port; no exact alarms or services.
 - [ ] DI via Koin Annotations: classes carry `@Single` / `@Factory` / `@KoinViewModel` (navigation args `@InjectedParam`), each feature has one `@Module @ComponentScan` class listed in `AppModule`; no Koin DSL (`module { }`, `singleOf`, …), no `KoinComponent` / `inject()`; `koinViewModel()` only in Routes; `KoinModulesTest` passes.
 - [ ] Every library used appears in §1, and is used only in the layers allowed by §2.
 - [ ] Any new or changed dependency follows `library-management`.
