@@ -185,23 +185,21 @@
     <!-- Settings (feature/settings) -->
     <string name="settings_title">Settings</string>
     <!-- Section titles are stored uppercase (DESIGN.md labels). -->
-    <string name="settings_section_general">GENERAL PREFERENCES</string>
+    <string name="settings_section_general">GENERAL</string>
     <string name="settings_section_appearance">APPEARANCE</string>
     <string name="settings_section_notifications">NOTIFICATIONS</string>
     <string name="settings_section_about">ABOUT</string>
+    <!-- A picker row for TalkBack: %1$s the setting, %2$s its current value, "Theme, System default". -->
+    <string name="cd_settings_picker">%1$s, %2$s</string>
+    <!-- Closes a picker dialog without a change. -->
+    <string name="settings_picker_cancel">Cancel</string>
     <string name="settings_week_start_title">First day of week</string>
-    <string name="settings_week_start_description">Choose the starting day for the release schedule</string>
-    <!-- Shown after the default option, "Monday (Default)". -->
-    <string name="settings_option_default">(Default)</string>
     <string name="settings_time_format_title">Time format</string>
-    <string name="settings_time_format_description">Display release times in 12-hour or 24-hour clock</string>
-    <string name="settings_time_format_12h">12-hour</string>
-    <string name="settings_time_format_12h_qualifier">(AM/PM)</string>
+    <string name="settings_time_format_12h">12-hour (AM/PM)</string>
     <string name="settings_time_format_24h">24-hour</string>
     <string name="settings_theme_title">Theme</string>
-    <string name="settings_theme_description">Choose how BakaMitai looks</string>
     <string name="settings_theme_system">System default</string>
-    <string name="settings_theme_system_description">Follows your device\'s dark theme setting</string>
+    <string name="settings_theme_system_description">Follows your device\'s dark &amp; light mode</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_light_description">Always use the light theme</string>
     <string name="settings_theme_dark">Dark</string>

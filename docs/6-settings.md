@@ -1,6 +1,6 @@
 # 6. Settings
 
-> **Status:** Implemented (2026-11-19; skills step 21 and docs step 22 left to the caller, previews of steps 15–16 not rendered, step 23 partly checked: see [§11](#11-implementation-notes)) · **Design:** [Google Stitch project `5201581584167289517`, screen `2451d84613ec4d788d2a276d70767c71` ("Settings")](https://stitch.google.com/projects/5201581584167289517?node-id=2451d84613ec4d788d2a276d70767c71) · **Planned:** 2026-11-19
+> **Status:** Implemented (2026-11-19; skills step 21 and docs step 22 left to the caller, previews of steps 15–16 not rendered, step 23 partly checked; picker settings reworked into rows + dialogs per the user's change request the same day, not checked on a device: see [§11](#11-implementation-notes)) · **Design:** [Google Stitch project `5201581584167289517`, screen `2451d84613ec4d788d2a276d70767c71` ("Settings")](https://stitch.google.com/projects/5201581584167289517?node-id=2451d84613ec4d788d2a276d70767c71) · **Planned:** 2026-11-19
 > **Spec:** [context.md §2](context.md#2-navigation-shell), [§3.2](context.md#32-schedule), [§3.4](context.md#34-bookmarks), [§3.6](context.md#36-settings), [§3.7](context.md#37-new-episode-alerts), [§4.2](context.md#42-schedule), [§4.5](context.md#45-formatting-rules-all-screens), [§5](context.md#5-local-persistence), [§6](context.md#6-suggested-feature-breakdown) · **API:** none; [api.md §7](api.md#7-client-guidelines) only for the alerts exception's wording
 > **Depends on:** [1-home.md](1-home.md), [2-schedule.md](2-schedule.md), [3-shows.md](3-shows.md), [4-details.md](4-details.md), [5-bookmarks.md](5-bookmarks.md) (all implemented and committed): the navigation shell (`Navigator`, `NavigationState`, `FullScreenNavKey`, `AppEntryProvider`), `TopLevelAppBarView` and its hidden settings action, the shared `toTimeLabel()` mapper, `GetWeeklyScheduleUseCase(weekStart, …)`, the alerts port `ReleaseAlertNotifier.areAlertsEnabled()` / `GetReleaseAlertsEnabledUseCase`, `NotificationPermission.kt`, the skeleton pieces, `centeredContentPadding`, and `datastore-preferences` (already in the catalog and in `:app`).
 
@@ -50,17 +50,14 @@ Spacing and radius tokens come from the screen's Tailwind config: `space-xs` 4, 
 | `bg-surface`, `text-on-surface` | `colorScheme.surface` / `onSurface` (Scaffold default) |
 | Header `bg-surface/80 backdrop-blur-xl`, `font-headline-sm` (18 px bold) | `TopAppBar`, title `typography.titleLarge` ("App bar titles", 18 sp), `topAppBarColors(containerColor = surface, scrolledContainerColor = surfaceContainer)` with `pinnedScrollBehavior()`, as Details. No blur. |
 | `arrow_back` `text-on-surface-variant` | `Icons.AutoMirrored.Filled.ArrowBack`, tint `onSurfaceVariant` |
-| Section header: 18 px icon + `font-label-lg uppercase tracking-wider` in an accent | `Icon(Modifier.size(18.dp), tint = accent)` + `Text(style = labelLarge, color = accent)`, strings stored uppercase (as `bookmarks_header_title`); accents `primary` (General), `secondary` (Appearance), `tertiary` (Notifications), `outline` (About) |
+| Section header: `font-label-lg uppercase tracking-wider` in an accent (the design's 18 px icon dropped 2026-11-19, per the user: the rows carry the icons) | `Text(style = labelLarge, color = accent)`, a `heading()`, strings stored uppercase (as `bookmarks_header_title`); accents `primary` (General), `secondary` (Appearance), `tertiary` (Notifications), `outline` (About) |
 | Card `bg-surface-container-low rounded-lg p-space-md shadow-sm` | `Surface(color = surfaceContainerLow, shape = shapes.extraLarge /* 32 dp */)`, inner padding `spacing.md`; **no shadow** (DESIGN.md: tonal layering) |
 | Preference title `font-title-md` / subtitle `font-body-sm text-on-surface-variant` | `titleMedium` / `bodySmall` in `onSurfaceVariant` |
-| Segment track `bg-surface-container rounded-full p-1 gap-1`; selected `bg-primary text-on-primary`; unselected `text-on-surface-variant`; `font-label-md`, qualifier `font-body-sm opacity-80` | `SingleChoiceSegmentedButtonRow` on a `surfaceContainer` `CircleShape` track; `SegmentedButton(shape = CircleShape)` with `SegmentedButtonDefaults.colors(activeContainerColor = primary, activeContentColor = onPrimary, inactiveContainerColor = Transparent, inactiveContentColor = onSurfaceVariant, active/inactiveBorderColor = Transparent)`, `icon = {}`; label `labelMedium`, qualifier `bodySmall` at `QUALIFIER_ALPHA = 0.8f` |
-| Theme row `p-space-sm rounded-DEFAULT`, `bg-surface-container/50` (unselected) or `bg-surface-container` (selected) | Row in `shapes.medium` (16 dp), `surfaceContainer.copy(alpha = UNSELECTED_ROW_ALPHA /* 0.5f */)` or `surfaceContainer`, padding `spacing.sm` |
-| Theme icon circle 36 px `bg-surface-container text-on-surface-variant`; selected `bg-primary/20 text-primary`, filled glyph | `Box(Modifier.size(36.dp).background(color, CircleShape))`, 20 dp icon; selected `primary.copy(alpha = SELECTED_ICON_ALPHA /* 0.2f */)` + `primary` tint + `Icons.Filled.*` |
-| Theme title `font-body-md font-medium/semibold`, subtitle `font-body-sm` | `titleSmall` (14 sp semibold, no hardcoded `FontWeight`) / `bodySmall` `onSurfaceVariant` |
-| Check circle 24 px `bg-primary` + `check` | `Icon(Icons.Filled.CheckCircle, tint = primary, Modifier.size(24.dp))`, decorative |
+| Picker row (*First day of week*, *Time format*, *Theme*; replaces the segment track and the theme radio list: pickers open a dialog, per the user, 2026-11-19) | Card inner padding `spacing.xs`, rows `spacedBy(spacing.xs)` (as the About card); row `clip(shapes.medium).clickable(role = Role.Button)` + `padding(horizontal = spacing.md, vertical = spacing.sm)`, `heightIn(min = 48.dp)`; title `titleMedium` `onSurface`, current value `bodyMedium` `onSurfaceVariant` |
+| Picker dialog (not in the original design; standard M3) | `AlertDialog`, default container and title styles, titled with the setting's name; a `selectableGroup()` column of option rows: `RadioButton(onClick = null)`, label `bodyLarge` `onSurface`, optional description `bodyMedium` `onSurfaceVariant`, `heightIn(min = 48.dp)`, `clip(shapes.small)`, `padding(vertical = spacing.sm)`, `spacedBy(spacing.md)`; one `TextButton` "Cancel" |
 | About card `p-1 gap-1`, rows `p-space-md rounded-DEFAULT hover:bg-surface-container` | Card inner padding `spacing.xs`; row `clip(shapes.medium).clickable(…)` + `padding(spacing.md)` |
-| About icon circle 40 px `bg-surface-container-high` | `Box(40.dp, surfaceContainerHigh, CircleShape)`, 20 dp icon in `onSurface` |
-| URL `font-label-sm text-primary tracking-wide` | `labelSmall`, `primary` |
+| About icon circle 40 px `bg-surface-container-high`, used for **every row's leading icon** since 2026-11-19 (per the user) | `SettingsIconView(icon)` (`component/settingsicon/`): `Box(40.dp, surfaceContainerHigh, CircleShape)`, 20 dp outlined glyph in `onSurface`, decorative; the row puts `spacing.md` between it and the text. Icons: *First day of week* `CalendarMonth`, *Time format* `Schedule`, *Theme* `Palette`, *New-episode alerts* `Notifications`, *About* `Code` (all `Icons.Outlined`). |
+| URL `font-label-sm text-primary tracking-wide` | **Not shown** (removed 2026-11-19, per the user): the About row is its title only |
 | `open_in_new` 20 px `text-outline` | `Icons.AutoMirrored.Outlined.OpenInNew`, 20 dp, `outline` |
 | Footer `font-label-lg font-bold`, tagline `font-body-sm text-outline max-w-xs` | `labelLarge` (13 sp bold) `onSurface`; `bodySmall` `outline`, `widthIn(max = 320.dp)`, centered |
 | Section gap `gap-space-xl`, header → card `gap-space-sm`, page `px-margin pt-space-md pb-10` | `spacedBy(spacing.xl)`, `spacedBy(spacing.sm)`, side margin per window ([§2.2](#22-layout)), top `spacing.md`, bottom `spacing.xl` |
@@ -74,44 +71,44 @@ Spacing and radius tokens come from the screen's Tailwind config: `space-xs` 4, 
 ### 2.2 Layout
 
 Top to bottom, in a `Column(Modifier.verticalScroll(…))`:
-1. **GENERAL PREFERENCES** (`Icons.Outlined.CalendarMonth`, `primary`): *First day of week*, then *Time format* (`spacedBy(spacing.lg)` between them, as `gap-space-lg`).
-2. **APPEARANCE** (`Icons.Outlined.Palette`, `secondary`): *Theme*.
-3. **NOTIFICATIONS** (`Icons.Outlined.Notifications`, `tertiary`): *New-episode alerts* (replaces "Data & Storage", [§3](#3-design-vs-spec) rows 6–10).
-4. **ABOUT** (`Icons.Outlined.Info`, `outline`): *About BakaMitai*.
+1. **GENERAL** (`primary`; "General Preferences" in the design, shortened 2026-11-19 per the user): the *First day of week* (`CalendarMonth`) and *Time format* (`Schedule`) picker rows.
+2. **APPEARANCE** (`secondary`): the *Theme* picker row (`Palette`).
+3. **NOTIFICATIONS** (`tertiary`): *New-episode alerts* (`Notifications`) (replaces "Data & Storage", [§3](#3-design-vs-spec) rows 6–10).
+4. **ABOUT** (`outline`): *About BakaMitai* (`Code`).
+
+The section headers are text only; each row starts with its icon ([§2.0](#20-token-mapping)).
 5. **Footer**: version and disclaimer.
 
 **Adaptive:** a single column at every width. Side margin `spacing.margin` (16 dp) on compact, `spacing.marginTablet` (24 dp) from medium up, and on wide windows the column is centered at `MaxContentWidth` (720 dp) through `centeredContentPadding(maxWidth, margin)` in a `BoxWithConstraints`, as Details and All Shows. Window size is read in the Screen, never stored. Bottom: the Scaffold's content padding (system bars), like `DetailsScreen`; the footer must end above the gesture / 3-button bar once the suite hides (checked in step 23).
 
 ### 2.3 General preferences
 
-Node: `section` "General Preferences".
+Node: `section` "General Preferences". **Changed 2026-11-19, per the user** (updated Stitch screen, 390×884): pickers are rows that open a dialog; no inline segmented toggle.
 
-- **Components:** for each preference, a private `PreferenceHeading(title, description)` in the Screen (static text), then `SegmentedPreferenceView(segments, onSegmentClick)` ([§5.3](#53-featuresettings)).
-- **Segmented control:** M3 `SingleChoiceSegmentedButtonRow` + two `SegmentedButton`s styled as the design's track ([§2.0](#20-token-mapping)): fully rounded segments (`shape = CircleShape`, not `itemShape`), `space = 4.dp` between them, no check icon, no borders. Target look: a 48 dp track (the segments' minimum touch target) with ~4 dp of track around a 40 dp selected pill; the implementor checks the preview and sets the track's vertical padding to 0 if the segments already reserve 48 dp.
+- **Components:** two `PickerPreferenceView(title, value, onClick)` rows ([§2.0](#20-token-mapping)) in the card; a tap opens `PickerDialogView(title, options, onOptionClick, onDismiss)`. Both are generic, shared with *Theme* ([§2.4](#24-appearance)). The open dialog is `SettingsState.openPicker`, not composition state, so it survives rotation.
 - **Content:**
-  - *First day of week* (`settings_week_start_title`, `settings_week_start_description` "Choose the starting day for the release schedule"): **Monday** + qualifier "(Default)" | **Sunday** (reuses `day_monday` / `day_sunday`).
-  - *Time format* (`settings_time_format_title`, `settings_time_format_description` "Display release times in 12-hour or 24-hour clock"): **12-hour** + qualifier "(AM/PM)" | **24-hour**.
-  - Labels `maxLines = 1`; the qualifier ellipsizes first (`weight(1f, fill = false)`) at large font scales.
-- **Interactions:** a tap selects the segment and saves it at once (no confirm, no toast). M3 animates the colors.
-- **Accessibility:** the row is a `selectableGroup()`, each segment a `Role.RadioButton` with its selected state (both built into the M3 component). TalkBack: "Monday (Default), selected, radio button, 1 of 2". The heading text above is read first.
+  - *First day of week* (`settings_week_start_title`): row value "Monday" or "Sunday"; dialog options **Monday**, **Sunday** (`day_monday` / `day_sunday`), no descriptions.
+  - *Time format* (`settings_time_format_title`): row value "12-hour (AM/PM)" or "24-hour"; dialog options **12-hour (AM/PM)**, **24-hour**, no descriptions.
+  - The rows have no description line; each has its leading icon. The dialog lists the options in order with the stored one checked.
+- **Interactions:** tap a row → its dialog. Tap an option → saved at once and the dialog closes (no confirm, no toast); picking the stored value closes it too. **Cancel**, Back or a tap outside → closed, nothing saved.
+- **Accessibility:** a row is one button: "First day of week, Monday, button" (`cd_settings_picker` "%1$s, %2$s" as its content description; its texts are cleared from the semantics). In the dialog the options are a `selectableGroup()`, each row `Modifier.selectable(selected, role = Role.RadioButton)`: "Sunday, radio button, not selected".
 
 ### 2.4 Appearance
 
-Node: `section` "Appearance" (the radio list).
+Node: `section` "Appearance". **Changed 2026-11-19, per the user:** a picker row and dialog instead of the inline radio list.
 
-- **Components:** `PreferenceHeading` (`settings_theme_title` "Theme", `settings_theme_description` "Choose how BakaMitai looks"), then `ThemeOptionsView(options, onOptionClick)`: a `Column(Modifier.selectableGroup(), spacedBy(spacing.xs))` of three rows.
-- **Row:** `Row(Modifier.heightIn(min = ThemeOptionMinHeight /* 52 dp */).clip(shapes.medium).background(…).selectable(selected, role = Role.RadioButton, onClick).padding(spacing.sm), spacedBy(spacing.sm))`: icon circle, a `Column(weight(1f))` with title and description, and the check when selected.
-- **Content** ([§3](#3-design-vs-spec) row 5):
+- **Components:** `PickerPreferenceView` (icon `Palette`) and `PickerDialogView` ([§2.3](#23-general-preferences)).
+- **Row:** title "Theme" (`settings_theme_title`), value "System default", "Light" or "Dark"; leading icon: `Icons.Outlined.Palette`, the same for every theme ([§2.0](#20-token-mapping)).
+- **Dialog options** ([§3](#3-design-vs-spec) row 5), each with its description:
 
-  | Option | Title | Description | Icon (unselected / selected) |
-  |---|---|---|---|
-  | System | "System default" | "Follows your device's dark theme setting" | `Icons.Outlined.Devices` / `Icons.Filled.Devices` |
-  | Light | "Light" | "Always use the light theme" | `Icons.Outlined.LightMode` / `Icons.Filled.LightMode` |
-  | Dark | "Dark" | "Always use the dark theme" | `Icons.Outlined.DarkMode` / `Icons.Filled.DarkMode` |
+  | Option | Label | Description |
+  |---|---|---|
+  | System | "System default" | "Follows your device's dark & light mode" |
+  | Light | "Light" | "Always use the light theme" |
+  | Dark | "Dark" | "Always use the dark theme" |
 
-  Title `maxLines = 1` + ellipsis, description up to 2 lines.
-- **Interactions:** a tap selects and saves; the **whole app recolors in the same frame**, Settings included, and the system bar icons follow ([§5.1](#51-how-the-settings-reach-the-app)).
-- **Accessibility:** each row merges its text (`selectable` merges descendants): "System default, Follows your device's dark theme setting, radio button, selected". Icons and the check are decorative (`contentDescription = null`). Rows are ≥ 52 dp.
+- **Interactions:** picking an option saves it and closes the dialog; the **whole app recolors in the same frame**, Settings included, and the system bar icons follow ([§5.1](#51-how-the-settings-reach-the-app)).
+- **Accessibility:** the row reads "Theme, System default, button"; each dialog option merges its texts: "System default, Follows your device's dark & light mode, radio button, selected". Icons are decorative.
 
 ### 2.5 Notifications: new-episode alerts
 
@@ -136,9 +133,9 @@ Node: `section` "Appearance" (the radio list).
 
 Node: `section` "About & Community", first row. "Check for Updates" is dropped ([§3](#3-design-vs-spec) row 13).
 
-- **Component:** `AboutRowView(urlLabel, onClick)`: a 40 dp circle with `Icons.Outlined.Code` (no GitHub logo in Material Icons, [Q6](#10-open-questions)), title `titleMedium` "About BakaMitai", the URL label `labelSmall` `primary` ("github.com/zahichemaly/BakaMitai", from `AppInfo`), trailing `Icons.AutoMirrored.Outlined.OpenInNew` (`outline`, 20 dp, decorative).
+- **Component:** `AboutRowView(onClick)`: a 40 dp circle with `Icons.Outlined.Code` (no GitHub logo in Material Icons, [Q6](#10-open-questions)), title `titleMedium` "About BakaMitai" on one line (no URL line since 2026-11-19, per the user), trailing `Icons.AutoMirrored.Outlined.OpenInNew` (`outline`, 20 dp, decorative).
 - **Interactions:** tap → opens `https://github.com/zahichemaly/BakaMitai` with `ACTION_VIEW` (context.md §7 decision 2). No app can open it → snackbar "No app can open this link."
-- **Accessibility:** `clickable(onClickLabel = "Open in browser", role = Role.Button)` on the merged row: "About BakaMitai, github.com/zahichemaly/BakaMitai, button, double-tap to open in browser".
+- **Accessibility:** `clickable(onClickLabel = "Open in browser", role = Role.Button)` on the merged row: "About BakaMitai, button, double-tap to open in browser".
 
 ### 2.7 Footer
 
@@ -150,13 +147,14 @@ Node: `section` "About & Community", first row. "Check for Updates" is dropped (
 
 | State | Proposal |
 |---|---|
-| **Loading** | Until the first DataStore emission (a few ms; the app root already read the same store). The section headers, preference headings, About row and footer are real (static, or synchronous `AppInfo`). Each of the three preference cards wraps its placeholders in **its own `SkeletonView`, inside the card's surface** (a card background inside a `SkeletonView` would shimmer as one block, the Details lesson): `SegmentedPreferenceSkeletonView` ×2 (a 48 dp `CircleShape` `SkeletonBlock`), `ThemeOptionsSkeletonView` (three 52 dp `shapes.medium` blocks, `spacedBy(spacing.xs)`), `AlertsPreferenceSkeletonView` (the real title, one `bodySmall` line at 0.8 width, a 52×32 dp pill for the switch). One `SkeletonView` per section is what `best-practices` §5.3 allows for sections. |
+| **Loading** | Until the first DataStore emission (a few ms; the app root already read the same store). The section headers, preference headings, About row and footer are real (static, or synchronous `AppInfo`). Each of the three preference cards wraps its placeholders in **its own `SkeletonView`, inside the card's surface** (a card background inside a `SkeletonView` would shimmer as one block, the Details lesson): `PickerPreferenceSkeletonView` ×2 in General and ×1 (with a 36 dp circle for the icon) in Appearance (the row's padding and minimum height, a `titleMedium` line at 0.4 width and a `bodyMedium` line at 0.3 width; changed 2026-11-19 with the picker rows), `AlertsPreferenceSkeletonView` (the real title, one `bodySmall` line at 0.8 width, a 52×32 dp pill for the switch). One `SkeletonView` per section is what `best-practices` §5.3 allows for sections. |
 | **Error** | None as a screen state: a read failure falls back to the defaults ([§4.3](#43-local-data)). A **write** failure (disk full) → snackbar with the generic error; the control stays on the stored value. |
 | **Empty** | Not applicable. |
 | **Refreshing** | Not applicable (local data, no pull-to-refresh). |
 | **Light theme** | Same roles with `LightColorScheme`; accents `primary` / `secondary` / `tertiary` / `outline` stay readable on `surfaceContainerLow`. |
 | **Medium / expanded** | Rail stays; 24 dp margins; one column centered at 720 dp. |
-| **Large font scales** | No fixed heights (`heightIn(min)`); theme descriptions wrap to 2 lines; segment qualifiers ellipsize first. |
+| **Large font scales** | No fixed heights (`heightIn(min)`); picker values and dialog descriptions wrap; the dialog's option list scrolls if it can't fit. |
+| **A picker dialog open** | Over the screen (dimmed scrim); kept across rotation (`SettingsState.openPicker`). A settings change from elsewhere updates its checked option without closing it. |
 | **Theme change while Settings is open** | Instant recolor of everything, system bars included. |
 
 ---
@@ -167,9 +165,9 @@ Node: `section` "About & Community", first row. "Check for Updates" is dropped (
 |---|---|---|---|---|
 | 1 | Hero banner | "Customization & Engine / Fine-tune your simulcast schedule & cache", `tune` icon, glow | Not in §3.6; there's no engine or cache setting | **Drop.** It describes nothing the screen does. |
 | 2 | App bar | Translucent blurred bar, "Settings" + subtitle "BakaMitai Tracker" | A pushed screen, like Details | **Solid `TopAppBar`**, back arrow + "Settings", pinned scroll color like Details. **No subtitle**: "Tracker" isn't the app's name. |
-| 3 | Segmented controls | Custom pill track, filled `primary` selected pill, no check | Options listed, no visual | **M3 `SingleChoiceSegmentedButtonRow`** styled as the track (radio semantics for free). Labels from the design in the spec's casing: "Monday (Default)" / "Sunday", "12-hour (AM/PM)" / "24-hour". |
+| 3 | Segmented controls | Custom pill track, filled `primary` selected pill, no check. **Updated design (2026-11-19, 390×884):** a shorter list of rows | context.md §3.6 (updated): picker settings are rows showing their value; a tap opens a dialog | **Picker rows + M3 `AlertDialog`** (per the user, 2026-11-19; first built as a segmented row). Values "Monday" / "Sunday", "12-hour (AM/PM)" / "24-hour"; the "(Default)" qualifier is gone. |
 | 4 | Theme default | "Dark Mode (Obsidian)" selected | Default **System** | **System** (spec). |
-| 5 | Theme labels | "System Default / Follows OS dark & light modes", "Light Mode / High contrast daylight canvas", "Dark Mode (Obsidian) / Midnight neo-tokyo palette", "Active" pill | System / Light / Dark | **Plain, accurate copy** ([§2.4](#24-appearance)); the light theme isn't "high contrast" and nothing is "neo-tokyo". **Drop "Active"**: the check, the row tint and TalkBack's "selected" already say it. Keep the design's icons, tints and check. |
+| 5 | Theme labels | "System Default / Follows OS dark & light modes", "Light Mode / High contrast daylight canvas", "Dark Mode (Obsidian) / Midnight neo-tokyo palette", "Active" pill | System / Light / Dark | **Plain, accurate copy** ([§2.4](#24-appearance)); the light theme isn't "high contrast" and nothing is "neo-tokyo". **Drop "Active"**. Since 2026-11-19 (per the user) the options are a dialog's radio list with their descriptions ("Follows your device's dark & light mode"); the row shows the current theme's icon. |
 | 6 | Data & Storage: storage row | "Local Bookmarks Storage · 8 saved titles • 12 KB used on device", cyan dot | Not in §3.6 | **Drop** ([Q2](#10-open-questions)). The count is real but leads nowhere here; "12 KB" is invented and meaningless to users. |
 | 7 | Export (JSON) | Button; toast "Bookmarks JSON exported to storage" | Not in the spec | **Drop** ([Q4](#10-open-questions)): needs the Storage Access Framework, a file format and an import to be useful. |
 | 8 | Clear Local Data | Destructive button; browser `confirm()`; toast "Cache cleared successfully" | Not in the spec | **Drop** ([Q3](#10-open-questions)): per-card remove with Undo exists. If it's ever added: an M3 `AlertDialog` ("Remove all 8 bookmarks? This can't be undone.", Cancel / Remove in `error`) and a `requestCheck()` so the alert chain ends. |
@@ -311,7 +309,7 @@ Root: `app/src/main/java/com/zc/bakamitai/`. Tests: `app/src/test/java/com/zc/ba
 | `presentation/model/WeekStartOption.kt` | **new** | `enum class WeekStartOption { MONDAY, SUNDAY }` (presentation keys; domain enums never reach a Composable, `architecture` §4) |
 | `presentation/model/TimeFormatOption.kt` | **new** | `TWELVE_HOUR`, `TWENTY_FOUR_HOUR` |
 | `presentation/model/ThemeOption.kt` | **new** | `SYSTEM`, `LIGHT`, `DARK` |
-| `presentation/mapper/AppInfoUIModelMapper.kt` | **new** | `AppInfo.toSourceCodeLabel(): UiText` ("github.com/zahichemaly/BakaMitai": the URL without its scheme), `AppInfo.toVersionLabel(): UiText` (`settings_footer_version`) |
+| `presentation/mapper/AppInfoUIModelMapper.kt` | **new** | `AppInfo.toVersionLabel(): UiText` (`settings_footer_version`). (`toSourceCodeLabel()` was removed with the About row's URL line.) |
 | **presentation: components** | | |
 | `component/settingssection/SettingsSectionView.kt` | **new** | `SettingsSectionView(icon: ImageVector, title: UiText, accentColor: Color, modifier, contentPadding: Dp = spacing.md, content: @Composable ColumnScope.() -> Unit)`: header row (`heading()`) + the `surfaceContainerLow` / `extraLarge` card. Static chrome, no skeleton. `@AdaptivePreviews`. |
 | `component/segmentedpreference/model/SegmentUIState.kt` | **new** | `@Immutable data class SegmentUIState<T>(val value: T, val label: UiText, val qualifier: UiText?, val isSelected: Boolean)` |
@@ -323,7 +321,7 @@ Root: `app/src/main/java/com/zc/bakamitai/`. Tests: `app/src/test/java/com/zc/ba
 | `component/alertspreference/model/AlertsPreferenceUIState.kt` | **new** | `@Immutable data class AlertsPreferenceUIState(val isChecked: Boolean, val supportingText: UiText, val isBlocked: Boolean)` (`isBlocked` → `tertiary` text + Allow button) |
 | `component/alertspreference/mapper/AlertsPreferenceUIModelMapper.kt` | **new** | `AppSettings.toAlertsPreferenceUIState(status: ReleaseAlertsStatus?)`: `isChecked = newEpisodeAlerts`; `isBlocked = newEpisodeAlerts && status == BLOCKED`; the matching text. `status == null` (not read yet) → not blocked. |
 | `component/alertspreference/AlertsPreferenceView.kt` | **new** | `AlertsPreferenceView(state, onCheckedChange: (Boolean) -> Unit, onAllowClick: () -> Unit, modifier)` ([§2.5](#25-notifications-new-episode-alerts)) + `AlertsPreferenceSkeletonView(modifier)`, previews (on / off / blocked) |
-| `component/aboutrow/AboutRowView.kt` | **new** | `AboutRowView(urlLabel: UiText, onClick: () -> Unit, modifier)` ([§2.6](#26-about)), previews. No skeleton: its data is synchronous. |
+| `component/aboutrow/AboutRowView.kt` | **new** | `AboutRowView(onClick: () -> Unit, modifier)` ([§2.6](#26-about)), previews. No skeleton: its data is synchronous. |
 | `component/settingsfooter/SettingsFooterView.kt` | **new** | `SettingsFooterView(versionLabel: UiText, modifier)` ([§2.7](#27-footer)), previews |
 | **presentation: screen** | | |
 | `presentation/SettingsState.kt`, `SettingsIntent.kt`, `SettingsEffect.kt` | **new** | [§5.9](#59-mvi-contract) |
@@ -394,7 +392,7 @@ Root: `app/src/main/java/com/zc/bakamitai/`. Tests: `app/src/test/java/com/zc/ba
 
 New strings (`values/strings.xml`; uppercase ones stored uppercase, DESIGN.md labels):
 - `settings_title` "Settings"
-- `settings_section_general` "GENERAL PREFERENCES", `settings_section_appearance` "APPEARANCE", `settings_section_notifications` "NOTIFICATIONS", `settings_section_about` "ABOUT"
+- `settings_section_general` "GENERAL" (was "GENERAL PREFERENCES" until 2026-11-19), `settings_section_appearance` "APPEARANCE", `settings_section_notifications` "NOTIFICATIONS", `settings_section_about` "ABOUT"
 - `settings_week_start_title` "First day of week", `settings_week_start_description` "Choose the starting day for the release schedule", `settings_option_default` "(Default)" (with the existing `day_monday`, `day_sunday`)
 - `settings_time_format_title` "Time format", `settings_time_format_description` "Display release times in 12-hour or 24-hour clock", `settings_time_format_12h` "12-hour", `settings_time_format_12h_qualifier` "(AM/PM)", `settings_time_format_24h` "24-hour"
 - `settings_theme_title` "Theme", `settings_theme_description` "Choose how BakaMitai looks", `settings_theme_system` "System default", `settings_theme_system_description` "Follows your device's dark theme setting", `settings_theme_light` "Light", `settings_theme_light_description` "Always use the light theme", `settings_theme_dark` "Dark", `settings_theme_dark_description` "Always use the dark theme"
@@ -421,7 +419,6 @@ data class SettingsState(
     val timeFormatSegments: ImmutableList<SegmentUIState<TimeFormatOption>> = persistentListOf(),
     val themeOptions: ImmutableList<ThemeOptionUIState> = persistentListOf(),
     val alerts: AlertsPreferenceUIState? = null,
-    val sourceCodeLabel: UiText? = null,              // set from AppInfo in the initial _state
     val versionLabel: UiText? = null,
 )
 
@@ -506,7 +503,7 @@ Private: `appInfo` (for `AboutClicked`), `alertsStatus = MutableStateFlow<Releas
 | `…/segmentedpreference/mapper/SegmentUIModelMapperTest` | Order, labels, the "(Default)" / "(AM/PM)" qualifiers, exactly one selected per value. |
 | `…/themeoptions/mapper/ThemeOptionUIModelMapperTest` | Three options in order; the selected one has the filled icon. |
 | `…/alertspreference/mapper/AlertsPreferenceUIModelMapperTest` | Switch on + `ON` / `null` → checked, not blocked; switch off + any status → unchecked, not blocked; switch on + `BLOCKED` → blocked text. |
-| `feature/settings/presentation/mapper/AppInfoUIModelMapperTest` | "github.com/zahichemaly/BakaMitai"; `StringResource(settings_footer_version, listOf("1.0"))`. |
+| `feature/settings/presentation/mapper/AppInfoUIModelMapperTest` | `StringResource(settings_footer_version, listOf("1.0"))`. |
 | `feature/settings/presentation/SettingsViewModelTest` | Initial loading → content from the fake's settings; each selection writes the matching domain value; a failing write → `ShowError` and the state keeps the stored value; `ScreenStarted` reads the status (blocked → `alerts.isBlocked`); `AlertsToggled(true)` with `BLOCKED` → `RequestNotifications`, with `ON` → no effect; `AlertsToggled(false)` → no effect; `AllowNotificationsClicked` → `RequestNotifications`; `NotificationPermissionResult` re-reads; `AboutClicked` → `OpenUrl("https://github.com/zahichemaly/BakaMitai")`; `BackClicked` → `NavigateBack`; a settings change from outside (fake emits) updates the state. |
 | `app/AppViewModelTest` | `AppState()` (not loaded) → loaded; SYSTEM → `darkThemeOverride == null`, LIGHT → `false`, DARK → `true`; `TWENTY_FOUR_HOUR` → `use24HourClock`; a later change updates the state. |
 | `feature/schedule/domain/usecase/GetWeeklyScheduleUseCaseTest` | **Update** to the required `weekStart` (cases already cover Monday and Sunday). |
@@ -669,8 +666,8 @@ Private: `appInfo` (for `AboutClicked`), `alertsStatus = MutableStateFlow<Releas
 
 **Layout, states and accessibility**
 - [ ] Light and dark, compact and expanded: one column, 16 / 24 dp margins, centered at 720 dp on wide windows; the footer ends above the system navigation bar.
-- [ ] At font scale 2.0 nothing is clipped (descriptions wrap; segment qualifiers ellipsize).
-- [ ] TalkBack: section titles are headings; segments and theme rows are radio buttons with their selected state; the alerts row is a switch; decorative icons are silent.
+- [ ] At font scale 2.0 nothing is clipped (picker rows and dialog options wrap).
+- [ ] TalkBack: section titles are headings; each picker row reads its title and current value as a button; dialog options are radio buttons with their selected state; the alerts row is a switch; decorative icons are silent.
 - [ ] No loading spinner anywhere; the skeleton (if seen at all) has the real section headers.
 
 **Bookmarks sort (Phase 5)**
@@ -727,3 +724,22 @@ Implemented on 2026-11-19 (implementor), all phases including Phase 5. Deviation
 - **Steps left:** step 21 (skills `structure`, `conventions`, `architecture`) and step 22 (context.md, api.md §7, CLAUDE.md, `structure` §7 "Current repo state") were not edited by the implementor; the caller applies them. Steps 15–16: the previews weren't rendered (Android Studio had another project open); every component and the screen were checked on the emulator instead, in dark and light.
 - **Emulator checks (`emulator-5554`, API 37, 3-button navigation):** the gear on all four tabs opens Settings with the bottom bar hidden, and Back keeps the tab and its scroll position; the segmented track; Light forced with the system dark and Dark forced with the system light (instant recolor, status- and navigation-bar icons follow the app theme, the navigation bar has no scrim and matches the bottom bar); cold starts recorded frame by frame in both forced cases: the system splash follows the system mode and reveals an app frame already in the chosen theme, with no frame of the other theme; System default follows a live system dark-mode toggle; the Activity recreation keeps Settings and the theme; 24-hour times on Home and Schedule; Sunday week start (SUN 15 … SAT 21, Thursday kept selected); the Bookmarks sort and every setting survive a force stop; the alerts chip opens Settings and says ALERTS OFF when switched off; a forced release check with alerts off ran with no SubsPlease request and scheduled the next check; the blocked row, the dialog, and the system settings once Android stops showing it; the row re-reads after coming back from the system settings; About opens the GitHub page; Details' "Open in web" still works; a landscape window (914 dp) centers the column at ~718 dp; fresh-install defaults.
 - **Not checked on a device:** gesture navigation, a tablet or resizable emulator (the rail), font scale 2.0, TalkBack, process death with "Don't keep activities".
+
+**Change request, 2026-11-19 (per the user): picker settings open a dialog.** The user's updated Stitch screen (390×884, a shorter list of rows; its markup wasn't re-read, so the change follows the user's written spec and standard Material 3) replaces the inline segmented toggles and the theme radio list:
+
+- **Built:** `presentation/component/pickerpreference/PickerPreferenceView.kt` (`PickerPreferenceView(title, value, onClick, modifier, icon)` + `PickerPreferenceSkeletonView(modifier, hasIcon)`) and `presentation/component/pickerdialog/PickerDialogView.kt` (generic `PickerDialogView(title, options, onOptionClick, onDismiss, modifier)`, an M3 `AlertDialog`), with `@AdaptivePreviews` (rows, skeleton, each picker's dialog, and the screen with the Theme dialog open). One generic model replaces the per-setting ones: `presentation/model/PickerUIState<out T>(title, valueLabel, options, icon)` and `PickerOptionUIState<out T>(option, label, description, isSelected)`, built by `presentation/mapper/PickerUIModelMapper.kt` (`toWeekStartPicker()`, `toTimeFormatPicker()`, `toThemePicker()`), tested by `PickerUIModelMapperTest`. They sit in `presentation/model/` because the Screen reads them and two components render them (`structure` §1.1).
+- **Removed:** `component/segmentedpreference/` and `component/themeoptions/` (views, models, mappers) and their two mapper tests.
+- **MVI:** `SettingsState` has `weekStart` / `timeFormat` / `theme: PickerUIState<…>?` (`null` while loading) instead of the segment and theme-option lists, plus `openPicker: SettingsPicker? = null` (`presentation/model/SettingsPicker.kt`: `WEEK_START`, `TIME_FORMAT`, `THEME`). New intents `PickerClicked(picker)` and `PickerDismissed`; `WeekStartSelected` / `TimeFormatSelected` / `ThemeSelected` close the dialog first, then save. Picking the stored value saves it again (the existing behaviour, idempotent: the store doesn't emit an unchanged value) and closes the dialog. The dialog lives in the ViewModel's `_state`, so it survives rotation; it isn't saved across process death. `SettingsViewModelTest` gained cases for opening and dismissing each picker, choosing in each dialog, choosing the stored value, a failed save (dialog closed, snackbar, stored value kept) and an outside change while a dialog is open.
+- **Decisions not in the request:** the *Theme* row's leading icon is the current theme's filled glyph in the old "selected" style (primary on `primary` at 20 % alpha, 36 dp). The Appearance section used icons and General didn't, so the General rows have none. The picker skeleton uses two text lines for the title and the value (both come from the model), not the real title. The dialog's Cancel sits in `AlertDialog`'s `dismissButton` slot, with an empty `confirmButton`. TalkBack reads a row as "Theme, System default, button": the new `cd_settings_picker` ("%1$s, %2$s") is its content description, and the row's texts are cleared from the semantics so they aren't read twice.
+- **Strings:** new `cd_settings_picker`, `settings_picker_cancel` ("Cancel"). Changed: `settings_time_format_12h` → "12-hour (AM/PM)" (it was a label plus a separate qualifier); `settings_theme_system_description` → "Follows your device's dark & light mode" (the user's wording). Removed, now unused: `settings_week_start_description`, `settings_time_format_description`, `settings_theme_description`, `settings_option_default` ("(Default)"), `settings_time_format_12h_qualifier`.
+- **Not updated here (they describe the first, segmented version):** the design-source paragraph (390×1309), §5.3's component rows, §5.8's string list, §5.9's `SettingsState` sketch, §7's mapper-test and preview rows, and §9's "segment qualifiers ellipsize" and "segments and theme rows are radio buttons" (now: picker rows are buttons; dialog options are radio buttons). The bullets above are the current shape.
+- **Checks:** `./gradlew testDebugUnitTest` (575 tests), `./gradlew detekt` (zero findings) and `./gradlew assembleDebug` pass. The debug build's Compose report lists `PickerPreferenceView`, `PickerPreferenceSkeletonView`, `PickerDialogView` and `SettingsScreen` as restartable and skippable with only stable parameters, and `SettingsState` / `PickerUIState` / `PickerOptionUIState` as stable. **Not checked:** the previews weren't rendered (Android Studio had another project open), `assembleRelease` wasn't run, and nothing was checked on a device or emulator: the caller asked for no device checks this time.
+
+**Change request, 2026-11-19 (per the user): icons on the rows, not the section headers.** The user first asked to drop the *Theme* row's icon, then for every setting row to have a leading icon instead of the section headers.
+
+- **Built:** `presentation/component/settingsicon/SettingsIconView.kt`: `SettingsIconView(icon: ImageVector, modifier)` (the About row's 40 dp `surfaceContainerHigh` circle, 20 dp `onSurface` glyph, decorative) and the public `SettingsIconSize` (40 dp), used by the picker, alerts and About rows (moved up to the shared `component/` level, as Home's `episodebadge`). `PickerPreferenceView(icon, title, value, onClick, modifier)` and `PickerPreferenceSkeletonView(icon, modifier)` take a required icon; the skeleton draws the real icon (the shimmer sweeps it, as it sweeps the alerts skeleton's real title). `AlertsPreferenceView` and its skeleton start with a `Notifications` icon; `AboutRowView` uses `SettingsIconView` for its `Code` icon.
+- **Removed:** the *Theme* row's per-theme filled icon (`PickerUIState.icon`, `ThemeOption.toIcon()`, the 36 dp primary circle and the skeleton's `hasIcon`), and `SettingsSectionView`'s `icon` parameter: headers are the accent title only.
+- **Alignment:** the Notifications card's inner padding is now `spacing.xs` and the alerts row is `clip(shapes.medium).toggleable(…).padding(spacing.md)`, as the picker and About rows, so every icon sits 20 dp from the card's edge. "Allow notifications" is indented to the text (`spacing.md + SettingsIconSize + spacing.md`).
+- **Tests:** `PickerUIModelMapperTest` no longer checks icons (the theme case checks the selected option and its label).
+
+**Change request, 2026-11-19 (per the user): no URL under *About BakaMitai*.** The About row is its icon, the title on one line and the open-in-new arrow; a tap still opens `https://github.com/zahichemaly/BakaMitai` (`AppInfo.sourceCodeUrl`, kept in the ViewModel). Removed with the line: `AboutRowView`'s `urlLabel`, `SettingsState.sourceCodeLabel`, `AppInfo.toSourceCodeLabel()` and its test. The About section no longer waits on that label: it always shows.

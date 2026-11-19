@@ -10,9 +10,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,22 +48,23 @@ import com.zc.bakamitai.feature.settings.presentation.component.aboutrow.AboutRo
 import com.zc.bakamitai.feature.settings.presentation.component.alertspreference.AlertsPreferenceSkeletonView
 import com.zc.bakamitai.feature.settings.presentation.component.alertspreference.AlertsPreferenceView
 import com.zc.bakamitai.feature.settings.presentation.component.alertspreference.mapper.toAlertsPreferenceUIState
-import com.zc.bakamitai.feature.settings.presentation.component.segmentedpreference.SegmentedPreferenceSkeletonView
-import com.zc.bakamitai.feature.settings.presentation.component.segmentedpreference.SegmentedPreferenceView
-import com.zc.bakamitai.feature.settings.presentation.component.segmentedpreference.mapper.toTimeFormatSegments
-import com.zc.bakamitai.feature.settings.presentation.component.segmentedpreference.mapper.toWeekStartSegments
+import com.zc.bakamitai.feature.settings.presentation.component.pickerdialog.PickerDialogView
+import com.zc.bakamitai.feature.settings.presentation.component.pickerpreference.PickerPreferenceSkeletonView
+import com.zc.bakamitai.feature.settings.presentation.component.pickerpreference.PickerPreferenceView
 import com.zc.bakamitai.feature.settings.presentation.component.settingsfooter.SettingsFooterView
 import com.zc.bakamitai.feature.settings.presentation.component.settingssection.SettingsSectionView
-import com.zc.bakamitai.feature.settings.presentation.component.themeoptions.ThemeOptionsSkeletonView
-import com.zc.bakamitai.feature.settings.presentation.component.themeoptions.ThemeOptionsView
-import com.zc.bakamitai.feature.settings.presentation.component.themeoptions.mapper.toThemeOptionUIStates
+import com.zc.bakamitai.feature.settings.presentation.mapper.toThemePicker
+import com.zc.bakamitai.feature.settings.presentation.mapper.toTimeFormatPicker
+import com.zc.bakamitai.feature.settings.presentation.mapper.toWeekStartPicker
+import com.zc.bakamitai.feature.settings.presentation.model.SettingsPicker
 import com.zc.bakamitai.feature.settings.presentation.model.ThemeOption
 import com.zc.bakamitai.feature.settings.presentation.model.TimeFormatOption
 import com.zc.bakamitai.feature.settings.presentation.model.WeekStartOption
 
 /**
  * Settings: the general preferences (first day of week, time format), the theme, the new-episode alerts switch and
- * the About link, then the version. One column, centered on wide windows. While the settings load, each preference
+ * the About link, then the version. One column, centered on wide windows. The pickers are rows showing their current
+ * value; a tap opens its dialog ([SettingsState.openPicker]). While the settings load, each preference
  * card shows its own skeleton; the headers, the About row and the footer are real.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,6 +90,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(padding),
         )
+        SettingsPickerDialog(state = state, onIntent = onIntent)
     }
 }
 
@@ -152,87 +153,80 @@ private fun SettingsContent(state: SettingsState, onIntent: (SettingsIntent) -> 
             GeneralSection(state = state, onIntent = onIntent)
             AppearanceSection(state = state, onIntent = onIntent)
             NotificationsSection(state = state, onIntent = onIntent)
-            state.sourceCodeLabel?.let { urlLabel ->
-                SettingsSectionView(
-                    icon = Icons.Outlined.Info,
-                    title = UiText.StringResource(StringResource.settings_section_about),
-                    accentColor = MaterialTheme.colorScheme.outline,
-                    contentPadding = spacing.xs,
-                ) {
-                    AboutRowView(urlLabel = urlLabel, onClick = onAboutClick)
-                }
+            SettingsSectionView(
+                title = UiText.StringResource(StringResource.settings_section_about),
+                accentColor = MaterialTheme.colorScheme.outline,
+                contentPadding = spacing.xs,
+            ) {
+                AboutRowView(onClick = onAboutClick)
             }
             state.versionLabel?.let { versionLabel -> SettingsFooterView(versionLabel = versionLabel) }
         }
     }
 }
 
-/** First day of week and time format: segmented controls, or their placeholders in one skeleton. */
+/** First day of week (a calendar) and time format (a clock): picker rows, or their placeholders in one skeleton. */
 @Composable
 private fun GeneralSection(state: SettingsState, onIntent: (SettingsIntent) -> Unit, modifier: Modifier = Modifier) {
-    val onWeekStartClick = remember(onIntent) {
-        { option: WeekStartOption -> onIntent(SettingsIntent.WeekStartSelected(option)) }
-    }
+    val onWeekStartClick = remember(onIntent) { { onIntent(SettingsIntent.PickerClicked(SettingsPicker.WEEK_START)) } }
     val onTimeFormatClick = remember(onIntent) {
-        { option: TimeFormatOption -> onIntent(SettingsIntent.TimeFormatSelected(option)) }
+        { onIntent(SettingsIntent.PickerClicked(SettingsPicker.TIME_FORMAT)) }
     }
     SettingsSectionView(
-        icon = Icons.Outlined.CalendarMonth,
         title = UiText.StringResource(StringResource.settings_section_general),
         accentColor = MaterialTheme.colorScheme.primary,
         modifier = modifier,
+        contentPadding = BakaMitaiTheme.spacing.xs,
     ) {
-        val preferences = @Composable {
-            Column(verticalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.lg)) {
-                PreferenceItem(
-                    title = UiText.StringResource(StringResource.settings_week_start_title),
-                    description = UiText.StringResource(StringResource.settings_week_start_description),
-                ) {
-                    if (state.isLoading) {
-                        SegmentedPreferenceSkeletonView()
-                    } else {
-                        SegmentedPreferenceView(segments = state.weekStartSegments, onSegmentClick = onWeekStartClick)
-                    }
-                }
-                PreferenceItem(
-                    title = UiText.StringResource(StringResource.settings_time_format_title),
-                    description = UiText.StringResource(StringResource.settings_time_format_description),
-                ) {
-                    if (state.isLoading) {
-                        SegmentedPreferenceSkeletonView()
-                    } else {
-                        SegmentedPreferenceView(segments = state.timeFormatSegments, onSegmentClick = onTimeFormatClick)
-                    }
+        val weekStart = state.weekStart
+        val timeFormat = state.timeFormat
+        if (state.isLoading || weekStart == null || timeFormat == null) {
+            SkeletonView {
+                PickerRows {
+                    PickerPreferenceSkeletonView(icon = Icons.Outlined.CalendarMonth)
+                    PickerPreferenceSkeletonView(icon = Icons.Outlined.Schedule)
                 }
             }
+        } else {
+            PickerRows {
+                PickerPreferenceView(
+                    icon = Icons.Outlined.CalendarMonth,
+                    title = weekStart.title,
+                    value = weekStart.valueLabel,
+                    onClick = onWeekStartClick,
+                )
+                PickerPreferenceView(
+                    icon = Icons.Outlined.Schedule,
+                    title = timeFormat.title,
+                    value = timeFormat.valueLabel,
+                    onClick = onTimeFormatClick,
+                )
+            }
         }
-        if (state.isLoading) SkeletonView { preferences() } else preferences()
     }
 }
 
-/** The theme's radio list, or its placeholder rows in a skeleton. */
+/** The theme's picker row (a palette), or its placeholder in a skeleton. */
 @Composable
 private fun AppearanceSection(state: SettingsState, onIntent: (SettingsIntent) -> Unit, modifier: Modifier = Modifier) {
-    val onThemeClick = remember(onIntent) { { option: ThemeOption -> onIntent(SettingsIntent.ThemeSelected(option)) } }
+    val onThemeClick = remember(onIntent) { { onIntent(SettingsIntent.PickerClicked(SettingsPicker.THEME)) } }
     SettingsSectionView(
-        icon = Icons.Outlined.Palette,
         title = UiText.StringResource(StringResource.settings_section_appearance),
         accentColor = MaterialTheme.colorScheme.secondary,
         modifier = modifier,
+        contentPadding = BakaMitaiTheme.spacing.xs,
     ) {
-        val theme = @Composable {
-            PreferenceItem(
-                title = UiText.StringResource(StringResource.settings_theme_title),
-                description = UiText.StringResource(StringResource.settings_theme_description),
-            ) {
-                if (state.isLoading) {
-                    ThemeOptionsSkeletonView()
-                } else {
-                    ThemeOptionsView(options = state.themeOptions, onOptionClick = onThemeClick)
-                }
-            }
+        val theme = state.theme
+        if (state.isLoading || theme == null) {
+            SkeletonView { PickerPreferenceSkeletonView(icon = Icons.Outlined.Palette) }
+        } else {
+            PickerPreferenceView(
+                icon = Icons.Outlined.Palette,
+                title = theme.title,
+                value = theme.valueLabel,
+                onClick = onThemeClick,
+            )
         }
-        if (state.isLoading) SkeletonView { theme() } else theme()
     }
 }
 
@@ -246,10 +240,10 @@ private fun NotificationsSection(
     val onAlertsChange = remember(onIntent) { { enabled: Boolean -> onIntent(SettingsIntent.AlertsToggled(enabled)) } }
     val onAllowClick = remember(onIntent) { { onIntent(SettingsIntent.AllowNotificationsClicked) } }
     SettingsSectionView(
-        icon = Icons.Outlined.Notifications,
         title = UiText.StringResource(StringResource.settings_section_notifications),
         accentColor = MaterialTheme.colorScheme.tertiary,
         modifier = modifier,
+        contentPadding = BakaMitaiTheme.spacing.xs,
     ) {
         val alerts = state.alerts
         if (state.isLoading || alerts == null) {
@@ -260,35 +254,60 @@ private fun NotificationsSection(
     }
 }
 
-/** A preference's title and description, then its control. */
+/** A card's picker rows, stacked as the About card's (`gap-1`). */
 @Composable
-private fun PreferenceItem(
-    title: UiText,
-    description: UiText,
-    modifier: Modifier = Modifier,
-    control: @Composable () -> Unit,
-) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.sm)) {
-        Column {
-            Text(
-                text = title.asString(),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Text(
-                text = description.asString(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        control()
+private fun PickerRows(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.xs)) {
+        content()
     }
 }
 
-/** Loading; the defaults; Sunday, 24-hour, Dark and alerts off; alerts blocked by Android. */
+/** The open picker's dialog: a choice saves it and closes the dialog; Cancel, Back or a tap outside closes it. */
+@Composable
+private fun SettingsPickerDialog(state: SettingsState, onIntent: (SettingsIntent) -> Unit) {
+    val onDismiss = remember(onIntent) { { onIntent(SettingsIntent.PickerDismissed) } }
+    val onWeekStartSelect = remember(onIntent) {
+        { option: WeekStartOption -> onIntent(SettingsIntent.WeekStartSelected(option)) }
+    }
+    val onTimeFormatSelect = remember(onIntent) {
+        { option: TimeFormatOption -> onIntent(SettingsIntent.TimeFormatSelected(option)) }
+    }
+    val onThemeSelect = remember(onIntent) { { option: ThemeOption -> onIntent(SettingsIntent.ThemeSelected(option)) } }
+    when (state.openPicker) {
+        SettingsPicker.WEEK_START -> state.weekStart?.let { picker ->
+            PickerDialogView(
+                title = picker.title,
+                options = picker.options,
+                onOptionClick = onWeekStartSelect,
+                onDismiss = onDismiss,
+            )
+        }
+
+        SettingsPicker.TIME_FORMAT -> state.timeFormat?.let { picker ->
+            PickerDialogView(
+                title = picker.title,
+                options = picker.options,
+                onOptionClick = onTimeFormatSelect,
+                onDismiss = onDismiss,
+            )
+        }
+
+        SettingsPicker.THEME -> state.theme?.let { picker ->
+            PickerDialogView(
+                title = picker.title,
+                options = picker.options,
+                onOptionClick = onThemeSelect,
+                onDismiss = onDismiss,
+            )
+        }
+
+        null -> Unit
+    }
+}
+
+/** Loading; the defaults; Sunday, 24-hour, Dark and alerts off; alerts blocked by Android; the theme dialog open. */
 private class SettingsStatePreviewProvider : PreviewParameterProvider<SettingsState> {
     private val loading = SettingsState(
-        sourceCodeLabel = UiText.StringValue("github.com/zahichemaly/BakaMitai"),
         versionLabel = UiText.StringResource(StringResource.settings_footer_version, listOf("1.0")),
     )
 
@@ -300,13 +319,14 @@ private class SettingsStatePreviewProvider : PreviewParameterProvider<SettingsSt
             ReleaseAlertsStatus.OFF,
         ),
         loaded(AppSettings(), ReleaseAlertsStatus.BLOCKED),
+        loaded(AppSettings(), ReleaseAlertsStatus.ON).copy(openPicker = SettingsPicker.THEME),
     )
 
     private fun loaded(settings: AppSettings, status: ReleaseAlertsStatus) = loading.copy(
         isLoading = false,
-        weekStartSegments = settings.weekStart.toWeekStartSegments(),
-        timeFormatSegments = settings.timeFormat.toTimeFormatSegments(),
-        themeOptions = settings.themeMode.toThemeOptionUIStates(),
+        weekStart = settings.weekStart.toWeekStartPicker(),
+        timeFormat = settings.timeFormat.toTimeFormatPicker(),
+        theme = settings.themeMode.toThemePicker(),
         alerts = settings.toAlertsPreferenceUIState(status),
     )
 }

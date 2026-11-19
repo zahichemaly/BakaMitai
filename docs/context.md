@@ -119,7 +119,7 @@ Data: [§4.4](#44-details).
 
 ### 3.6 Settings
 
-A pushed screen (back arrow, no bottom bar on phones), opened from the **gear** in the top bar of every tab. A list of preferences, saved locally; each change applies at once, with no toast (a snackbar only if saving fails):
+A pushed screen (back arrow, no bottom bar on phones), opened from the **gear** in the top bar of every tab. A list of preferences, saved locally; each change applies at once, with no toast (a snackbar only if saving fails). **Picker settings** (*First day of week*, *Time format*, *Theme*) are rows that show their current value; tapping one opens a dialog with the options (choosing one saves it and closes the dialog). *New-episode alerts* is a switch:
 
 | Preference | Options | Default | Effect |
 |---|---|---|---|

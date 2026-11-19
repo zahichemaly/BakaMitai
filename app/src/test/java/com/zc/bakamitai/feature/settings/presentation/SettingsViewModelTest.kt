@@ -21,9 +21,10 @@ import com.zc.bakamitai.feature.settings.domain.usecase.UpdateThemeModeUseCase
 import com.zc.bakamitai.feature.settings.domain.usecase.UpdateTimeFormatUseCase
 import com.zc.bakamitai.feature.settings.domain.usecase.UpdateWeekStartUseCase
 import com.zc.bakamitai.feature.settings.presentation.component.alertspreference.mapper.toAlertsPreferenceUIState
-import com.zc.bakamitai.feature.settings.presentation.component.segmentedpreference.mapper.toTimeFormatSegments
-import com.zc.bakamitai.feature.settings.presentation.component.segmentedpreference.mapper.toWeekStartSegments
-import com.zc.bakamitai.feature.settings.presentation.component.themeoptions.mapper.toThemeOptionUIStates
+import com.zc.bakamitai.feature.settings.presentation.mapper.toThemePicker
+import com.zc.bakamitai.feature.settings.presentation.mapper.toTimeFormatPicker
+import com.zc.bakamitai.feature.settings.presentation.mapper.toWeekStartPicker
+import com.zc.bakamitai.feature.settings.presentation.model.SettingsPicker
 import com.zc.bakamitai.feature.settings.presentation.model.ThemeOption
 import com.zc.bakamitai.feature.settings.presentation.model.TimeFormatOption
 import com.zc.bakamitai.feature.settings.presentation.model.WeekStartOption
@@ -36,6 +37,7 @@ import org.junit.Rule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SettingsViewModelTest {
@@ -46,7 +48,6 @@ class SettingsViewModelTest {
     private val settings = FakeSettingsRepository()
     private val notifier = FakeReleaseAlertNotifier()
 
-    private val sourceCodeLabel = UiText.StringValue("github.com/zahichemaly/BakaMitai")
     private val versionLabel = UiText.StringResource(StringResource.settings_footer_version, listOf("1.0"))
     private val genericError = ErrorUIModel(UiText.StringResource(StringResource.error_generic), isRetryable = true)
 
@@ -68,11 +69,10 @@ class SettingsViewModelTest {
 
     private fun expectedContent(appSettings: AppSettings, status: ReleaseAlertsStatus?) = SettingsState(
         isLoading = false,
-        weekStartSegments = appSettings.weekStart.toWeekStartSegments(),
-        timeFormatSegments = appSettings.timeFormat.toTimeFormatSegments(),
-        themeOptions = appSettings.themeMode.toThemeOptionUIStates(),
+        weekStart = appSettings.weekStart.toWeekStartPicker(),
+        timeFormat = appSettings.timeFormat.toTimeFormatPicker(),
+        theme = appSettings.themeMode.toThemePicker(),
         alerts = appSettings.toAlertsPreferenceUIState(status),
-        sourceCodeLabel = sourceCodeLabel,
         versionLabel = versionLabel,
     )
 
@@ -81,10 +81,7 @@ class SettingsViewModelTest {
         settings.settings.value = AppSettings(weekStart = WeekStart.SUNDAY, themeMode = ThemeMode.LIGHT)
 
         createViewModel().state.test {
-            assertEquals(
-                SettingsState(sourceCodeLabel = sourceCodeLabel, versionLabel = versionLabel),
-                awaitItem(),
-            )
+            assertEquals(SettingsState(versionLabel = versionLabel), awaitItem())
             assertEquals(expectedContent(settings.settings.value, status = null), awaitItem())
         }
     }
@@ -122,15 +119,90 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `a failed save shows the error and keeps the stored value`() = runTest {
+    fun `a failed save closes the dialog, shows the error and keeps the stored value`() = runTest {
         settings.failWrites = true
         val viewModel = subscribedViewModel()
+        viewModel.onIntent(SettingsIntent.PickerClicked(SettingsPicker.THEME))
 
         viewModel.effect.test {
             viewModel.onIntent(SettingsIntent.ThemeSelected(ThemeOption.DARK))
             assertEquals(SettingsEffect.ShowError(genericError), awaitItem())
         }
-        assertEquals(ThemeMode.SYSTEM.toThemeOptionUIStates(), viewModel.state.value.themeOptions)
+        assertNull(viewModel.state.value.openPicker)
+        assertEquals(ThemeMode.SYSTEM.toThemePicker(), viewModel.state.value.theme)
+    }
+
+    @Test
+    fun `tapping a picker row opens its dialog, and dismissing it closes it without a save`() = runTest {
+        val viewModel = subscribedViewModel()
+
+        SettingsPicker.entries.forEach { picker ->
+            viewModel.onIntent(SettingsIntent.PickerClicked(picker))
+            runCurrent()
+            assertEquals(picker, viewModel.state.value.openPicker)
+
+            viewModel.onIntent(SettingsIntent.PickerDismissed)
+            runCurrent()
+            assertNull(viewModel.state.value.openPicker)
+        }
+        assertEquals(emptyList<Any>(), settings.writes)
+        assertEquals(expectedContent(AppSettings(), status = null), viewModel.state.value)
+    }
+
+    @Test
+    fun `picking an option in each dialog saves it and closes the dialog`() = runTest {
+        val viewModel = subscribedViewModel()
+
+        viewModel.onIntent(SettingsIntent.PickerClicked(SettingsPicker.WEEK_START))
+        viewModel.onIntent(SettingsIntent.WeekStartSelected(WeekStartOption.SUNDAY))
+        runCurrent()
+        assertNull(viewModel.state.value.openPicker)
+        assertEquals(WeekStart.SUNDAY.toWeekStartPicker(), viewModel.state.value.weekStart)
+
+        viewModel.onIntent(SettingsIntent.PickerClicked(SettingsPicker.TIME_FORMAT))
+        viewModel.onIntent(SettingsIntent.TimeFormatSelected(TimeFormatOption.TWENTY_FOUR_HOUR))
+        runCurrent()
+        assertNull(viewModel.state.value.openPicker)
+        assertEquals(TimeFormat.TWENTY_FOUR_HOUR.toTimeFormatPicker(), viewModel.state.value.timeFormat)
+
+        viewModel.onIntent(SettingsIntent.PickerClicked(SettingsPicker.THEME))
+        viewModel.onIntent(SettingsIntent.ThemeSelected(ThemeOption.LIGHT))
+        runCurrent()
+        assertNull(viewModel.state.value.openPicker)
+        assertEquals(ThemeMode.LIGHT.toThemePicker(), viewModel.state.value.theme)
+
+        assertEquals(listOf<Any>(WeekStart.SUNDAY, TimeFormat.TWENTY_FOUR_HOUR, ThemeMode.LIGHT), settings.writes)
+    }
+
+    @Test
+    fun `picking the current value closes the dialog and saves it again, unchanged`() = runTest {
+        val viewModel = subscribedViewModel()
+        viewModel.onIntent(SettingsIntent.PickerClicked(SettingsPicker.WEEK_START))
+        runCurrent()
+
+        viewModel.effect.test {
+            viewModel.onIntent(SettingsIntent.WeekStartSelected(WeekStartOption.MONDAY))
+            runCurrent()
+            expectNoEvents()
+        }
+
+        assertNull(viewModel.state.value.openPicker)
+        assertEquals(listOf<Any>(WeekStart.MONDAY), settings.writes)
+        assertEquals(AppSettings(), settings.settings.value)
+        assertEquals(expectedContent(AppSettings(), status = null), viewModel.state.value)
+    }
+
+    @Test
+    fun `an open dialog stays open when the settings change elsewhere`() = runTest {
+        val viewModel = subscribedViewModel()
+        viewModel.onIntent(SettingsIntent.PickerClicked(SettingsPicker.THEME))
+        runCurrent()
+
+        settings.settings.value = AppSettings(themeMode = ThemeMode.DARK)
+        runCurrent()
+
+        assertEquals(SettingsPicker.THEME, viewModel.state.value.openPicker)
+        assertEquals(ThemeMode.DARK.toThemePicker(), viewModel.state.value.theme)
     }
 
     @Test
@@ -231,6 +303,6 @@ class SettingsViewModelTest {
         settings.settings.value = AppSettings(timeFormat = TimeFormat.TWENTY_FOUR_HOUR)
         runCurrent()
 
-        assertEquals(TimeFormat.TWENTY_FOUR_HOUR.toTimeFormatSegments(), viewModel.state.value.timeFormatSegments)
+        assertEquals(TimeFormat.TWENTY_FOUR_HOUR.toTimeFormatPicker(), viewModel.state.value.timeFormat)
     }
 }

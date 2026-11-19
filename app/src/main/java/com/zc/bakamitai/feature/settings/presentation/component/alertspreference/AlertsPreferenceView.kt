@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -16,6 +18,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -28,14 +31,17 @@ import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
 import com.zc.bakamitai.common.ui.util.AdaptivePreviews
 import com.zc.bakamitai.feature.settings.presentation.component.alertspreference.model.AlertsPreferenceUIState
+import com.zc.bakamitai.feature.settings.presentation.component.settingsicon.SettingsIconSize
+import com.zc.bakamitai.feature.settings.presentation.component.settingsicon.SettingsIconView
 
 private val SwitchWidth = 52.dp
 private val SwitchHeight = 32.dp
 private const val SKELETON_DESCRIPTION_FRACTION = 0.8f
 
 /**
- * The new-episode alerts switch: the whole row toggles it (a switch for TalkBack). When Android blocks the app's
- * notifications, the supporting text says so and an "Allow notifications" button follows.
+ * The new-episode alerts switch: a bell, the title and supporting text, then the switch; the whole row toggles it (a
+ * switch for TalkBack). When Android blocks the app's notifications, the supporting text says so and an "Allow
+ * notifications" button follows, lined up with the text.
  */
 @Composable
 fun AlertsPreferenceView(
@@ -45,14 +51,18 @@ fun AlertsPreferenceView(
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
+    val spacing = BakaMitaiTheme.spacing
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .toggleable(value = state.isChecked, role = Role.Switch, onValueChange = onCheckedChange),
-            horizontalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.md),
+                .clip(MaterialTheme.shapes.medium)
+                .toggleable(value = state.isChecked, role = Role.Switch, onValueChange = onCheckedChange)
+                .padding(spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(spacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            SettingsIconView(icon = Icons.Outlined.Notifications)
             Column(modifier = Modifier.weight(1f)) {
                 AlertsTitle()
                 Text(
@@ -64,7 +74,10 @@ fun AlertsPreferenceView(
             Switch(checked = state.isChecked, onCheckedChange = null)
         }
         if (state.isBlocked) {
-            TextButton(onClick = onAllowClick) {
+            TextButton(
+                onClick = onAllowClick,
+                modifier = Modifier.padding(start = spacing.md + SettingsIconSize + spacing.md, bottom = spacing.xs),
+            ) {
                 Text(text = UiText.StringResource(StringResource.settings_alerts_allow).asString())
             }
         }
@@ -81,14 +94,18 @@ private fun AlertsTitle(modifier: Modifier = Modifier) {
     )
 }
 
-/** The real title, one line of supporting text and the switch's track. */
+/** The row's padding, the real icon and title, one line of supporting text and the switch's track. */
 @Composable
 fun AlertsPreferenceSkeletonView(modifier: Modifier = Modifier) {
+    val spacing = BakaMitaiTheme.spacing
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(BakaMitaiTheme.spacing.md),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(spacing.md),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        SettingsIconView(icon = Icons.Outlined.Notifications)
         Column(modifier = Modifier.weight(1f)) {
             AlertsTitle()
             SkeletonTextLine(
@@ -126,7 +143,7 @@ private fun AlertsPreferenceViewPreview(
                 state = state,
                 onCheckedChange = {},
                 onAllowClick = {},
-                modifier = Modifier.padding(BakaMitaiTheme.spacing.md),
+                modifier = Modifier.padding(BakaMitaiTheme.spacing.xs),
             )
         }
     }
@@ -137,7 +154,7 @@ private fun AlertsPreferenceViewPreview(
 private fun AlertsPreferenceSkeletonViewPreview() {
     BakaMitaiTheme {
         Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            SkeletonView(modifier = Modifier.padding(BakaMitaiTheme.spacing.md)) {
+            SkeletonView(modifier = Modifier.padding(BakaMitaiTheme.spacing.xs)) {
                 AlertsPreferenceSkeletonView()
             }
         }

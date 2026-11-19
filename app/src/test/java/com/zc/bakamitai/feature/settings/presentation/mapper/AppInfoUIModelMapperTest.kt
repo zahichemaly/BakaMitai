@@ -11,11 +11,6 @@ class AppInfoUIModelMapperTest {
     private val appInfo = AppInfo(versionName = "1.0", sourceCodeUrl = "https://github.com/zahichemaly/BakaMitai")
 
     @Test
-    fun `the source code label is the URL without its scheme`() {
-        assertEquals(UiText.StringValue("github.com/zahichemaly/BakaMitai"), appInfo.toSourceCodeLabel())
-    }
-
-    @Test
     fun `the version label is BakaMitai v plus the version name`() {
         assertEquals(
             UiText.StringResource(StringResource.settings_footer_version, listOf("1.0")),
