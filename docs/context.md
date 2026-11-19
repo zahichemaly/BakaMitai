@@ -89,24 +89,26 @@ Two sections, both about **today** (in the device's time zone):
 
 ### 3.5 Details
 
-Opens when the user taps any anime. The input is the show's **slug** (the `page` value from the API, for example `sora-wa-akai-kawa-no-hotori`). Callers may also pass the title and cover they already have, so the header renders immediately while the rest loads.
+Opens when the user taps any anime on Home, Schedule or All Shows (and Bookmarks once it exists). It's a pushed screen with a back arrow, the show's title in the top bar (once loaded) and no bottom bar on phones. The page has the same plain background as the other screens. The input is only the show's **slug** (the `page` value from the API, for example `sora-wa-akai-kawa-no-hotori`), because navigation keys carry ids only (`conventions` skill); the header shows a skeleton until the show page is parsed. Plan: [4-details.md](4-details.md).
 
 Content:
 
-- **Cover**, **title**
-- **Synopsis**: collapsed to a few lines, with an expand/collapse toggle.
-- **Downloads** section: a list of episodes, newest first. If the show has batches, show them in their own group above the episodes. Each episode expands to its links, **grouped by resolution** (480p / 720p / 1080p). Each resolution offers **3 sources**:
+- **Cover**, **title**, and a full-width **Bookmark** button under them.
+- **Synopsis**: collapsed to 3 lines, with an expand/collapse toggle. When the show has none (or only SubsPlease's "will be added later" placeholder), the card says "No synopsis yet." with no toggle.
+- **Downloads** section: a list of episodes, newest first, all collapsed when the screen opens. If the show has batches, show them in their own group above the episodes. Each episode expands to its links, **grouped by resolution** (1080p / 720p / SD). Each resolution offers **3 sources**:
   - **Magnet**: opens the `magnet:` URI with an installed torrent client.
   - **Torrent**: opens the `.torrent` URL (hosted on nyaa.si).
   - **XDCC**: opens SubsPlease's XDCC search page for that file in the browser.
   - If a resolution is missing for an episode, show it as disabled rather than hiding it, matching the site.
-- If there are no episodes, show "No episodes available for this show yet."
+- If there are no episodes **and** no batches, show "No episodes available for this show yet."
+- SubsPlease returns at most 52 episodes; when a show hits that cap, a short note says older episodes aren't available.
+- Pull-to-refresh reloads the page and the episodes.
 
-Actions (top bar):
+Actions:
 
-- **Share**: share sheet (`ACTION_SEND`) with the title and `https://subsplease.org/shows/<slug>/`.
-- **Bookmark**: toggles the bookmark. Filled icon when bookmarked.
-- **Open in web**: opens `https://subsplease.org/shows/<slug>/` in the browser.
+- **Share** (top bar): share sheet (`ACTION_SEND`) with the title and `https://subsplease.org/shows/<slug>/`.
+- **Bookmark** (hero button): toggles the bookmark. Filled icon and "Bookmarked" when bookmarked.
+- **Open in web** (top bar): opens `https://subsplease.org/shows/<slug>/` in the browser.
 
 If no app can handle a magnet or torrent link (`ActivityNotFoundException`), show a snackbar ("No torrent app found") with a **Copy link** action.
 
@@ -177,7 +179,7 @@ The full derivation is in [1-home.md §4.3](1-home.md#43-derivation-domain); thi
    - The two calls are sequential, because `sid` is only in the HTML.
    - Show the header (title, cover, synopsis) as soon as step 1 finishes, while the downloads section is still loading.
 3. **Episodes:** sort by `release_date`, newest first. Label each one with its episode string, plus the release date in the device zone.
-4. **Downloads per episode:** group by resolution (SD → 720p → 1080p; see [api.md §3.6](api.md#36-resolutions)). Each has Magnet, Torrent and XDCC.
+4. **Downloads per episode:** group by resolution (1080p → 720p → SD; see [api.md §3.6](api.md#36-resolutions)). Each has Magnet, Torrent and XDCC. The `sid` and every URL are handled in `data`; the domain gets ready-to-open links.
    - XDCC URL = `https://subsplease.org/xdcc/?search=` + that resolution's `xdcc` value (see [api.md §5](api.md#5-xdcc)).
 5. **Bookmark state:** observe whether `slug` is bookmarked through a DataStore-backed `Flow`. Toggling saves `{slug, title, coverUrl, addedAt = clock.now()}` or removes it.
 
@@ -198,7 +200,7 @@ Everything is stored with **Jetpack DataStore**. That's the only approved persis
 | Data | Store | Shape |
 |---|---|---|
 | **Settings** | Preferences DataStore (`common/data/local/`; the `structure` skill already plans `SettingsRepository` and `AppSettings` in `common/`) | `firstDayOfWeek: MONDAY \| SUNDAY`, `timeFormat: TWELVE_HOUR \| TWENTY_FOUR_HOUR`, `theme: SYSTEM \| LIGHT \| DARK` |
-| **Bookmarks** | Typed DataStore with a kotlinx.serialization JSON serializer | `List<BookmarkEntity(slug: String, title: String, coverUrl: String?, addedAtEpochMillis: Long)>`, unique by `slug` |
+| **Bookmarks** | Typed DataStore with a kotlinx.serialization JSON serializer, file `bookmarks.json` (`feature/bookmarks/data/`, added by the Details plan) | `BookmarkListDTO(bookmarks: List<BookmarkDTO(slug: String, title: String, coverUrl: String?, addedAtEpochMillis: Long)>)`, unique by `slug` |
 
 - The **slug** is the bookmark key. It's what Details needs to reload the show.
 - Store the **absolute** cover URL so Bookmarks renders without extra lookups.
@@ -251,5 +253,5 @@ data class Bookmark(val show: Show, val addedAt: Instant)
 1. ~~**HTML parser.**~~ **Decided (2026-11-19):** **Ksoup** (`com.fleeksoft.ksoup:ksoup`, a Kotlin port of jsoup), `data` layer only, behind a `[Name]HtmlParser` class per page. Added by the All Shows plan; Details reuses it.
 2. **Custom Tabs vs. external browser** for "Open in web", Torrent and XDCC.
    - `androidx.browser` isn't approved either.
-   - **Default:** a plain `ACTION_VIEW` intent (or Compose `LocalUriHandler`) until a decision is made.
+   - **Chosen for v1 (Details, 2026-11-19):** a plain `ACTION_VIEW` intent. Custom Tabs would need `androidx.browser` approved first.
 3. ~~**Dynamic color (Material You)** on Android 12+ versus a fixed brand palette.~~ **Decided:** fixed brand palette from [DESIGN.md](DESIGN.md), no dynamic color. DESIGN.md defines the dark scheme; the light scheme is derived from the same tonal palettes, so the *Theme* setting (System / Light / Dark) still applies.

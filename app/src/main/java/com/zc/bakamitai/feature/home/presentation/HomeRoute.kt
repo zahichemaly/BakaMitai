@@ -14,12 +14,12 @@ import org.koin.compose.viewmodel.koinViewModel
 /**
  * Home's navigation destination.
  *
- * @param onOpenDetails opens a show by slug; `null` while the Details screen doesn't exist (cards can't be opened).
+ * @param onOpenDetails opens a show's Details by slug.
  * @param onOpenSettings opens Settings; `null` while Settings doesn't exist (the action is hidden).
  */
 @Composable
 fun HomeRoute(
-    onOpenDetails: ((slug: String) -> Unit)?,
+    onOpenDetails: (slug: String) -> Unit,
     onOpenSettings: (() -> Unit)?,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
@@ -35,7 +35,7 @@ fun HomeRoute(
 
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
-            is HomeEffect.OpenDetails -> onOpenDetails?.invoke(effect.slug)
+            is HomeEffect.OpenDetails -> onOpenDetails(effect.slug)
             HomeEffect.OpenSettings -> onOpenSettings?.invoke()
             is HomeEffect.ShowError -> snackbarHostState.showSnackbar(effect.error.message.asString(context))
         }
@@ -45,7 +45,6 @@ fun HomeRoute(
         state = state,
         onIntent = viewModel::onIntent,
         modifier = modifier,
-        canOpenShow = onOpenDetails != null,
         showSettingsAction = onOpenSettings != null,
         snackbarHostState = snackbarHostState,
     )

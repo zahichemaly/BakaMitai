@@ -6,13 +6,21 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
+import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.ui.NavDisplay
+import com.zc.bakamitai.common.ui.navigation.FullScreenNavKey
 import com.zc.bakamitai.common.ui.navigation.Navigator
 import com.zc.bakamitai.common.ui.navigation.rememberNavigationState
 import com.zc.bakamitai.feature.home.presentation.navigation.HomeNavKey
@@ -20,16 +28,29 @@ import com.zc.bakamitai.feature.home.presentation.navigation.HomeNavKey
 private const val NAV_INDICATOR_ALPHA = 0.2f
 
 /**
- * The app shell: the navigation suite (bottom bar on compact widths, rail from medium) around the
- * selected tab's back stack. Tabs whose feature isn't built yet are shown disabled.
+ * The app shell: the navigation suite (bottom bar on compact widths or heights, rail otherwise) around the
+ * selected tab's back stack. Tabs whose feature isn't built yet are shown disabled. The bottom bar hides while a
+ * `FullScreenNavKey` (Details) is on top; reselecting the selected tab pops it back to its root.
  */
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
     val topLevelRoutes = remember { TopLevelDestination.entries.mapNotNull { it.key }.toSet() }
     val navigationState = rememberNavigationState(startRoute = HomeNavKey, topLevelRoutes = topLevelRoutes)
     val navigator = remember(navigationState) { Navigator(navigationState) }
-    val entryProvider = remember { appEntryProvider() }
+    val entryProvider = remember(navigator) { appEntryProvider(navigator) }
     val itemColors = navigationSuiteItemColors()
+    // A full-screen key on top slides the bottom bar away; the rail of wider windows stays.
+    val layoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
+    val suiteState = rememberNavigationSuiteScaffoldState()
+    val hideBar by remember(navigationState, layoutType) {
+        derivedStateOf {
+            layoutType == NavigationSuiteType.NavigationBar &&
+                navigationState.visibleKeys.lastOrNull() is FullScreenNavKey
+        }
+    }
+    LaunchedEffect(suiteState, hideBar) {
+        if (hideBar) suiteState.hide() else suiteState.show()
+    }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -54,10 +75,12 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             }
         },
         modifier = modifier,
+        layoutType = layoutType,
         navigationSuiteColors = NavigationSuiteDefaults.colors(
             navigationBarContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             navigationRailContainerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
+        state = suiteState,
     ) {
         NavDisplay(
             entries = navigationState.toDecoratedEntries(entryProvider),

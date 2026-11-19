@@ -8,12 +8,22 @@ import androidx.navigation3.runtime.NavKey
  */
 class Navigator(val state: NavigationState) {
 
-    /** Selects [key] when it is a top-level route, otherwise pushes it onto the selected tab's stack. */
+    /**
+     * For a top-level route: selects its tab, or, when that tab is already selected, pops its stack back to the
+     * root (reselecting a tab, e.g. from the rail while Details is open). For any other key: pushes it onto the
+     * selected tab's stack, unless it's already on top (a double tap opens one screen).
+     */
     fun navigate(key: NavKey) {
         if (key in state.backStacks.keys) {
-            state.topLevelRoute = key
+            if (key == state.topLevelRoute) {
+                val stack = state.backStacks.getValue(key)
+                while (stack.size > 1) stack.removeAt(stack.lastIndex)
+            } else {
+                state.topLevelRoute = key
+            }
         } else {
-            state.backStacks.getValue(state.topLevelRoute).add(key)
+            val stack = state.backStacks.getValue(state.topLevelRoute)
+            if (stack.lastOrNull() != key) stack.add(key)
         }
     }
 

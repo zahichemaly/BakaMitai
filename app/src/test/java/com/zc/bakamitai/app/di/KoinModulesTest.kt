@@ -6,6 +6,10 @@ import com.zc.bakamitai.common.domain.util.DefaultDispatcherProvider
 import com.zc.bakamitai.common.domain.util.DispatcherProvider
 import com.zc.bakamitai.common.domain.util.SystemTimeZoneProvider
 import com.zc.bakamitai.common.domain.util.TimeZoneProvider
+import com.zc.bakamitai.feature.details.data.repository.ShowDetailsRepositoryImpl
+import com.zc.bakamitai.feature.details.domain.repository.ShowDetailsRepository
+import com.zc.bakamitai.feature.details.domain.usecase.GetShowEpisodesUseCase
+import com.zc.bakamitai.feature.details.domain.usecase.GetShowOverviewUseCase
 import com.zc.bakamitai.feature.home.data.repository.BroadcastRepositoryImpl
 import com.zc.bakamitai.feature.home.domain.repository.BroadcastRepository
 import com.zc.bakamitai.feature.home.domain.usecase.GetTodayBroadcastsUseCase
@@ -59,6 +63,10 @@ class KoinModulesTest {
             assertIs<ShowCatalogRepositoryImpl>(koin.get<ShowCatalogRepository>())
             koin.get<GetShowIndexUseCase>()
             koin.get<FilterShowIndexUseCase>()
+            assertIs<ShowDetailsRepositoryImpl>(koin.get<ShowDetailsRepository>())
+            koin.get<GetShowOverviewUseCase>()
+            koin.get<GetShowEpisodesUseCase>()
+            // The bookmarks bindings need an Android Context: verify() above covers them.
             koin.get<Json>()
             koin.get<HttpClient>().close()
         } finally {

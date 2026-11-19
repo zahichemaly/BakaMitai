@@ -1,0 +1,110 @@
+{
+  "batch": {
+    "Sousou no Frieren - 01-28": {
+      "time": "05/27/26",
+      "release_date": "Wed, 27 May 2026 17:36:01 +0000",
+      "show": "Sousou no Frieren",
+      "episode": "01-28",
+      "downloads": [
+        {
+          "res": "480",
+          "torrent": "https://nyaa.si/view/2114806/torrent",
+          "magnet": "magnet:?xt=urn:btih:RG4AGGQUMB4MGRUYN745JBZDJAOFWMNY",
+          "xdcc": "%5BSubsPlease%5D+Sousou+no+Frieren+%28480p%29"
+        },
+        {
+          "res": "720",
+          "torrent": "https://nyaa.si/view/2114807/torrent",
+          "magnet": "magnet:?xt=urn:btih:T7E4KFRNHCBPFVBMECSNZHS3X75DIGRN",
+          "xdcc": "%5BSubsPlease%5D+Sousou+no+Frieren+%28720p%29"
+        },
+        {
+          "res": "1080",
+          "torrent": "https://nyaa.si/view/2114808/torrent",
+          "magnet": "magnet:?xt=urn:btih:DXVR3ULSUUBCR24KSSUVGXDNBEUXN3SE",
+          "xdcc": "%5BSubsPlease%5D+Sousou+no+Frieren+%281080p%29"
+        }
+      ]
+    }
+  },
+  "episode": {
+    "Sousou no Frieren - 28": {
+      "time": "03/22/24",
+      "release_date": "Fri, 22 Mar 2024 15:32:44 +0000",
+      "show": "Sousou no Frieren",
+      "episode": "28",
+      "downloads": [
+        {
+          "res": "480",
+          "torrent": "https://nyaa.si/view/1793087/torrent",
+          "magnet": "magnet:?xt=urn:btih:NIOW75UOB6GLVTNTELL24BQNOQZXP2UD",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+28+%28480p%29%22"
+        },
+        {
+          "res": "720",
+          "torrent": "https://nyaa.si/view/1793089/torrent",
+          "magnet": "magnet:?xt=urn:btih:NCSUAQQLXW2BOQ4RWXQSQMVPO65VIVU3",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+28+%28720p%29%22"
+        },
+        {
+          "res": "1080",
+          "torrent": "https://nyaa.si/view/1793092/torrent",
+          "magnet": "magnet:?xt=urn:btih:QER5LYPJAXZQAUYKHNSLO4O6MNV6UD6A",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+28+%281080p%29%22"
+        }
+      ]
+    },
+    "Sousou no Frieren - 27": {
+      "time": "03/15/24",
+      "release_date": "Fri, 15 Mar 2024 15:53:06 +0000",
+      "show": "Sousou no Frieren",
+      "episode": "27",
+      "downloads": [
+        {
+          "res": "480",
+          "torrent": "https://nyaa.si/view/1789847/torrent",
+          "magnet": "magnet:?xt=urn:btih:LGJBNOG5GLPVFKOOGNF7SW63DUH54IUX",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+27+%28480p%29%22"
+        },
+        {
+          "res": "720",
+          "torrent": "https://nyaa.si/view/1789848/torrent",
+          "magnet": "magnet:?xt=urn:btih:XHITK6QHIHBMY55U6I2LHQZMCLN7NSUV",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+27+%28720p%29%22"
+        },
+        {
+          "res": "1080",
+          "torrent": "https://nyaa.si/view/1789849/torrent",
+          "magnet": "magnet:?xt=urn:btih:KMN4GCJPCXGX23Z5VTP7BYYWMI5ZMFP6",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+27+%281080p%29%22"
+        }
+      ]
+    },
+    "Sousou no Frieren - 01": {
+      "time": "09/29/23",
+      "release_date": "Fri, 29 Sep 2023 15:02:03 +0000",
+      "show": "Sousou no Frieren",
+      "episode": "01",
+      "downloads": [
+        {
+          "res": "480",
+          "torrent": "https://nyaa.si/view/1722601/torrent",
+          "magnet": "magnet:?xt=urn:btih:4BTWQ6KG2W66IL7STS5IBWH5UMKJLGR4",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+01+%28480p%29%22"
+        },
+        {
+          "res": "720",
+          "torrent": "https://nyaa.si/view/1722602/torrent",
+          "magnet": "magnet:?xt=urn:btih:VNBWTNLAEQZDP6JXDTUJN3QC5UAAE64V",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+01+%28720p%29%22"
+        },
+        {
+          "res": "1080",
+          "torrent": "https://nyaa.si/view/1722604/torrent",
+          "magnet": "magnet:?xt=urn:btih:G5H7GPYPVZJANRUTY7D6BPL2ZSEO62WQ",
+          "xdcc": "%22%5BSubsPlease%5D+Sousou+no+Frieren+-+01+%281080p%29%22"
+        }
+      ]
+    }
+  }
+}

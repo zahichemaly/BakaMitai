@@ -3,16 +3,20 @@ package com.zc.bakamitai.app.navigation
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import com.zc.bakamitai.common.ui.navigation.Navigator
+import com.zc.bakamitai.feature.details.presentation.navigation.detailsEntry
+import com.zc.bakamitai.feature.details.presentation.navigation.navigateToDetails
 import com.zc.bakamitai.feature.home.presentation.navigation.homeEntry
 import com.zc.bakamitai.feature.schedule.presentation.navigation.scheduleEntry
 import com.zc.bakamitai.feature.shows.presentation.navigation.allShowsEntry
 
 /**
- * Every feature's entries, and the only place that wires features together. Home's, Schedule's and All Shows'
- * Details and Settings callbacks are `null` until those features exist.
+ * Every feature's entries, and the only place that wires features together, with [navigator]'s helpers. The
+ * Settings callbacks are `null` until Settings exists.
  */
-fun appEntryProvider(): (NavKey) -> NavEntry<NavKey> = entryProvider {
-    homeEntry(onOpenDetails = null, onOpenSettings = null)
-    scheduleEntry(onOpenDetails = null, onOpenSettings = null)
-    allShowsEntry(onOpenDetails = null, onOpenSettings = null)
+fun appEntryProvider(navigator: Navigator): (NavKey) -> NavEntry<NavKey> = entryProvider {
+    homeEntry(onOpenDetails = navigator::navigateToDetails, onOpenSettings = null)
+    scheduleEntry(onOpenDetails = navigator::navigateToDetails, onOpenSettings = null)
+    allShowsEntry(onOpenDetails = navigator::navigateToDetails, onOpenSettings = null)
+    detailsEntry(onNavigateBack = navigator::goBack)
 }

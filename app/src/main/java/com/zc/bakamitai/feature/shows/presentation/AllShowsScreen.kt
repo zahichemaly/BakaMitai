@@ -51,8 +51,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.offset
 import androidx.window.core.layout.WindowSizeClass
 import com.zc.bakamitai.common.ui.component.emptystate.EmptyStateView
@@ -65,6 +63,7 @@ import com.zc.bakamitai.common.ui.resource.StringResource
 import com.zc.bakamitai.common.ui.text.UiText
 import com.zc.bakamitai.common.ui.theme.BakaMitaiTheme
 import com.zc.bakamitai.common.ui.util.AdaptivePreviews
+import com.zc.bakamitai.common.ui.util.centeredContentPadding
 import com.zc.bakamitai.feature.shows.presentation.component.letterchip.LetterChipSkeletonView
 import com.zc.bakamitai.feature.shows.presentation.component.letterchip.LetterChipView
 import com.zc.bakamitai.feature.shows.presentation.component.letterheader.LetterHeaderSkeletonView
@@ -94,14 +93,10 @@ private const val SKELETON_SECTION_COUNT = 2
 /** The skeleton rows' title widths: one section's worth of rows, varied like real titles. */
 private val SkeletonTitleFractions = listOf(0.7f, 0.45f, 0.85f, 0.6f, 0.5f, 0.75f)
 
-/** The list, the search field and the chips are at most this wide, centered, on wide windows. */
-private val MaxContentWidth = 720.dp
-
 /**
  * All Shows: the A–Z catalogue under a search field and letter chips pinned in the top bar. The chips jump to a
  * section and follow the section at the top of the list.
  *
- * @param canOpenShow whether rows open the show; `false` until the Details screen exists.
  * @param showSettingsAction whether the top bar shows the settings action; `false` until Settings exists.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,7 +105,6 @@ fun AllShowsScreen(
     state: AllShowsState,
     onIntent: (AllShowsIntent) -> Unit,
     modifier: Modifier = Modifier,
-    canOpenShow: Boolean = true,
     showSettingsAction: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -161,7 +155,6 @@ fun AllShowsScreen(
                     AllShowsContent(
                         state = state,
                         listState = listState,
-                        canOpenShow = canOpenShow,
                         onIntent = onIntent,
                     )
                 }
@@ -209,8 +202,8 @@ private class AllShowsLayout(windowSizeClass: WindowSizeClass) {
     private val isMedium = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
     val margin: Dp = if (isMedium) BakaMitaiTheme.spacing.marginTablet else BakaMitaiTheme.spacing.margin
 
-    /** The side padding in a pane [maxWidth] wide: [margin], or more to center [MaxContentWidth] of content. */
-    fun horizontalPadding(maxWidth: Dp): Dp = max(margin, (maxWidth - MaxContentWidth) / 2)
+    /** The side padding in a pane [maxWidth] wide: [margin], or more to center `MaxContentWidth` of content. */
+    fun horizontalPadding(maxWidth: Dp): Dp = centeredContentPadding(maxWidth = maxWidth, margin = margin)
 }
 
 /** The pinned deck under the bar: the search field, then the letter chips while the list has sections. */
@@ -313,7 +306,6 @@ private fun LetterChipRow(
 private fun AllShowsContent(
     state: AllShowsState,
     listState: LazyListState,
-    canOpenShow: Boolean,
     onIntent: (AllShowsIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -324,7 +316,6 @@ private fun AllShowsContent(
             .collect { focusManager.clearFocus() }
     }
     val onShowClick = remember(onIntent) { { slug: String -> onIntent(AllShowsIntent.ShowClicked(slug)) } }
-    val openShow = if (canOpenShow) onShowClick else null
     ShowsList(listState = listState, modifier = modifier) {
         if (state.showNoResults) {
             item(key = CONTENT_TYPE_EMPTY, contentType = CONTENT_TYPE_EMPTY) {
@@ -347,7 +338,7 @@ private fun AllShowsContent(
                     ShowRowView(
                         model = row,
                         position = ShowRowPosition.of(index, section.rows.size),
-                        onClick = openShow?.let { open -> { open(row.slug) } },
+                        onClick = { onShowClick(row.slug) },
                     )
                 }
             }
@@ -436,7 +427,7 @@ private fun CatalogFooter(label: UiText, modifier: Modifier = Modifier) {
 @Composable
 private fun AllShowsScreenPreview(@PreviewParameter(AllShowsStatePreviewProvider::class) state: AllShowsState) {
     BakaMitaiTheme {
-        AllShowsScreen(state = state, onIntent = {}, canOpenShow = false, showSettingsAction = false)
+        AllShowsScreen(state = state, onIntent = {}, showSettingsAction = false)
     }
 }
 

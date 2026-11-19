@@ -1,0 +1,84 @@
+{
+  "batch": {
+    "A3! Season Autumn & Winter - 01-12": {
+      "time": "01/04/21",
+      "release_date": "Mon, 04 Jan 2021 20:00:27 -0500",
+      "show": "A3! Season Autumn & Winter",
+      "episode": "01-12",
+      "downloads": [
+        {
+          "res": "540",
+          "torrent": "https://nyaa.si/view/1323283/torrent",
+          "magnet": "magnet:?xt=urn:btih:NXQ5TBSGNH5G4AWNVGHHQVTDGBHUK2Y2",
+          "xdcc": "%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+%28540p%29"
+        },
+        {
+          "res": "720",
+          "torrent": "https://nyaa.si/view/1323310/torrent",
+          "magnet": "magnet:?xt=urn:btih:X4WGLDLLWLOLW5SZ4AH2CEZJMMVLLCER",
+          "xdcc": "%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+%28720p%29"
+        },
+        {
+          "res": "1080",
+          "torrent": "https://nyaa.si/view/1323311/torrent",
+          "magnet": "magnet:?xt=urn:btih:3MECGTYYJKVAJK5I3C63MI63RNQCAQTQ",
+          "xdcc": "%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+%281080p%29"
+        }
+      ]
+    }
+  },
+  "episode": {
+    "A3! Season Autumn & Winter - 12": {
+      "time": "12/28/20",
+      "release_date": "Mon, 28 Dec 2020 11:02:04 -0500",
+      "show": "A3! Season Autumn & Winter",
+      "episode": "12",
+      "downloads": [
+        {
+          "res": "360",
+          "torrent": "https://nyaa.si/view/1321175/torrent",
+          "magnet": "magnet:?xt=urn:btih:EVE3WZBODDY35VC2CBEJWWJJTNB5QUDO",
+          "xdcc": "%22%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+-+12+%28360p%29%22"
+        },
+        {
+          "res": "720",
+          "torrent": "https://nyaa.si/view/1321176/torrent",
+          "magnet": "magnet:?xt=urn:btih:7TA4BMIGY3HTZFR5IFXTF4D2G3W2F3GK",
+          "xdcc": "%22%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+-+12+%28720p%29%22"
+        },
+        {
+          "res": "1080",
+          "torrent": "https://nyaa.si/view/1321179/torrent",
+          "magnet": "magnet:?xt=urn:btih:LYQ4KSSH6YM6ZLU67YUXCLIFMBG67QTE",
+          "xdcc": "%22%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+-+12+%281080p%29%22"
+        }
+      ]
+    },
+    "A3! Season Autumn & Winter - 01": {
+      "time": "10/12/20",
+      "release_date": "Mon, 12 Oct 2020 12:08:01 -0400",
+      "show": "A3! Season Autumn & Winter",
+      "episode": "01",
+      "downloads": [
+        {
+          "res": "360",
+          "torrent": "https://nyaa.si/view/1289647/torrent",
+          "magnet": "magnet:?xt=urn:btih:D5GUCBPOTLWMDEX2IMW3TWXGXUZCGIIF",
+          "xdcc": "%22%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+-+01+%28360p%29%22"
+        },
+        {
+          "res": "720",
+          "torrent": "https://nyaa.si/view/1289648/torrent",
+          "magnet": "magnet:?xt=urn:btih:3FRGVBR4WJW4BZ6GA7VBMHQNU67KXETL",
+          "xdcc": "%22%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+-+01+%28720p%29%22"
+        },
+        {
+          "res": "1080",
+          "torrent": "https://nyaa.si/view/1289649/torrent",
+          "magnet": "magnet:?xt=urn:btih:IDS6NP4VRT6OADXSLFLUKYTLNJAKQRPA",
+          "xdcc": "%22%5BSubsPlease%5D+A3%21+Season+Autumn+%26+Winter+-+01+%281080p%29%22"
+        }
+      ]
+    }
+  }
+}

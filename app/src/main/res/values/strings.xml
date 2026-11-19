@@ -5,6 +5,10 @@
     <string name="action_retry">Retry</string>
     <string name="cd_settings">Settings</string>
     <string name="cd_loading">Loading</string>
+    <string name="cd_navigate_back">Navigate back</string>
+    <!-- State descriptions of expandable rows for TalkBack. -->
+    <string name="cd_expanded">Expanded</string>
+    <string name="cd_collapsed">Collapsed</string>
 
     <!-- Navigation (app/navigation) -->
     <string name="nav_home">Home</string>
@@ -89,6 +93,60 @@
     <string name="all_shows_no_results_title">No anime found</string>
     <string name="all_shows_no_results_message">Try adjusting your spelling or searching by an alternate English or Romaji title.</string>
 
+    <!-- Details (feature/details) -->
+    <string name="cd_details_share">Share</string>
+    <string name="cd_details_open_in_web">Open on SubsPlease</string>
+    <string name="details_bookmark">Bookmark</string>
+    <string name="details_bookmarked">Bookmarked</string>
+    <!-- The bookmark button's state and click action for TalkBack. -->
+    <string name="cd_details_bookmarked">Bookmarked</string>
+    <string name="cd_details_not_bookmarked">Not bookmarked</string>
+    <string name="cd_details_add_bookmark">Add to bookmarks</string>
+    <string name="cd_details_remove_bookmark">Remove from bookmarks</string>
+    <string name="details_synopsis_title">Synopsis</string>
+    <string name="details_synopsis_read_more">Read more</string>
+    <string name="details_synopsis_read_less">Read less</string>
+    <string name="details_synopsis_missing">No synopsis yet.</string>
+    <string name="details_section_downloads">Episodes &amp; Downloads</string>
+    <!-- Group labels are stored uppercase (DESIGN.md labels). -->
+    <string name="details_group_batches">BATCHES</string>
+    <string name="details_group_episodes">EPISODES</string>
+    <!-- %1$s: the episode as SubsPlease writes it, "20". -->
+    <string name="details_episode">Episode %1$s</string>
+    <!-- %1$s: the episode, "1216"; %2$s: the revision, "2". -->
+    <string name="details_episode_revision">Episode %1$s (v%2$s)</string>
+    <!-- %1$s: the range with an en dash, "01–28". -->
+    <string name="details_episode_batch">Episodes %1$s</string>
+    <string name="details_episode_movie">Movie</string>
+    <!-- %1$s: the release date, "Nov 17, 2026"; %2$s: the time, "12:38 PM". -->
+    <string name="details_episode_released">%1$s · %2$s</string>
+    <!-- An episode row's click action for TalkBack. -->
+    <string name="cd_details_show_downloads">Show downloads</string>
+    <string name="cd_details_hide_downloads">Hide downloads</string>
+    <!-- %1$d: the height, 1080; %2$s: the quality, "FHD". -->
+    <string name="details_resolution">%1$dp %2$s</string>
+    <string name="details_quality_fhd">FHD</string>
+    <string name="details_quality_hd">HD</string>
+    <string name="details_quality_sd">SD</string>
+    <string name="details_resolution_unavailable">Not released</string>
+    <string name="details_source_magnet">Magnet</string>
+    <string name="details_source_torrent">Torrent</string>
+    <string name="details_source_xdcc">XDCC</string>
+    <!-- A source button for TalkBack. %1$s: the source, "Magnet"; %2$s: the resolution, "1080p FHD"; %3$s: the episode, "Episode 20". -->
+    <string name="cd_details_source">%1$s, %2$s, %3$s</string>
+    <string name="details_no_episodes_title">No episodes yet</string>
+    <string name="details_no_episodes_message">No episodes available for this show yet.</string>
+    <!-- %1$d: how many episodes SubsPlease lists at most, 52. -->
+    <string name="details_episode_limit_note">SubsPlease lists only the latest %1$d releases.</string>
+    <!-- The shared text. %1$s: the show title; %2$s: its page, "https://subsplease.org/shows/<slug>/". -->
+    <string name="details_share_text">%1$s\n%2$s</string>
+    <string name="details_no_torrent_app">No torrent app found</string>
+    <string name="details_no_app_for_link">No app can open this link</string>
+    <string name="details_copy_link">Copy link</string>
+    <string name="details_link_copied">Link copied</string>
+    <!-- The clipboard entry's label (not shown on most devices). -->
+    <string name="details_clip_label">Link</string>
+
     <plurals name="home_summary_airing">
         <item quantity="one">%d Airing</item>
         <item quantity="other">%d Airing</item>
@@ -114,5 +172,10 @@
     <plurals name="all_shows_footer_count">
         <item quantity="one">Showing %d show</item>
         <item quantity="other">Showing %d shows</item>
+    </plurals>
+    <!-- Details' downloads header: the number of episodes (batches not counted), stored uppercase (DESIGN.md labels). -->
+    <plurals name="details_episode_count">
+        <item quantity="one">%d EPISODE</item>
+        <item quantity="other">%d EPISODES</item>
     </plurals>
 </resources>

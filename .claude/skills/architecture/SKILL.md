@@ -178,7 +178,7 @@ File templates for State, Intent, Effect, ViewModel, Route and Screen are in `co
 ### Navigation
 - A feature owns its `NavKey`s and an `EntryProviderScope<NavKey>` extension function (`presentation/navigation/`) that registers its entries and calls its Route.
 - Everything that leaves the feature — opening another feature's screen, going back — is a lambda parameter of that function (or a `[Name]NavActions` for many). **NEVER** import another feature's navigation package or take a `Navigator` in a feature.
-- Each feature exposes `Navigator.navigateTo[Name](...)` extensions next to its keys, so callers never construct another feature's `NavKey` directly. `app/navigation/NavigatorExtensions.kt` adds `Navigator.navigateBack()`; `AppEntryProvider.kt` passes these helpers as bound references (`navigator::navigateToDetail`), not wrapper lambdas.
+- Each feature exposes `Navigator.navigateTo[Name](...)` extensions next to its keys, so callers never construct another feature's `NavKey` directly. Going back is `Navigator.goBack()` (`common/ui/navigation/Navigator.kt`); `AppEntryProvider.kt` passes these helpers as bound references (`navigator::navigateToDetail`), not wrapper lambdas.
 - `app/navigation/AppEntryProvider.kt` is the only place that knows every feature: it passes each entry function lambdas built from `Navigator` and the other features' keys.
 - Shared plumbing (`Navigator`, `NavigationState`, `FullScreenNavKey`, `OverlayNavKey`, `BottomSheetSceneStrategy`) lives in `common/ui/navigation/`.
 

@@ -44,7 +44,7 @@ private val ChevronSize = 20.dp
 /**
  * A show's title in its section's card. Each row draws its [position]'s slice of the card (corners, inner padding,
  * the divider above it), so a section's rows can be separate lazy items. The title takes up to 2 lines. With
- * [onClick], the row has a ripple and a chevron; without, it's plain text (until the Details screen exists).
+ * [onClick], the row has a ripple and a chevron; without, it's plain text.
  */
 @Composable
 fun ShowRowView(

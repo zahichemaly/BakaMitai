@@ -167,7 +167,11 @@ What the app does with this data (which screen uses which call, and how) is in [
 - An unknown `sid` returns `{"batch":[],"episode":[]}`.
 - `downloads` entries here include **`torrent`**, **`magnet`** and a **per-resolution `xdcc`** search string (already URL-encoded).
 - `time` is `"MM/dd/yy"` or `"New"`. Display only.
-- `release_date` here **ignores `tz`**. It came back in the server's zone (`+0200` in July, `+0100` in November) even though `tz=America/New_York` was requested. Parse to `Instant` and convert to the device zone yourself.
+- **At most 52 entries in `episode`**, newest first (checked 2026-11-19: One Piece and Detective Conan return exactly 52). Older episodes aren't available from any endpoint; the site shows the same 52. Batches come separately in `batch`. Sort by `release_date` anyway.
+- **Episode labels** are strings: plain numbers (`"07"`, `"1180"`), revisions as separate entries next to the original (`"1216v2"` after `"1216"`), specials (`"Egghead SP11"`), named specials (`"The Counterfeit Case of Ultra 30"`), `"Movie"` as the only entry of a movie, and ranges (`"01-28"`) in `batch`. The JSON key always equals `"<show> - <episode>"`.
+- **Downloads:** every entry checked had `res`, `magnet`, `torrent` and `xdcc` filled, ordered 480 → 720 → 1080. `360` and `540` appear live as the SD value. The site still renders three slots (SD / 720p / 1080p) and greys out a missing one.
+- `release_date` here **ignores `tz`**: `tz=Asia/Tokyo` returned the same values. Its offset is **per show**, not the server's (`-0500`/`-0400` for most shows, `+0100`/`+0200` and `+0800` for others). Parse to `Instant` and convert to the device zone yourself.
+- Sizes: 3 KB for a one-entry movie up to about 159 KB for 52 entries (about 10 KB gzipped).
 - **The instant is 1 hour early since European DST ended (25 Oct 2026).** Checked against nyaa.si upload times for *Tensei Shitara Ken Deshita S2*: episodes 07 (11 Nov) and 08 (18 Nov) are an hour early, episode 04 (21 Oct) is correct. The schedule `time` matches the real release. The app shows `release_date` as-is, because it can't tell when the server gets fixed; so in winter, release times look an hour early, and a release in the first local hour after midnight counts as the previous day.
 - This response has **no `image_url` and no `page`**. Those come from the [show page](#42-show-page).
 
@@ -221,6 +225,13 @@ Checked live on 2026-11-18 (two requests):
 | `sid` | `table#show-release-table` → the `sid` attribute (e.g. `sid="1199"`) |
 
 The episodes table on this page is **empty in the HTML**. The site fills it with JS from [`f=show&sid=…`](#35-show-episodes), which is what we do too.
+
+Checked live on 2026-11-19 (11 shows):
+- **Request the trailing-slash form.** `shows/<slug>` without it returns a **301** to `shows/<slug>/`. An unknown slug returns **404** (a WordPress "Page not found" page) → `DomainError.NotFound`.
+- **The page title is entity-encoded and can differ from the JSON titles:** `A3! Season Autumn &amp; Winter`, `BanG Dream! It&#8217;s MyGO!!!!!` (a curly apostrophe; the JSON has a straight one), `Dark Machine &#8211; The Animation` (an en dash; the schedule and `/shows/` have a hyphen). Details shows the page's decoded title.
+- **Synopsis:** one to three `<p>` after `<h2>Synopsis</h2>`, raw UTF-8 punctuation, no entities seen. `<p><i>Synopsis will be added later</i></p>` is a **placeholder**: treat it as no synopsis.
+- **Cover:** always present, site-relative, and it can be **newer than the schedule's**: a show whose `image_url` is still the "coming soon" placeholder can already have a real cover here.
+- Pages are about 29 KB and take about 0.4–0.5 s.
 
 ---
 
@@ -277,7 +288,7 @@ The JSON API covers every screen. RSS is listed only so nobody rediscovers it as
 - **In-memory caches**, all invalidated by pull-to-refresh:
   - All shows list: for the process lifetime
   - weekly schedule: about 1 h
-  - show page plus episodes, per slug: about 10 min
+  - show page plus episodes, per slug: about 10 min. The `sid` from a parsed page can be reused after the cache expires, so a refresh can skip straight to `f=show` when only the episodes are stale.
 - **Errors** go through `safeApiCall` → `DomainError` → UI error model (`best-practices` skill). A scrape that can't find a required element (for example, no `sid`) is a **parsing error**, not a crash.
 - **HTML parsing** uses **Ksoup** (`com.fleeksoft.ksoup:ksoup`), approved 2026-11-19 for the `data` layer only, behind one `[Name]HtmlParser` class per page. Parse off the main thread. A page that parses to nothing is a parsing error (`DomainError.InvalidData`), not an empty list.
 - **Tests:** keep trimmed real responses as fixtures (`app/src/test/resources/subsplease/…`) and test DTO decoding and HTML parsing with Ktor `MockEngine`. Cover every quirk in this file:

@@ -57,6 +57,58 @@ class NavigatorTest {
     }
 
     @Test
+    fun `pushing the key already on top does nothing`() {
+        navigator.navigate(Details("frieren"))
+        navigator.navigate(Details("frieren"))
+
+        assertEquals(listOf(Home, Details("frieren")), state.visibleKeys)
+        navigator.goBack()
+        assertEquals(listOf<NavKey>(Home), state.visibleKeys)
+    }
+
+    @Test
+    fun `pushing a different key on top of another still pushes`() {
+        navigator.navigate(Details("frieren"))
+        navigator.navigate(Details("one-piece"))
+
+        assertEquals(listOf(Home, Details("frieren"), Details("one-piece")), state.visibleKeys)
+    }
+
+    @Test
+    fun `reselecting the selected tab pops its stack to the root`() {
+        navigator.navigate(Schedule)
+        navigator.navigate(Details("frieren"))
+        navigator.navigate(Details("one-piece"))
+
+        navigator.navigate(Schedule)
+
+        assertEquals(Schedule, state.topLevelRoute)
+        assertEquals(listOf<NavKey>(Schedule), state.backStacks.getValue(Schedule).toList())
+        assertEquals(listOf(Home, Schedule), state.visibleKeys)
+    }
+
+    @Test
+    fun `reselecting the start tab pops its stack to the root`() {
+        navigator.navigate(Details("frieren"))
+
+        navigator.navigate(Home)
+
+        assertEquals(listOf<NavKey>(Home), state.visibleKeys)
+    }
+
+    @Test
+    fun `selecting another tab keeps both stacks`() {
+        navigator.navigate(Details("frieren"))
+        navigator.navigate(Schedule)
+        navigator.navigate(Details("one-piece"))
+
+        navigator.navigate(Home)
+
+        assertEquals(listOf(Home, Details("frieren")), state.backStacks.getValue(Home).toList())
+        assertEquals(listOf(Schedule, Details("one-piece")), state.backStacks.getValue(Schedule).toList())
+    }
+
+    @Test
     fun `back pops the selected tab`() {
         navigator.navigate(Details("frieren"))
         navigator.goBack()

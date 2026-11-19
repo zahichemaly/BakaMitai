@@ -89,7 +89,6 @@ private val fullLineSpan: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemS
 /**
  * Schedule: the week's day tabs pinned under the top bar, then the selected day's header and its poster grid.
  *
- * @param canOpenShow whether cards open the show; `false` until the Details screen exists.
  * @param showSettingsAction whether the top bar shows the settings action; `false` until Settings exists.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,7 +97,6 @@ fun ScheduleScreen(
     state: ScheduleState,
     onIntent: (ScheduleIntent) -> Unit,
     modifier: Modifier = Modifier,
-    canOpenShow: Boolean = true,
     showSettingsAction: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -139,7 +137,6 @@ fun ScheduleScreen(
                     ScheduleContent(
                         day = state.day,
                         statusFilter = state.statusFilter,
-                        canOpenShow = canOpenShow,
                         onIntent = onIntent,
                     )
                 }
@@ -222,7 +219,6 @@ private fun DayStripRow(
 private fun ScheduleContent(
     day: ScheduleDayUIModel,
     statusFilter: StatusFilter,
-    canOpenShow: Boolean,
     onIntent: (ScheduleIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -232,7 +228,6 @@ private fun ScheduleContent(
         { filter: StatusFilter -> onIntent(ScheduleIntent.FilterSelected(filter)) }
     }
     val onResetClick = remember(onIntent) { { onIntent(ScheduleIntent.ResetFilterClicked) } }
-    val openShow = if (canOpenShow) onShowClick else null
     ScheduleGrid(layout = layout, gridState = rememberLazyGridState(), modifier = modifier) {
         item(key = "header", span = fullLineSpan, contentType = CONTENT_TYPE_HEADER) {
             DayHeaderView(model = day.header, selectedFilter = statusFilter, onFilterClick = onFilterClick)
@@ -243,7 +238,7 @@ private fun ScheduleContent(
             }
         }
         items(items = day.cards, key = { it.key }, contentType = { CONTENT_TYPE_CARD }) { card ->
-            ScheduleCardView(model = card, onClick = openShow?.let { onClick -> { onClick(card.slug) } })
+            ScheduleCardView(model = card, onClick = { onShowClick(card.slug) })
         }
     }
 }
@@ -316,7 +311,7 @@ private fun ScheduleEmptyView(model: ScheduleEmptyUIModel, onResetClick: () -> U
 @Composable
 private fun ScheduleScreenPreview(@PreviewParameter(ScheduleStatePreviewProvider::class) state: ScheduleState) {
     BakaMitaiTheme {
-        ScheduleScreen(state = state, onIntent = {}, canOpenShow = false, showSettingsAction = false)
+        ScheduleScreen(state = state, onIntent = {}, showSettingsAction = false)
     }
 }
 

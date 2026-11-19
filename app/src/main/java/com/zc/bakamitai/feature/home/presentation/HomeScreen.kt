@@ -82,7 +82,6 @@ private val fullLineSpan: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemS
 /**
  * Home: today's "Upcoming" carousel and "Latest Releases" list, under the "Today's Broadcasts" banner.
  *
- * @param canOpenShow whether cards open the show; `false` until the Details screen exists.
  * @param showSettingsAction whether the top bar shows the settings action; `false` until Settings exists.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,7 +90,6 @@ fun HomeScreen(
     state: HomeState,
     onIntent: (HomeIntent) -> Unit,
     modifier: Modifier = Modifier,
-    canOpenShow: Boolean = true,
     showSettingsAction: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -122,7 +120,7 @@ fun HomeScreen(
                 if (state.isEmpty) {
                     HomeEmptyView(summary = state.summary)
                 } else {
-                    HomeContent(state = state, canOpenShow = canOpenShow, onIntent = onIntent)
+                    HomeContent(state = state, onIntent = onIntent)
                 }
             }
 
@@ -155,23 +153,17 @@ private class HomeLayout(windowSizeClass: WindowSizeClass) {
 }
 
 @Composable
-private fun HomeContent(
-    state: HomeState,
-    canOpenShow: Boolean,
-    onIntent: (HomeIntent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun HomeContent(state: HomeState, onIntent: (HomeIntent) -> Unit, modifier: Modifier = Modifier) {
     val layout = HomeLayout(currentWindowAdaptiveInfo().windowSizeClass)
     val spacing = BakaMitaiTheme.spacing
     val onShowClick = remember(onIntent) { { slug: String -> onIntent(HomeIntent.ShowClicked(slug)) } }
-    val openShow = if (canOpenShow) onShowClick else null
     HomeGrid(layout = layout, modifier = modifier) {
         state.summary?.let { summary ->
             item(key = "summary", span = fullLineSpan, contentType = CONTENT_TYPE_SUMMARY) {
                 TodaySummaryView(model = summary)
             }
         }
-        upcomingSection(state = state, horizontalMargin = layout.margin, onShowClick = openShow)
+        upcomingSection(state = state, horizontalMargin = layout.margin, onShowClick = onShowClick)
         item(key = "latest-header", span = fullLineSpan, contentType = CONTENT_TYPE_HEADER) {
             SectionHeaderView(
                 icon = Icons.Outlined.Movie,
@@ -187,7 +179,7 @@ private fun HomeContent(
             }
         }
         items(items = state.latest, key = { it.key }, contentType = { CONTENT_TYPE_RELEASE }) { release ->
-            ReleaseRowView(model = release, onClick = openShow?.let { onClick -> { onClick(release.slug) } })
+            ReleaseRowView(model = release, onClick = { onShowClick(release.slug) })
         }
     }
 }
@@ -263,7 +255,7 @@ private fun HomeSkeleton(modifier: Modifier = Modifier) {
 }
 
 /** The Upcoming header, then the carousel or its empty text. */
-private fun LazyGridScope.upcomingSection(state: HomeState, horizontalMargin: Dp, onShowClick: ((String) -> Unit)?) {
+private fun LazyGridScope.upcomingSection(state: HomeState, horizontalMargin: Dp, onShowClick: (String) -> Unit) {
     item(key = "upcoming-header", span = fullLineSpan, contentType = CONTENT_TYPE_HEADER) {
         SectionHeaderView(
             icon = Icons.Outlined.Schedule,
@@ -292,7 +284,7 @@ private fun LazyGridScope.upcomingSection(state: HomeState, horizontalMargin: Dp
 private fun UpcomingCarousel(
     items: ImmutableList<UpcomingCardUIModel>,
     horizontalMargin: Dp,
-    onShowClick: ((String) -> Unit)?,
+    onShowClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -306,7 +298,7 @@ private fun UpcomingCarousel(
         items(items = items, key = { it.key }, contentType = { CONTENT_TYPE_CAROUSEL }) { card ->
             UpcomingCardView(
                 model = card,
-                onClick = onShowClick?.let { onClick -> { onClick(card.slug) } },
+                onClick = { onShowClick(card.slug) },
                 modifier = Modifier.width(UpcomingCardWidth),
             )
         }
@@ -464,6 +456,6 @@ private class HomeStateProvider : PreviewParameterProvider<HomeState> {
 @Composable
 private fun HomeScreenPreview(@PreviewParameter(HomeStateProvider::class) state: HomeState) {
     BakaMitaiTheme {
-        HomeScreen(state = state, onIntent = {}, canOpenShow = false, showSettingsAction = false)
+        HomeScreen(state = state, onIntent = {}, showSettingsAction = false)
     }
 }

@@ -3,6 +3,7 @@ package com.zc.bakamitai.app.navigation
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.serialization.NavKeySerializer
 import com.zc.bakamitai.common.data.network.appJson
+import com.zc.bakamitai.feature.details.presentation.navigation.DetailsNavKey
 import com.zc.bakamitai.feature.home.presentation.navigation.HomeNavKey
 import com.zc.bakamitai.feature.schedule.presentation.navigation.ScheduleNavKey
 import com.zc.bakamitai.feature.shows.presentation.navigation.AllShowsNavKey
@@ -14,7 +15,12 @@ import kotlin.test.assertTrue
 class NavKeySerializationTest {
 
     /** One sample of every key in the app. Add each new key here. */
-    private val keys: List<NavKey> = listOf(HomeNavKey, ScheduleNavKey, AllShowsNavKey)
+    private val keys: List<NavKey> = listOf(
+        HomeNavKey,
+        ScheduleNavKey,
+        AllShowsNavKey,
+        DetailsNavKey("sora-wa-akai-kawa-no-hotori"),
+    )
 
     @Test
     fun `every key round-trips through NavKeySerializer`() {

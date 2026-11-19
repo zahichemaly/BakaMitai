@@ -13,12 +13,12 @@ import org.koin.compose.viewmodel.koinViewModel
 /**
  * All Shows' navigation destination.
  *
- * @param onOpenDetails opens a show by slug; `null` while the Details screen doesn't exist (rows can't be opened).
+ * @param onOpenDetails opens a show's Details by slug.
  * @param onOpenSettings opens Settings; `null` while Settings doesn't exist (the action is hidden).
  */
 @Composable
 fun AllShowsRoute(
-    onOpenDetails: ((slug: String) -> Unit)?,
+    onOpenDetails: (slug: String) -> Unit,
     onOpenSettings: (() -> Unit)?,
     modifier: Modifier = Modifier,
     viewModel: AllShowsViewModel = koinViewModel(),
@@ -29,7 +29,7 @@ fun AllShowsRoute(
 
     ObserveAsEvents(viewModel.effect) { effect ->
         when (effect) {
-            is AllShowsEffect.OpenDetails -> onOpenDetails?.invoke(effect.slug)
+            is AllShowsEffect.OpenDetails -> onOpenDetails(effect.slug)
             AllShowsEffect.OpenSettings -> onOpenSettings?.invoke()
             is AllShowsEffect.ShowError -> snackbarHostState.showSnackbar(effect.error.message.asString(context))
         }
@@ -39,7 +39,6 @@ fun AllShowsRoute(
         state = state,
         onIntent = viewModel::onIntent,
         modifier = modifier,
-        canOpenShow = onOpenDetails != null,
         showSettingsAction = onOpenSettings != null,
         snackbarHostState = snackbarHostState,
     )

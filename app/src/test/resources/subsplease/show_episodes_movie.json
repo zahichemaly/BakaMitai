@@ -1,0 +1,31 @@
+{
+  "batch": [],
+  "episode": {
+    "Bakuten!! Movie - Movie": {
+      "time": "06/23/23",
+      "release_date": "Fri, 23 Jun 2023 20:34:17 -0400",
+      "show": "Bakuten!! Movie",
+      "episode": "Movie",
+      "downloads": [
+        {
+          "res": "480",
+          "torrent": "https://nyaa.si/view/1686039/torrent",
+          "magnet": "magnet:?xt=urn:btih:SYEA6KUFEWA5E66PAJY25A6NSIMBO6WB",
+          "xdcc": "%22%5BSubsPlease%5D+Bakuten%21%21+Movie+%28480p%29%22"
+        },
+        {
+          "res": "720",
+          "torrent": "https://nyaa.si/view/1686040/torrent",
+          "magnet": "magnet:?xt=urn:btih:MLFXKRIHUWBXCTMZMTNPI2NSY3Y4DLE4",
+          "xdcc": "%22%5BSubsPlease%5D+Bakuten%21%21+Movie+%28720p%29%22"
+        },
+        {
+          "res": "1080",
+          "torrent": "https://nyaa.si/view/1686041/torrent",
+          "magnet": "magnet:?xt=urn:btih:DISA626DWB7SWQCH7ZCQ6DV6ZG2WFGT3",
+          "xdcc": "%22%5BSubsPlease%5D+Bakuten%21%21+Movie+%281080p%29%22"
+        }
+      ]
+    }
+  }
+}
